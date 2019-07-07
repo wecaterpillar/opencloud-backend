@@ -1,25 +1,18 @@
 package com.opencloud.base.client.model.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.opencloud.common.annotation.TableAlias;
 import com.opencloud.common.mybatis.base.entity.AbstractEntity;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
-
-import java.io.Serializable;
-import java.util.Date;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 /**
  * 系统用户-基础信息
  *
  * @author liuyadu
  */
-@Data
 @TableAlias("user")
 @TableName("base_user")
 public class BaseUser extends AbstractEntity {
@@ -36,7 +29,7 @@ public class BaseUser extends AbstractEntity {
     private String userName;
 
     /**
-     * 用户类型:platform-平台 isp-服务提供商 dev-自研开发者
+     * 用户类型:super-超级管理员 normal-普通管理员
      */
     private String userType;
 
@@ -71,28 +64,89 @@ public class BaseUser extends AbstractEntity {
     private String userDesc;
 
     /**
-     * 创建时间
+     * 密码
      */
-    private Date createTime;
+    @JsonIgnore
+    @TableField(exist = false)
+    private String password;
 
-    /**
-     * 更新时间
-     */
-    private Date updateTime;
+    public Long getUserId() {
+        return userId;
+    }
 
-    /**
-     * 注册IP
-     */
-    private String registerIp;
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
-    /**
-     * 注册时间
-     */
-    private Date registerTime;
+    public String getUserName() {
+        return userName;
+    }
 
-    /**
-     * 状态:0-禁用 1-启用 2-锁定
-     */
-    private Integer status;
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
+    }
+
+    public Long getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(Long companyId) {
+        this.companyId = companyId;
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
+    }
+
+    public String getUserDesc() {
+        return userDesc;
+    }
+
+    public void setUserDesc(String userDesc) {
+        this.userDesc = userDesc;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }

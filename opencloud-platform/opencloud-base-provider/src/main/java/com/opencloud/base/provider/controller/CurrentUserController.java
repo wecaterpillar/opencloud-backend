@@ -1,9 +1,9 @@
 package com.opencloud.base.provider.controller;
 
 import com.opencloud.base.client.model.AuthorityMenu;
-import com.opencloud.base.client.model.UserInfo;
+import com.opencloud.base.client.model.entity.BaseUser;
+import com.opencloud.base.provider.service.BaseAccountService;
 import com.opencloud.base.provider.service.BaseAuthorityService;
-import com.opencloud.base.provider.service.BaseUserAccountService;
 import com.opencloud.base.provider.service.BaseUserService;
 import com.opencloud.common.constants.CommonConstants;
 import com.opencloud.common.model.ResultBody;
@@ -30,7 +30,7 @@ public class CurrentUserController {
     @Autowired
     private BaseUserService baseUserService;
     @Autowired
-    private BaseUserAccountService baseUserAccountService;
+    private BaseAccountService baseUserAccountService;
     @Autowired
     private BaseAuthorityService baseAuthorityService;
 
@@ -41,10 +41,8 @@ public class CurrentUserController {
      */
     @ApiOperation(value = "修改当前登录用户密码", notes = "修改当前登录用户密码")
     @GetMapping("/current/user/rest/password")
-    public ResultBody restPassword(@RequestParam(value = "oldPassword") String oldPassword,
-                                   @RequestParam(value = "newPassword") String newPassword
-    ) {
-        baseUserAccountService.resetPassword(OpenHelper.getUser().getUserId(), oldPassword, newPassword);
+    public ResultBody restPassword(@RequestParam(value = "password") String password) {
+        baseUserService.updatePassword(OpenHelper.getUser().getUserId(), password);
         return ResultBody.ok();
     }
 
@@ -63,12 +61,12 @@ public class CurrentUserController {
             @RequestParam(value = "userDesc", required = false) String userDesc,
             @RequestParam(value = "avatar", required = false) String avatar
     ) {
-        UserInfo user = new UserInfo();
+        BaseUser user = new BaseUser();
         user.setUserId(OpenHelper.getUser().getUserId());
         user.setNickName(nickName);
         user.setUserDesc(userDesc);
         user.setAvatar(avatar);
-        baseUserService.updateUser(user);
+        baseUserService.updateUser(user,null);
         return ResultBody.ok();
     }
 

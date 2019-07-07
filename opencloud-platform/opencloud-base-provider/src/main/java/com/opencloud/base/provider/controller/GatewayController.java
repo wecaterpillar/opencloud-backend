@@ -1,9 +1,9 @@
 package com.opencloud.base.provider.controller;
 
-import com.opencloud.base.client.api.GatewayRemoteApi;
 import com.opencloud.base.client.model.IpLimitApi;
 import com.opencloud.base.client.model.RateLimitApi;
 import com.opencloud.base.client.model.entity.GatewayRoute;
+import com.opencloud.base.client.service.IGatewayServiceClient;
 import com.opencloud.base.provider.service.GatewayIpLimitService;
 import com.opencloud.base.provider.service.GatewayRateLimitService;
 import com.opencloud.base.provider.service.GatewayRouteService;
@@ -24,7 +24,7 @@ import java.util.List;
  */
 @Api(tags = "网关对外接口")
 @RestController
-public class GatewayController implements GatewayRemoteApi {
+public class GatewayController implements IGatewayServiceClient {
 
     @Autowired
     private GatewayIpLimitService gatewayIpLimitService;

@@ -36,6 +36,7 @@ public class PreCheckFilter implements WebFilter {
         ServerHttpResponse response = exchange.getResponse();
         String requestPath = request.getURI().getPath();
         String remoteIpAddress = ReactiveWebUtils.getRemoteAddress(exchange);
+        String origin = request.getHeaders().getOrigin();
         AuthorityResource resource = apiAccessManager.getResource(requestPath);
         if (resource != null) {
             if ("0".equals(resource.getIsOpen().toString())) {
@@ -51,21 +52,21 @@ public class PreCheckFilter implements WebFilter {
             }
         }
         // 1.ip黑名单检测
-        boolean deny = apiAccessManager.matchIpBlacklist(requestPath, remoteIpAddress);
+        boolean deny = apiAccessManager.matchIpOrOriginBlacklist(requestPath, remoteIpAddress,origin);
         if (deny) {
             // 拒绝
-            return accessDeniedHandler.handle(exchange, new AccessDeniedException(ResultEnum.ACCESS_DENIED_BLACK_IP_LIMITED.getMessage()));
+            return accessDeniedHandler.handle(exchange, new AccessDeniedException(ResultEnum.ACCESS_DENIED_BLACK_LIMITED.getMessage()));
         }
 
         // 3.ip白名单检测
-        boolean[] matchIpWhiteListResult = apiAccessManager.matchIpWhiteList(requestPath, remoteIpAddress);
+        boolean[] matchIpWhiteListResult = apiAccessManager.matchIpOrOriginWhiteList(requestPath, remoteIpAddress,origin);
         boolean hasWhiteList = matchIpWhiteListResult[0];
         boolean allow = matchIpWhiteListResult[1];
         if (hasWhiteList) {
             // 接口存在白名单限制
             if (!allow) {
                 // IP白名单检测通过,拒绝
-                return accessDeniedHandler.handle(exchange, new AccessDeniedException(ResultEnum.ACCESS_DENIED_WHITE_IP_LIMITED.getMessage()));
+                return accessDeniedHandler.handle(exchange, new AccessDeniedException(ResultEnum.ACCESS_DENIED_WHITE_LIMITED.getMessage()));
             }
         }
         return chain.filter(exchange);

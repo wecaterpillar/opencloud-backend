@@ -10,8 +10,8 @@ import com.opencloud.api.gateway.exception.JsonExceptionHandler;
 import com.opencloud.api.gateway.locator.ApiResourceLocator;
 import com.opencloud.api.gateway.locator.JdbcRouteDefinitionLocator;
 import com.opencloud.api.gateway.service.AccessLogService;
-import com.opencloud.api.gateway.service.feign.BaseAuthorityRemoteService;
-import com.opencloud.api.gateway.service.feign.GatewayRemoteService;
+import com.opencloud.api.gateway.service.feign.BaseAuthorityServiceClient;
+import com.opencloud.api.gateway.service.feign.GatewayServiceClient;
 import com.opencloud.common.configuration.OpenCommonProperties;
 import com.opencloud.common.utils.SpringContextHolder;
 import lombok.extern.slf4j.Slf4j;
@@ -149,8 +149,8 @@ public class ApiConfiguration {
      */
     @Bean
     @Lazy
-    public ApiResourceLocator apiResourceLocator(RouteDefinitionLocator routeDefinitionLocator, BaseAuthorityRemoteService baseAuthorityRemoteService, GatewayRemoteService gatewayRemoteService) {
-        return new ApiResourceLocator(routeDefinitionLocator, baseAuthorityRemoteService, gatewayRemoteService);
+    public ApiResourceLocator apiResourceLocator(RouteDefinitionLocator routeDefinitionLocator, BaseAuthorityServiceClient baseAuthorityServiceClient, GatewayServiceClient gatewayServiceClient) {
+        return new ApiResourceLocator(routeDefinitionLocator, baseAuthorityServiceClient, gatewayServiceClient);
     }
 
     /**

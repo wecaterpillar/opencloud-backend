@@ -18,49 +18,38 @@ public class BaseConstants {
     public final static String DEFAULT_API_CATEGORY = "default";
 
     /**
-     * 默认注册密码
-     */
-    public final static String DEF_PWD = "123456";
-    /**
      * 状态:0-无效 1-有效
      */
     public final static int ENABLED = 1;
     public final static int DISABLED = 0;
 
+
+
     /**
-     * 系统用户状态
+     * 系统用户类型:超级管理员-super 普通管理员-admin
+     */
+    public final static String USER_TYPE_SUPER = "super";
+    public final static String USER_TYPE_ADMIN = "admin";
+
+    /**
+     * 账号状态
      * 0:禁用、1:正常、2:锁定
      */
-    public final static int USER_STATE_DISABLE = 0;
-    public final static int USER_STATE_NORMAL = 1;
-    public final static int USER_STATE_LOCKED = 2;
+    public final static int ACCOUNT_STATUS_DISABLE = 0;
+    public final static int ACCOUNT_STATUS_NORMAL = 1;
+    public final static int ACCOUNT_STATUS_LOCKED = 2;
 
     /**
-     * 系统用户类型:platform-平台、isp-服务提供商、dev-自研开发者
-     */
-    public final static String USER_TYPE_PLATFORM = "platform";
-    public final static String USER_TYPE_ISP = "isp";
-    public final static String USER_TYPE_DEVELOPER = "dev";
-
-    /**
-     * 系统用户账号类型:
+     * 账号类型:
      * username:系统用户名、email：邮箱、mobile：手机号、qq：QQ号、weixin：微信号、weibo：微博
      */
-    public final static String USER_ACCOUNT_TYPE_USERNAME = "username";
-    public final static String USER_ACCOUNT_TYPE_EMAIL = "email";
-    public final static String USER_ACCOUNT_TYPE_MOBILE = "mobile";
+    public final static String ACCOUNT_TYPE_USERNAME = "username";
+    public final static String ACCOUNT_TYPE_EMAIL = "email";
+    public final static String ACCOUNT_TYPE_MOBILE = "mobile";
 
     /**
-     * 应用类型
+     * 账号域
      */
-    public final static String APP_TYPE_SERVER = "server";
-    public final static String APP_TYPE_APP = "app";
-    public final static String APP_TYPE_PC = "pc";
-    public final static String APP_TYPE_WAP = "wap";
-
-    /**
-     * 操作系统
-     */
-    public final static String APP_IOS = "ios";
-    public final static String APP_ANDROID = "android";
+    public static final String ACCOUNT_DOMAIN_ADMIN = "@admin.com";
+    public static final String ACCOUNT_DOMAIN_DEVELOPER= "@developer.com";
 }

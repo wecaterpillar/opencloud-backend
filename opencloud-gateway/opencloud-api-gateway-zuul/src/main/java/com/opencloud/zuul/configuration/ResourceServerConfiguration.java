@@ -8,7 +8,7 @@ import com.opencloud.zuul.filter.PreCheckFilter;
 import com.opencloud.zuul.filter.PreRequestFilter;
 import com.opencloud.zuul.filter.PreSignatureFilter;
 import com.opencloud.zuul.service.AccessLogService;
-import com.opencloud.zuul.service.feign.BaseAppRemoteService;
+import com.opencloud.zuul.service.feign.BaseAppServiceClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -37,7 +37,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
     @Autowired
     private ApiProperties apiProperties;
     @Autowired
-    private BaseAppRemoteService baseAppRemoteService;
+    private BaseAppServiceClient baseAppServiceClient;
     @Autowired
     private RedisConnectionFactory redisConnectionFactory;
     @Autowired
@@ -79,7 +79,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
         // 日志前置过滤器
         http.addFilterBefore(new PreRequestFilter(), AbstractPreAuthenticatedProcessingFilter.class);
         // 签名验证过滤器
-        http.addFilterAfter(new PreSignatureFilter(baseAppRemoteService, apiProperties), AbstractPreAuthenticatedProcessingFilter.class);
+        http.addFilterAfter(new PreSignatureFilter(baseAppServiceClient, apiProperties), AbstractPreAuthenticatedProcessingFilter.class);
         // 访问验证前置过滤器
         http.addFilterAfter(new PreCheckFilter(accessAuthorizationManager, new JsonAccessDeniedHandler(accessLogService)), AbstractPreAuthenticatedProcessingFilter.class);
     }

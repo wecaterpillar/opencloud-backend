@@ -56,7 +56,7 @@ CREATE TABLE `gateway_ip_limit` (
                                   `update_time` datetime NOT NULL COMMENT '最近一次修改时间',
                                   `ip_address` varchar(255) NOT NULL COMMENT 'ip地址/IP段:多个用隔开;最多10个',
                                   PRIMARY KEY (`policy_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='开放网关-IP访问控制-策略';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='开放网关-IP/域名控制-策略';
 
 -- ----------------------------
 -- Records of gateway_ip_limit
@@ -71,7 +71,7 @@ CREATE TABLE `gateway_ip_limit_api` (
                                       `api_id` bigint(20) NOT NULL COMMENT '接口资源ID',
                                       KEY `policy_id` (`policy_id`) USING BTREE,
                                       KEY `api_id` (`api_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='开放网关-IP访问控制-API接口';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='开放网关-IP/域名控制-API接口';
 
 -- ----------------------------
 -- Records of gateway_ip_limit_api

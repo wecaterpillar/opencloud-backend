@@ -381,6 +381,45 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
 
     /**
+     * 检测域名
+     * @param domain
+     * @return
+     */
+    public static boolean matchDomain(String domain) {
+        if (domain == null) {
+            return false;
+        }
+        String regex = "^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$";
+        return Pattern.matches(regex, domain);
+    }
+
+    /**
+     * 检测IP
+     * @param ip
+     * @return
+     */
+    public static boolean matchIp(String ip) {
+        if (ip == null) {
+            return false;
+        }
+        String regex = "^(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])$";
+        return Pattern.matches(regex, ip);
+    }
+
+    /**
+     * 检测HttpUrl
+     * @param url
+     * @return
+     */
+    public static boolean matchHttpUrl(String url) {
+        if (url == null) {
+            return false;
+        }
+        String regex = "^(?=^.{3,255}$)(http(s)?:\\/\\/)?(www\\.)?[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+(:\\d+)*(\\/\\w+\\.\\w+)*([\\?&]\\w+=\\w*)*$";
+        return Pattern.matches(regex, url);
+    }
+
+    /**
      * 校验银行卡卡号
      * 校验过程：
      * 1、从卡号最后一位数字开始，逆向将奇数位(1、3、5等等)相加。
@@ -535,9 +574,11 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     }
 
     public static void main(String[] args) {
-        if (StringUtils.matchEmail("515608851@qq.com")) {
-            System.out.println("22");
-        }
+        System.out.println(StringUtils.matchDomain("515608851@qq.com"));
+        System.out.println(StringUtils.matchDomain("www.qq.com"));
+        System.out.println(StringUtils.matchDomain("qq.com"));
+        System.out.println(StringUtils.matchIp("qq.com"));
+        System.out.println(StringUtils.matchIp("192.168.0.1"));
 //        System.out.println("test");
 //        System.out.println(checkPassword("f0a2adfdf56241bf839d714f7f74f4d1"));
      /*   String value = null;

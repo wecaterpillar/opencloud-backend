@@ -87,7 +87,7 @@ public class SwaggerAutoConfiguration {
                 .required(false);
         pars.add(builder.build());
         builder.name("timestamp").description("公共参数:请求的时间,格式:yyyyMMddHHmmss")
-                .defaultValue(DateUtils.getTimestampStr())
+                .defaultValue(DateUtils.getCurrentTimestampStr())
                 .modelRef(new ModelRef("string")).parameterType("form")
                 .required(false);
         pars.add(builder.build());

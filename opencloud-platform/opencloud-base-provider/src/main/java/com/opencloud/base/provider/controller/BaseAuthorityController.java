@@ -1,6 +1,6 @@
 package com.opencloud.base.provider.controller;
 
-import com.opencloud.base.client.api.BaseAuthorityRemoteApi;
+import com.opencloud.base.client.service.IBaseAuthorityServiceClient;
 import com.opencloud.base.client.model.AuthorityResource;
 import com.opencloud.base.client.model.AuthorityApi;
 import com.opencloud.base.client.model.AuthorityMenu;
@@ -34,7 +34,7 @@ import java.util.List;
  */
 @Api(tags = "系统权限管理")
 @RestController
-public class BaseAuthorityController implements BaseAuthorityRemoteApi {
+public class BaseAuthorityController implements IBaseAuthorityServiceClient {
 
     @Autowired
     private BaseAuthorityService baseAuthorityService;

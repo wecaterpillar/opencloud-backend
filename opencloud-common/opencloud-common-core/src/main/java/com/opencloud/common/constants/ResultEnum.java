@@ -31,8 +31,8 @@ public enum ResultEnum {
     SIGNATURE_DENIED(2013, "signature_denied"),
 
     ACCESS_DENIED(4030, "access_denied"),
-    ACCESS_DENIED_BLACK_IP_LIMITED(4031, "access_denied_black_ip_limited"),
-    ACCESS_DENIED_WHITE_IP_LIMITED(4032, "access_denied_white_ip_limited"),
+    ACCESS_DENIED_BLACK_LIMITED(4031, "access_denied_black_limited"),
+    ACCESS_DENIED_WHITE_LIMITED(4032, "access_denied_white_limited"),
     ACCESS_DENIED_AUTHORITY_EXPIRED(4033, "access_denied_authority_expired"),
     ACCESS_DENIED_UPDATING(4034, "access_denied_updating"),
     ACCESS_DENIED_DISABLED(4035, "access_denied_disabled"),
@@ -45,7 +45,7 @@ public enum ResultEnum {
     ACCOUNT_EXPIRED(3002, "account_expired"),
     CREDENTIALS_EXPIRED(3003, "credentials_expired"),
     ACCOUNT_LOCKED(3004, "account_locked"),
-    USERNAME_NOT_FOUND(3004, "username_not_found"),
+    USERNAME_NOT_FOUND(3005, "username_not_found"),
 
     /**
      * 请求错误

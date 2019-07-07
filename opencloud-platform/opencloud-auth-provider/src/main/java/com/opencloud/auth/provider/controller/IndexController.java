@@ -2,8 +2,8 @@ package com.opencloud.auth.provider.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.opencloud.auth.client.constants.AuthConstants;
-import com.opencloud.auth.provider.service.feign.BaseAppRemoteService;
-import com.opencloud.auth.provider.service.feign.BaseUserAccountRemoteService;
+import com.opencloud.auth.provider.service.feign.BaseAppServiceClient;
+import com.opencloud.auth.provider.service.feign.BaseUserServiceClient;
 import com.opencloud.auth.provider.service.impl.GiteeAuthServiceImpl;
 import com.opencloud.auth.provider.service.impl.QQAuthServiceImpl;
 import com.opencloud.auth.provider.service.impl.WechatAuthServiceImpl;
@@ -35,13 +35,13 @@ import java.util.Map;
 @Controller
 public class IndexController {
     @Autowired
-    private BaseAppRemoteService baseAppRemoteService;
+    private BaseAppServiceClient baseAppRemoteService;
     @Autowired
     private OpenRestTemplate openRestTemplate;
     @Autowired
     private OpenCommonProperties openCommonProperties;
     @Autowired
-    private BaseUserAccountRemoteService baseUserAccountRemoteService;
+    private BaseUserServiceClient baseUserServiceClient;
     @Autowired
     private QQAuthServiceImpl qqAuthService;
     @Autowired
@@ -117,13 +117,13 @@ public class IndexController {
      * @return
      */
     @GetMapping("/oauth/qq/callback")
-    public String oauthByQQ(@RequestParam(value = "code") String code, @RequestHeader HttpHeaders headers) {
+    public String qq(@RequestParam(value = "code") String code, @RequestHeader HttpHeaders headers) {
         String accessToken = qqAuthService.getAccessToken(code);
         String token = "";
         if (accessToken != null) {
             String openId = qqAuthService.getOpenId(token);
             if (openId != null) {
-                baseUserAccountRemoteService.registerThirdPartyAccount(openId, openId, AuthConstants.LOGIN_QQ,"");
+                baseUserServiceClient.addUserThirdParty(openId, openId, AuthConstants.LOGIN_QQ,"","");
                 token = getToken(openId, openId, AuthConstants.LOGIN_QQ, headers);
             }
         }
@@ -137,13 +137,13 @@ public class IndexController {
      * @return
      */
     @GetMapping("/oauth/wechat/callback")
-    public String oauthByWechat(@RequestParam(value = "code") String code, @RequestHeader HttpHeaders headers) {
+    public String wechat(@RequestParam(value = "code") String code, @RequestHeader HttpHeaders headers) {
         String accessToken = wechatAuthService.getAccessToken(code);
         String token = "";
         if (accessToken != null) {
             String openId = wechatAuthService.getOpenId(token);
             if (openId != null) {
-                baseUserAccountRemoteService.registerThirdPartyAccount(openId, openId, AuthConstants.LOGIN_WECHAT,"");
+                baseUserServiceClient.addUserThirdParty(openId, openId, AuthConstants.LOGIN_WECHAT,"","");
                 token = getToken(openId, openId, AuthConstants.LOGIN_WECHAT, headers);
             }
         }
@@ -158,15 +158,16 @@ public class IndexController {
      * @return
      */
     @GetMapping("/oauth/gitee/callback")
-    public String oauthByGitee(@RequestParam(value = "code") String code, @RequestHeader HttpHeaders headers) {
+    public String gitee(@RequestParam(value = "code") String code, @RequestHeader HttpHeaders headers) {
         String accessToken = giteeAuthService.getAccessToken(code);
         String token = "";
         if (accessToken != null) {
             JSONObject userInfo = giteeAuthService.getUserInfo(accessToken, null);
             String openId = userInfo.getString("id");
             String name = userInfo.getString("name");
+            String avatar = userInfo.getString("avatar_url");
             if (openId != null) {
-                baseUserAccountRemoteService.registerThirdPartyAccount(openId, openId, AuthConstants.LOGIN_GITEE,name);
+                baseUserServiceClient.addUserThirdParty(openId, openId, AuthConstants.LOGIN_GITEE,name,avatar);
                 token = getToken(openId, openId, AuthConstants.LOGIN_GITEE, headers);
             }
         }

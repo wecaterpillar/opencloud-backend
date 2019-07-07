@@ -21,6 +21,7 @@ import org.springframework.security.oauth2.provider.approval.ApprovalStore;
 import org.springframework.security.oauth2.provider.approval.JdbcApprovalStore;
 import org.springframework.security.oauth2.provider.code.AuthorizationCodeServices;
 import org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeServices;
+import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
@@ -104,19 +105,28 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
                 .allowedTokenEndpointRequestMethods(HttpMethod.GET, HttpMethod.POST)
                 .authenticationManager(authenticationManager)
                 .approvalStore(approvalStore())
-                .tokenStore(tokenStore())
-                .tokenEnhancer(tokenEnhancer())
-                .reuseRefreshTokens(false)
                 .userDetailsService(userDetailsService)
+                .tokenServices(createDefaultTokenServices())
                 .accessTokenConverter(OpenHelper.buildAccessTokenConverter())
                 .authorizationCodeServices(authorizationCodeServices());
-        endpoints.setClientDetailsService(customClientDetailsService);
         // 自定义确认授权页面
         endpoints.pathMapping("/oauth/confirm_access", "/oauth/confirm_access");
         // 自定义错误页
         endpoints.pathMapping("/oauth/error", "/oauth/error");
         // 自定义异常转换类
         endpoints.exceptionTranslator(new OpenOAuth2WebResponseExceptionTranslator());
+    }
+
+
+    private DefaultTokenServices createDefaultTokenServices() {
+        DefaultTokenServices tokenServices = new DefaultTokenServices();
+        tokenServices.setTokenStore(tokenStore());
+        tokenServices.setTokenEnhancer(tokenEnhancer());
+        tokenServices.setSupportRefreshToken(true);
+        tokenServices.setReuseRefreshToken(true);
+        tokenServices.setClientDetailsService(customClientDetailsService);
+        tokenServices.setTokenEnhancer(tokenEnhancer());
+        return tokenServices;
     }
 
     @Override

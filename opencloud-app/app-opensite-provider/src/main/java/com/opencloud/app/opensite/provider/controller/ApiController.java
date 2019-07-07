@@ -120,7 +120,7 @@ public class ApiController {
         Map appMap = Maps.newHashMap();
         appMap.put("clientId", resourceDetails.getClientId());
         appMap.put("nonce", RandomValueUtils.uuid().substring(0, 16));
-        appMap.put("timestamp", DateUtils.getTimestampStr());
+        appMap.put("timestamp", DateUtils.getCurrentTimestampStr());
         appMap.put("signType", "SHA256");
         params.putAll(appMap);
         String sign = SignatureUtils.getSign(params, resourceDetails.getClientSecret());

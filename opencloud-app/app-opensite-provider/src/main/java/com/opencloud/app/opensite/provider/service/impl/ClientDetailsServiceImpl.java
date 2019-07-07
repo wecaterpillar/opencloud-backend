@@ -1,6 +1,6 @@
 package com.opencloud.app.opensite.provider.service.impl;
 
-import com.opencloud.app.opensite.provider.service.feign.BaseAppRemoteService;
+import com.opencloud.app.opensite.provider.service.feign.BaseAppServiceClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.provider.ClientDetails;
@@ -20,11 +20,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class ClientDetailsServiceImpl implements ClientDetailsService {
 
     @Autowired
-    private BaseAppRemoteService baseAppRemoteService;
+    private BaseAppServiceClient baseAppServiceClient;
 
     @Override
     public ClientDetails loadClientByClientId(String clientId) throws ClientRegistrationException {
-        ClientDetails details = baseAppRemoteService.getAppClientInfo(clientId).getData();
+        ClientDetails details = baseAppServiceClient.getAppClientInfo(clientId).getData();
         if (details != null && details.getAdditionalInformation() != null) {
             String status = details.getAdditionalInformation().getOrDefault("status", "0").toString();
             if(!"1".equals(status)){

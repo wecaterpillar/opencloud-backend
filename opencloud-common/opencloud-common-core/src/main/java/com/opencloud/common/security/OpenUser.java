@@ -55,9 +55,9 @@ public class OpenUser implements UserDetails {
      */
     private String clientId;
     /**
-     * 认证中心ID,适用于区分多用户源,多认证中心
+     * 认证中心域,适用于区分多用户源,多认证中心域
      */
-    private String centerId;
+    private String domain;
 
     /**
      * 昵称
@@ -92,22 +92,9 @@ public class OpenUser implements UserDetails {
     public OpenUser() {
     }
 
-    public OpenUser(String centerId, Long userId, String username, String password, Collection<Authority> authorities, boolean accountNonLocked, boolean accountNonExpired, boolean enabled, boolean credentialsNonExpired, String nickName, String avatar) {
-        this.centerId = centerId;
-        this.userId = userId;
-        this.username = username;
-        this.password = password;
-        this.authorities = authorities;
-        this.accountNonLocked = accountNonLocked;
-        this.accountNonExpired = accountNonExpired;
-        this.enabled = enabled;
-        this.credentialsNonExpired = credentialsNonExpired;
-        this.avatar = avatar;
-        this.nickName = nickName;
-    }
 
-    public OpenUser(String centerId, Long accountId, Long userId, String username, String password, boolean accountNonLocked, boolean accountNonExpired, boolean enabled, boolean credentialsNonExpired, String nickName, String avatar, String accountType) {
-        this.centerId = centerId;
+    public OpenUser(String domain, Long accountId, Long userId, String username, String password, boolean accountNonLocked, boolean accountNonExpired, boolean enabled, boolean credentialsNonExpired, String nickName, String avatar, String accountType) {
+        this.domain = domain;
         this.userId = userId;
         this.username = username;
         this.password = password;
@@ -202,12 +189,12 @@ public class OpenUser implements UserDetails {
         this.clientId = clientId;
     }
 
-    public String getCenterId() {
-        return centerId;
+    public String getDomain() {
+        return domain;
     }
 
-    public void setCenterId(String centerId) {
-        this.centerId = centerId;
+    public void setDomain(String domain) {
+        this.domain = domain;
     }
 
     public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {

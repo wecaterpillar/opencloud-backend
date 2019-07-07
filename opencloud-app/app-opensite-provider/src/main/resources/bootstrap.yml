@@ -42,6 +42,35 @@ management:
             exposure:
                 include: '*'
 opencloud:
+    client:
+        oauth2:
+            gitee:
+                access-token-uri: https://gitee.com/oauth/token
+                client-id: 474cd13d5f1c56eda1478201013c81eac3da9d744342c4ae8fcac270225899cd
+                client-secret: 227394056f275c3c816b57abd1add3f1d29cd2c571f589e9db33daa2a3bd7680
+                login-success-uri: ${opencloud.common.admin-server-addr}/login/success
+                redirect-uri: ${opencloud.common.api-server-addr}/auth/oauth/gitee/callback
+                scope: user_info
+                user-authorization-uri: https://gitee.com/oauth/authorize
+                user-info-uri: https://gitee.com/api/v5/user
+            qq:
+                access-token-uri: https://graph.qq.com/oauth2.0/token
+                client-id: 111111111
+                client-secret: 1.1111111111111112E32
+                login-success-uri: ${opencloud.common.admin-server-addr}/login/success
+                redirect-uri: ${opencloud.common.api-server-addr}/auth/oauth/qq/callback
+                scope: get_user_info
+                user-authorization-uri: https://graph.qq.com/oauth2.0/authorize
+                user-info-uri: https://graph.qq.com/user/get_user_info
+            wechat:
+                access-token-uri: https://api.weixin.qq.com/sns/oauth2/access_token
+                client-id: 111111111
+                client-secret: 1.1111111111111112E32
+                login-success-uri: ${opencloud.common.admin-server-addr}/login/success
+                redirect-uri: ${opencloud.common.api-server-addr}/auth/oauth/wechat/callback
+                scope: snsapi_login
+                user-authorization-uri: https://open.weixin.qq.com/connect/qrconnect
+                user-info-uri: https://api.weixin.qq.com/sns/userinfo
     swagger2:
         description: 平台门户网站服务
         enabled: true
@@ -58,3 +87,9 @@ security:
         resource:
             token-info-uri: ${opencloud.common.token-info-uri}
             user-info-uri: ${opencloud.common.user-info-uri}
+
+#mybatis plus 设置
+mybatis-plus:
+ #实体扫描，多个package用逗号或者分号分隔
+  typeAliasesPackage: com.opencloud.**.entity
+  mapper-locations: classpath:mapper/*.xml

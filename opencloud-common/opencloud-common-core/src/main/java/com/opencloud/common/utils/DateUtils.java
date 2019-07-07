@@ -55,14 +55,14 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     /**
      * 得到当前日期字符串 格式（yyyy-MM-dd）
      */
-    public static String formatDate() {
-        return formatDate("yyyy-MM-dd");
+    public static String formatCurrentDate() {
+        return formatCurrentDate("yyyy-MM-dd");
     }
 
     /**
      * 得到当前日期字符串 格式（yyyy-MM-dd） pattern可以为："yyyy-MM-dd" "HH:mm:ss" "E"
      */
-    public static String formatDate(String pattern) {
+    public static String formatCurrentDate(String pattern) {
         return DateFormatUtils.format(new Date(), pattern);
     }
 
@@ -85,8 +85,8 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      *
      * @return nowTimeStamp
      */
-    public static long getTimestamp() {
-        long nowTimeStamp = Long.parseLong(getTimestampStr());
+    public static long getCurrentTimestamp() {
+        long nowTimeStamp = Long.parseLong(getCurrentTimestampStr());
         return nowTimeStamp;
     }
 
@@ -95,7 +95,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      *
      * @return
      */
-    public static String getTimestampStr() {
+    public static String getCurrentTimestampStr() {
         return formatDate(new Date(), "yyyyMMddHHmmss");
     }
 
@@ -104,7 +104,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      *
      * @return
      */
-    public static long getUnixTimestamp() {
+    public static long getCurrentUnixTimestamp() {
         long nowTimeStamp = System.currentTimeMillis() / 1000;
         return nowTimeStamp;
     }
@@ -114,8 +114,8 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      *
      * @return
      */
-    public static String getUnixTimestampStr() {
-        return String.valueOf(getUnixTimestamp());
+    public static String getCurrentUnixTimestampStr() {
+        return String.valueOf(getCurrentUnixTimestamp());
     }
 
     /**
@@ -128,51 +128,101 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
     /**
-     * 获取上周
+     * 获取前一周
      *
      * @param date
-     * @param pattern
      * @return
      */
-    public static String getLastWeek(Date date, String pattern) {
-        Calendar cl = Calendar.getInstance();
-        cl.setTime(date);
-        //一周
-        cl.add(Calendar.WEEK_OF_YEAR, -1);
-        Date dateFrom = cl.getTime();
-        return formatDate(dateFrom, pattern);
+    public static Date getBeforeWeek(Date date) {
+        return getAddDate(date, Calendar.WEEK_OF_YEAR, -1);
     }
 
     /**
-     * 获取昨天
+     * 获取前一天
      *
      * @param date
-     * @param pattern
      * @return
      */
-    public static String getLastDay(Date date, String pattern) {
-        Calendar cl = Calendar.getInstance();
-        cl.setTime(date);
-        //一天
-        cl.add(Calendar.DAY_OF_YEAR, -1);
-        Date dateFrom = cl.getTime();
-        return formatDate(dateFrom, pattern);
+    public static Date getBeforeDay(Date date) {
+        return getAddDate(date, Calendar.DAY_OF_YEAR, -1);
     }
 
     /**
-     * 获取上个月
+     * 获取前一月
      *
      * @param date
-     * @param pattern
      * @return
      */
-    public static String getLastMouth(Date date, String pattern) {
+    public static Date getBeforeMouth(Date date) {
+        return getAddDate(date, Calendar.MONTH, -1);
+    }
+
+    /**
+     * 获取前一年
+     *
+     * @param date
+     * @return
+     */
+    public static Date getBeforeYear(Date date) {
+        return getAddDate(date, Calendar.YEAR, -1);
+    }
+
+
+    /**
+     * 获取前一周
+     *
+     * @param date
+     * @return
+     */
+    public static Date getAfterWeek(Date date) {
+        return getAddDate(date, Calendar.WEEK_OF_YEAR, 1);
+    }
+
+    /**
+     * 获取前一天
+     *
+     * @param date
+     * @return
+     */
+    public static Date getAfterDay(Date date) {
+        return getAddDate(date, Calendar.DAY_OF_YEAR, 1);
+    }
+
+    /**
+     * 获取前一月
+     *
+     * @param date
+     * @return
+     */
+    public static Date getAfterMouth(Date date) {
+        return getAddDate(date, Calendar.MONTH, 1);
+    }
+
+    /**
+     * 获取前一年
+     *
+     * @param date
+     * @return
+     */
+    public static Date getAfterYear(Date date) {
+        return getAddDate(date, Calendar.YEAR, 1);
+    }
+
+
+    /**
+     * 增加日期
+     *
+     * @param date
+     * @param field  Calendar.MONTH,Calendar.DAY_OF_YEAR
+     * @param amount 正数为将来时间, 负数为过去时间
+     * @return
+     */
+    public static Date getAddDate(Date date, int field, int amount) {
         Calendar cl = Calendar.getInstance();
         cl.setTime(date);
-        //一个月
-        cl.add(Calendar.MONTH, -1);
+        cl.add(field, amount);
         Date dateFrom = cl.getTime();
-        return formatDate(dateFrom, pattern);
+        return dateFrom;
     }
 
     /**
@@ -185,42 +235,42 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     /**
      * 得到当前时间字符串 格式（HH:mm:ss）
      */
-    public static String getTime() {
+    public static String formatTime() {
         return formatDate(new Date(), "HH:mm:ss");
     }
 
     /**
      * 得到当前日期和时间字符串 格式（yyyy-MM-dd HH:mm:ss）
      */
-    public static String getDateTime() {
+    public static String formatCurrentDateTime() {
         return formatDate(new Date(), "yyyy-MM-dd HH:mm:ss");
     }
 
     /**
      * 得到当前年份字符串 格式（yyyy）
      */
-    public static String getYear() {
+    public static String formatYear() {
         return formatDate(new Date(), "yyyy");
     }
 
     /**
      * 得到当前月份字符串 格式（MM）
      */
-    public static String getMonth() {
+    public static String formatMonth() {
         return formatDate(new Date(), "MM");
     }
 
     /**
      * 得到当天字符串 格式（dd）
      */
-    public static String getDay() {
+    public static String formatDay() {
         return formatDate(new Date(), "dd");
     }
 
     /**
      * 得到当前星期字符串 格式（E）星期几
      */
-    public static String getWeek() {
+    public static String formatWeek() {
         return formatDate(new Date(), "E");
     }
 
@@ -230,7 +280,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      * @param date
      * @return
      */
-    public static long getAgoDays(Date date) {
+    public static long getBeforeDays(Date date) {
         long t = System.currentTimeMillis() - date.getTime();
         return t / (ONE_DAY * ONE_MILLIS);
     }
@@ -241,7 +291,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      * @param date
      * @return
      */
-    public static long getAgoHour(Date date) {
+    public static long getBeforeHours(Date date) {
         long t = System.currentTimeMillis() - date.getTime();
         return t / (ONE_HOUR * ONE_MILLIS);
     }
@@ -252,7 +302,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      * @param date
      * @return
      */
-    public static long getAgoMinutes(Date date) {
+    public static long getBeforeMinutes(Date date) {
         long t = System.currentTimeMillis() - date.getTime();
         return t / (ONE_MINUTE * ONE_MILLIS);
     }
@@ -263,7 +313,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      * @param date
      * @return
      */
-    public static long getAgoSecond(Date date) {
+    public static long getBeforeSeconds(Date date) {
         long t = System.currentTimeMillis() - date.getTime();
         return t / ONE_MILLIS;
     }
@@ -275,60 +325,12 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      * @param after
      * @return
      */
-    public static double getDistanceOfTwoDate(Date before, Date after) {
+    public static double getDays(Date before, Date after) {
         long beforeTime = before.getTime();
         long afterTime = after.getTime();
         return (afterTime - beforeTime) / (ONE_MILLIS * ONE_DAY);
     }
 
-    /**
-     * 距离今天多久
-     *
-     * @param date
-     * @return
-     */
-    public static String formatFromToday(Date date) {
-        if (date != null) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
-
-            long time = date.getTime() / ONE_MILLIS;
-            long now = System.currentTimeMillis() / ONE_MILLIS;
-            long ago = now - time;
-            if (ago <= ONE_HOUR) {
-                return ago / ONE_MINUTE + "分钟前";
-            } else if (ago <= ONE_DAY) {
-                return ago / ONE_HOUR + "小时" + (ago % ONE_HOUR / ONE_MINUTE)
-                        + "分钟前";
-            } else if (ago <= ONE_DAY * 2) {
-                return "昨天" + calendar.get(Calendar.HOUR_OF_DAY) + "点"
-                        + calendar.get(Calendar.MINUTE) + "分";
-            } else if (ago <= ONE_DAY * 3) {
-                return "前天" + calendar.get(Calendar.HOUR_OF_DAY) + "点"
-                        + calendar.get(Calendar.MINUTE) + "分";
-            } else if (ago <= ONE_MONTH) {
-                long day = ago / ONE_DAY;
-                return day + "天前" + calendar.get(Calendar.HOUR_OF_DAY) + "点"
-                        + calendar.get(Calendar.MINUTE) + "分";
-            } else if (ago <= ONE_YEAR) {
-                long month = ago / ONE_MONTH;
-                long day = ago % ONE_MONTH / ONE_DAY;
-                return month + "个月" + day + "天前"
-                        + calendar.get(Calendar.HOUR_OF_DAY) + "点"
-                        + calendar.get(Calendar.MINUTE) + "分";
-            } else {
-                long year = ago / ONE_YEAR;
-                // JANUARY which is 0 so month+1
-                int month = calendar.get(Calendar.MONTH) + 1;
-                return year + "年前" + month + "月" + calendar.get(Calendar.DATE)
-                        + "日";
-            }
-
-        } else {
-            return "";
-        }
-
-    }
 
     /**
      * 距离今天多久
@@ -336,7 +338,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      * @param createAt
      * @return
      */
-    public static String formatFromTodayCn(Date createAt) {
+    public static String formatTextFromtoday(Date createAt) {
         // 定义最终返回的结果字符串。
         String interval = null;
         if (createAt == null) {
@@ -352,9 +354,9 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         //*--------------微博体（标准）
         if (second == 0) {
             interval = "刚刚";
-        } else if (second < ONE_MINUTE/2) {
+        } else if (second < ONE_MINUTE / 2) {
             interval = second + "秒以前";
-        } else if (second >= ONE_MINUTE/2 && second < ONE_MINUTE) {
+        } else if (second >= ONE_MINUTE / 2 && second < ONE_MINUTE) {
             interval = "半分钟前";
         } else if (second >= ONE_MINUTE && second < ONE_MINUTE * ONE_MINUTE) {
             //大于1分钟 小于1小时
@@ -390,7 +392,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      * @param date
      * @return
      */
-    public static String formatFromDeadline(Date date) {
+    public static String formatTextFromDeadline(Date date) {
         long deadline = date.getTime() / ONE_MILLIS;
         long now = (System.currentTimeMillis()) / ONE_MILLIS;
         long remain = deadline - now;
@@ -410,34 +412,18 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
 
     /**
-     * 转换为时间（天,时:分:秒.毫秒）
-     *
-     * @param timeMillis
-     * @return
-     */
-    public static String formatDateTime(long timeMillis) {
-        long day = timeMillis / (ONE_DAY * ONE_MILLIS);
-        long hour = (timeMillis / (ONE_HOUR * ONE_MILLIS) - day * 24);
-        long min = ((timeMillis / (ONE_MINUTE * ONE_MILLIS)) - day * 24 * ONE_MINUTE - hour * ONE_MINUTE);
-        long s = (timeMillis / ONE_MILLIS - day * 24 * ONE_MINUTE * ONE_MINUTE - hour * ONE_MINUTE * ONE_MINUTE - min * ONE_MINUTE);
-        long sss = (timeMillis - day * 24 * ONE_MINUTE * ONE_MINUTE * ONE_MILLIS - hour * ONE_MINUTE * ONE_MINUTE * ONE_MILLIS - min * ONE_MINUTE * ONE_MILLIS - s * ONE_MILLIS);
-        return (day > 0 ? day + "," : "") + hour + ":" + min + ":" + s + "." + sss;
-    }
-
-
-    /**
      * Unix时间戳转换成指定格式日期字符串
      *
      * @param timestampString 时间戳 如："1473048265";
-     * @param formats         要格式化的格式 默认："yyyy-MM-dd HH:mm:ss";
+     * @param pattern         要格式化的格式 默认："yyyy-MM-dd HH:mm:ss";
      * @return 返回结果 如："2016-09-05 16:06:42";
      */
-    public static String unixTimeStamp2Date(String timestampString, String formats) {
-        if (StringUtils.isBlank(formats)) {
-            formats = "yyyy-MM-dd HH:mm:ss";
+    public static String unixTimeStamp2Date(String timestampString, String pattern) {
+        if (StringUtils.isBlank(pattern)) {
+            pattern = "yyyy-MM-dd HH:mm:ss";
         }
         Long timestamp = Long.parseLong(timestampString) * ONE_MINUTE;
-        String date = new SimpleDateFormat(formats, Locale.CHINA).format(new Date(timestamp));
+        String date = new SimpleDateFormat(pattern, Locale.CHINA).format(new Date(timestamp));
         return date;
     }
 
@@ -445,12 +431,12 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      * 日期格式字符串转换成Unix时间戳
      *
      * @param dateStr 字符串日期
-     * @param format  如：yyyy-MM-dd HH:mm:ss
+     * @param pattern 如：yyyy-MM-dd HH:mm:ss
      * @return
      */
-    public static String date2UnixTimeStamp(String dateStr, String format) {
+    public static String date2UnixTimeStamp(String dateStr, String pattern) {
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat(format);
+            SimpleDateFormat sdf = new SimpleDateFormat(pattern);
             return String.valueOf(sdf.parse(dateStr).getTime() / ONE_MINUTE);
         } catch (Exception e) {
             e.printStackTrace();
@@ -458,46 +444,13 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         return "";
     }
 
-    /**
-     * 毫秒转化时分秒毫秒 10000 - 10秒
-     *
-     * @param ms
-     * @return
-     */
-    public static String formatTime(Long ms) {
-        long ss = ONE_MINUTE;
-        long mi = ss * ONE_MINUTE;
-        long hh = mi * ONE_MINUTE;
-        long dd = hh * 24;
-
-        Long day = ms / dd;
-        Long hour = (ms - day * dd) / hh;
-        Long minute = (ms - day * dd - hour * hh) / mi;
-        Long second = (ms - day * dd - hour * hh - minute * mi) / ss;
-        StringBuffer sb = new StringBuffer();
-        if (day > 0) {
-            sb.append(day + "天");
-        }
-        if (hour > 0) {
-            sb.append(hour + "小时");
-        }
-        if (minute > 0) {
-            sb.append(minute + "分钟");
-        }
-        if (second > 0) {
-            sb.append(second + "秒");
-        }
-        return sb.toString();
-    }
 
     public static void main(String[] args) {
-        try {
-            System.out.println(getLastDay(new Date(), "yyyy-MM-dd"));
-            System.out.println(getLastWeek(new Date(), "yyyy-MM-dd"));
-            System.out.println(getLastMouth(new Date(), "yyyy-MM-dd"));
-            System.out.println(formatTime(10000L));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        System.out.println(formatDate(getBeforeDay(new Date()), "yyyy-MM-dd"));
+        System.out.println(formatDate(getBeforeWeek(new Date()), "yyyy-MM-dd"));
+        System.out.println(formatDate(getBeforeYear(new Date()), "yyyy-MM-dd"));
+        System.out.println(formatDate(getAfterDay(new Date()), "yyyy-MM-dd"));
+        System.out.println(formatDate(getAfterWeek(new Date()), "yyyy-MM-dd"));
+        System.out.println(formatDate(getAfterYear(new Date()), "yyyy-MM-dd"));
     }
 }

@@ -362,7 +362,7 @@ public class WebUtils {
     public static Map<String, String> getParameterMap(HttpServletRequest request) {
         String contentType = request.getHeader(org.springframework.http.HttpHeaders.CONTENT_TYPE);
         Map<String, String> returnMap = new HashMap();
-        if (MediaType.APPLICATION_JSON.equals(contentType) || MediaType.APPLICATION_JSON_UTF8.equals(contentType)) {
+        if (MediaType.APPLICATION_JSON_VALUE.equals(contentType) || MediaType.APPLICATION_JSON_UTF8_VALUE.equals(contentType)) {
             // json类型参数
             String body = getBodyString(request);
             if (StringUtils.isNotBlank(body)) {
@@ -372,7 +372,7 @@ public class WebUtils {
 
                 }
             }
-        } else {
+        } else if(MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(contentType)) {
             // 普通表单形式
             Map properties = request.getParameterMap();
             // 返回值Map

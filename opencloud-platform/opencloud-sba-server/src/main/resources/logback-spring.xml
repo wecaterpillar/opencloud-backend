@@ -4,8 +4,9 @@
     <property name="log.path" value="logs/${spring.application.name}"/>
     <!-- Console log output -->
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{MM-dd HH:mm:ss.SSS} %-5level [%logger{50}] - %msg%n</pattern>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{50}) - %highlight(%msg) %n</pattern>
         </encoder>
     </appender>
 
@@ -40,7 +41,7 @@
 
     <!--开发环境:打印控制台-->
     <springProfile name="dev">
-        <logger name="com.opencloud" level="debug"/>
+        <logger name="com.classify" level="debug"/>
         <logger name="java.sql.Connection" level="debug"/>
         <logger name="java.sql.Statement" level="debug"/>
         <logger name="java.sql.PreparedStatement" level="debug"/>
@@ -49,7 +50,7 @@
 
     <!--测试环境:打印控制台-->
     <springProfile name="test">
-        <logger name="com.opencloud" level="debug"/>
+        <logger name="com.classify" level="debug"/>
         <logger name="java.sql.Connection" level="debug"/>
         <logger name="java.sql.Statement" level="debug"/>
         <logger name="java.sql.PreparedStatement" level="debug"/>

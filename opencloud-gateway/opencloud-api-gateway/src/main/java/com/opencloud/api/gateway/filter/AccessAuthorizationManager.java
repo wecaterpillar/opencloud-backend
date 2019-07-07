@@ -2,7 +2,7 @@ package com.opencloud.api.gateway.filter;
 
 import com.opencloud.api.gateway.configuration.ApiProperties;
 import com.opencloud.api.gateway.locator.ApiResourceLocator;
-import com.opencloud.api.gateway.util.matcher.IpAddressMatcher;
+import com.opencloud.api.gateway.util.matcher.ReactiveIpAddressMatcher;
 import com.opencloud.base.client.model.AuthorityResource;
 import com.opencloud.base.client.model.IpLimitApi;
 import com.opencloud.common.constants.CommonConstants;
@@ -120,6 +120,7 @@ public class AccessAuthorizationManager implements ReactiveAuthorizationManager<
 
     /**
      * 获取资源状态
+     *
      * @param requestPath
      * @return
      */
@@ -233,13 +234,20 @@ public class AccessAuthorizationManager implements ReactiveAuthorizationManager<
         return SecurityConfig.createList("AUTHORITIES_REQUIRED");
     }
 
-
-    public boolean matchIpBlacklist(String requestPath, String remoteIpAddress) {
+    /**
+     * IP黑名单验证
+     *
+     * @param requestPath
+     * @param ipAddress
+     * @param origin
+     * @return
+     */
+    public boolean matchIpOrOriginBlacklist(String requestPath, String ipAddress, String origin) {
         List<IpLimitApi> blackList = accessLocator.getIpBlacks();
         if (blackList != null) {
             for (IpLimitApi api : blackList) {
                 if (pathMatch.match(api.getPath(), requestPath) && api.getIpAddressSet() != null && !api.getIpAddressSet().isEmpty()) {
-                    if (matchIp(api.getIpAddressSet(), remoteIpAddress)) {
+                    if (matchIpOrOrigin(api.getIpAddressSet(), ipAddress, origin)) {
                         return true;
                     }
                 }
@@ -249,7 +257,15 @@ public class AccessAuthorizationManager implements ReactiveAuthorizationManager<
 
     }
 
-    public boolean[] matchIpWhiteList(String requestPath, String remoteIpAddress) {
+    /**
+     * 白名单验证
+     *
+     * @param requestPath
+     * @param ipAddress
+     * @param origin
+     * @return [hasWhiteList, allow]
+     */
+    public boolean[] matchIpOrOriginWhiteList(String requestPath, String ipAddress, String origin) {
         boolean hasWhiteList = false;
         boolean allow = false;
         List<IpLimitApi> whiteList = accessLocator.getIpWhites();
@@ -257,7 +273,7 @@ public class AccessAuthorizationManager implements ReactiveAuthorizationManager<
             for (IpLimitApi api : whiteList) {
                 if (pathMatch.match(api.getPath(), requestPath) && api.getIpAddressSet() != null && !api.getIpAddressSet().isEmpty()) {
                     hasWhiteList = true;
-                    allow = matchIp(api.getIpAddressSet(), remoteIpAddress);
+                    allow = matchIpOrOrigin(api.getIpAddressSet(), ipAddress, origin);
                     break;
                 }
             }
@@ -265,15 +281,26 @@ public class AccessAuthorizationManager implements ReactiveAuthorizationManager<
         return new boolean[]{hasWhiteList, allow};
     }
 
-    public boolean matchIp(Set<String> ips, String remoteIpAddress) {
-        IpAddressMatcher ipAddressMatcher = null;
-        for (String ip : ips) {
-            try {
-                ipAddressMatcher = new IpAddressMatcher(ip);
-                if (ipAddressMatcher.matches(remoteIpAddress)) {
+    /**
+     * 匹配IP或域名
+     *
+     * @param values
+     * @param ipAddress
+     * @param origin
+     * @return
+     */
+    public boolean matchIpOrOrigin(Set<String> values, String ipAddress, String origin) {
+        ReactiveIpAddressMatcher ipAddressMatcher = null;
+        for (String value : values) {
+            if (StringUtils.matchIp(value)) {
+                ipAddressMatcher = new ReactiveIpAddressMatcher(value);
+                if (ipAddressMatcher.matches(ipAddress)) {
                     return true;
                 }
-            } catch (Exception e) {
+            } else {
+                if (StringUtils.matchDomain(value) && origin.contains(value)) {
+                    return true;
+                }
             }
         }
         return false;

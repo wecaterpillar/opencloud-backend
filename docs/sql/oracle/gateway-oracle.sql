@@ -94,7 +94,7 @@ create table gateway_ip_limit
 );
 -- Add comments to the table
 comment on table gateway_ip_limit
-  is '开放网关-IP访问控制-策略';
+  is '开放网关-IP/域名控制-策略';
 comment on column gateway_ip_limit.policy_id
   is '策略ID';
 comment on column gateway_ip_limit.policy_name
@@ -128,7 +128,7 @@ create table gateway_ip_limit_api
 ;
 -- Add comments to the table
 comment on table gateway_ip_limit_api
-  is '开放网关-IP访问控制-API接口';
+  is '开放网关-IP/域名控制-API接口';
 -- Add comments to the columns
 comment on column gateway_ip_limit_api.policy_id
   is '策略ID';

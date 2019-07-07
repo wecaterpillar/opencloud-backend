@@ -20,20 +20,20 @@ SET FOREIGN_KEY_CHECKS=0;
 -- ----------------------------
 DROP TABLE IF EXISTS `base_action`;
 CREATE TABLE `base_action` (
-                             `action_id` bigint(20) NOT NULL COMMENT '资源ID',
-                             `action_code` varchar(100) COLLATE utf8_bin NOT NULL COMMENT '资源编码',
-                             `action_name` varchar(100) COLLATE utf8_bin NOT NULL COMMENT '资源名称',
-                             `action_desc` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '资源描述',
-                             `menu_id` bigint(20) DEFAULT NULL COMMENT '资源父节点',
-                             `priority` int(10) NOT NULL DEFAULT '0' COMMENT '优先级 越小越靠前',
-                             `status` tinyint(3) NOT NULL DEFAULT '1' COMMENT '状态:0-无效 1-有效',
-                             `create_time` datetime NOT NULL,
-                             `update_time` datetime DEFAULT NULL,
-                             `is_persist` tinyint(3) NOT NULL DEFAULT '0' COMMENT '保留数据0-否 1-是 不允许删除',
-                             `service_id` varchar(100) COLLATE utf8_bin NOT NULL COMMENT '服务名称',
-                             PRIMARY KEY (`action_id`),
-                             UNIQUE KEY `action_code` (`action_code`) USING BTREE,
-                             UNIQUE KEY `action_id` (`action_id`) USING BTREE
+  `action_id` bigint(20) NOT NULL COMMENT '资源ID',
+  `action_code` varchar(100) COLLATE utf8_bin NOT NULL COMMENT '资源编码',
+  `action_name` varchar(100) COLLATE utf8_bin NOT NULL COMMENT '资源名称',
+  `action_desc` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '资源描述',
+  `menu_id` bigint(20) DEFAULT NULL COMMENT '资源父节点',
+  `priority` int(10) NOT NULL DEFAULT '0' COMMENT '优先级 越小越靠前',
+  `status` tinyint(3) NOT NULL DEFAULT '1' COMMENT '状态:0-无效 1-有效',
+  `create_time` datetime NOT NULL,
+  `update_time` datetime DEFAULT NULL,
+  `is_persist` tinyint(3) NOT NULL DEFAULT '0' COMMENT '保留数据0-否 1-是 不允许删除',
+  `service_id` varchar(100) COLLATE utf8_bin NOT NULL COMMENT '服务名称',
+  PRIMARY KEY (`action_id`),
+  UNIQUE KEY `action_code` (`action_code`) USING BTREE,
+  UNIQUE KEY `action_id` (`action_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT COMMENT='系统资源-功能操作';
 
 -- ----------------------------
@@ -204,22 +204,22 @@ INSERT INTO `base_api` VALUES ('1133326693677826050', '71d7020720054dd3b32573133
 -- ----------------------------
 DROP TABLE IF EXISTS `base_app`;
 CREATE TABLE `base_app` (
-                          `app_id` varchar(50) NOT NULL COMMENT '客户端ID',
-                          `app_secret` varchar(255) NOT NULL COMMENT '客户端秘钥',
-                          `app_name` varchar(255) NOT NULL COMMENT 'app名称',
-                          `app_name_en` varchar(255) NOT NULL COMMENT 'app英文名称',
-                          `app_icon` varchar(255) NOT NULL COMMENT '应用图标',
-                          `app_type` varchar(50) NOT NULL COMMENT 'app类型:server-服务应用 app-手机应用 pc-PC网页应用 wap-手机网页应用',
-                          `app_desc` varchar(255) DEFAULT NULL COMMENT 'app描述',
-                          `app_os` varchar(25) DEFAULT NULL COMMENT '移动应用操作系统:ios-苹果 android-安卓',
-                          `website` varchar(255) NOT NULL COMMENT '官网地址',
-                          `user_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '用户ID:默认为0',
-                          `user_type` varchar(20) NOT NULL DEFAULT 'platform' COMMENT '用户类型:platform-平台 isp-服务提供商 dev-自研开发者',
-                          `create_time` datetime NOT NULL COMMENT '创建时间',
-                          `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-                          `status` tinyint(3) NOT NULL DEFAULT '1' COMMENT '状态:0-无效 1-有效',
-                          `is_persist` tinyint(3) NOT NULL DEFAULT '0' COMMENT '保留数据0-否 1-是 不允许删除',
-                          PRIMARY KEY (`app_id`)
+  `app_id` varchar(50) NOT NULL COMMENT '客户端ID',
+  `app_secret` varchar(255) NOT NULL COMMENT '客户端秘钥',
+  `app_name` varchar(255) NOT NULL COMMENT 'app名称',
+  `app_name_en` varchar(255) NOT NULL COMMENT 'app英文名称',
+  `app_icon` varchar(255) NOT NULL COMMENT '应用图标',
+  `app_type` varchar(50) NOT NULL COMMENT 'app类型:server-服务应用 app-手机应用 pc-PC网页应用 wap-手机网页应用',
+  `app_desc` varchar(255) DEFAULT NULL COMMENT 'app描述',
+  `app_os` varchar(25) DEFAULT NULL COMMENT '移动应用操作系统:ios-苹果 android-安卓',
+  `website` varchar(255) NOT NULL COMMENT '官网地址',
+  `user_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '用户ID:默认为0',
+  `user_type` varchar(20) NOT NULL DEFAULT 'platform' COMMENT '用户类型:platform-平台 isp-服务提供商 dev-自研开发者',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `status` tinyint(3) NOT NULL DEFAULT '1' COMMENT '状态:0-无效 1-有效',
+  `is_persist` tinyint(3) NOT NULL DEFAULT '0' COMMENT '保留数据0-否 1-是 不允许删除',
+  PRIMARY KEY (`app_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='系统应用-基础信息';
 
 -- ----------------------------
@@ -234,16 +234,16 @@ INSERT INTO `base_app` VALUES ('1558768969811', '4578361d3efb4f949c617dad1fadc1c
 -- ----------------------------
 DROP TABLE IF EXISTS `base_authority`;
 CREATE TABLE `base_authority` (
-                                `authority_id` bigint(20) NOT NULL,
-                                `authority` varchar(255) NOT NULL COMMENT '权限标识',
-                                `menu_id` bigint(20) DEFAULT NULL COMMENT '菜单资源ID',
-                                `api_id` bigint(20) DEFAULT NULL COMMENT 'API资源ID',
-                                `action_id` bigint(20) DEFAULT NULL,
-                                `status` tinyint(3) NOT NULL DEFAULT '1' COMMENT '状态',
-                                PRIMARY KEY (`authority_id`),
-                                KEY `menu_id` (`menu_id`),
-                                KEY `api_id` (`api_id`),
-                                KEY `action_id` (`action_id`)
+  `authority_id` bigint(20) NOT NULL,
+  `authority` varchar(255) NOT NULL COMMENT '权限标识',
+  `menu_id` bigint(20) DEFAULT NULL COMMENT '菜单资源ID',
+  `api_id` bigint(20) DEFAULT NULL COMMENT 'API资源ID',
+  `action_id` bigint(20) DEFAULT NULL,
+  `status` tinyint(3) NOT NULL DEFAULT '1' COMMENT '状态',
+  PRIMARY KEY (`authority_id`),
+  KEY `menu_id` (`menu_id`),
+  KEY `api_id` (`api_id`),
+  KEY `action_id` (`action_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='系统权限-菜单权限、操作权限、API权限';
 
 -- ----------------------------
@@ -401,10 +401,10 @@ INSERT INTO `base_authority` VALUES ('1132203894659649538', 'API_3e748de8b6a3aac
 -- ----------------------------
 DROP TABLE IF EXISTS `base_authority_action`;
 CREATE TABLE `base_authority_action` (
-                                       `action_id` bigint(20) NOT NULL COMMENT '操作ID',
-                                       `authority_id` bigint(20) NOT NULL COMMENT 'API',
-                                       KEY `action_id` (`action_id`) USING BTREE,
-                                       KEY `authority_id` (`authority_id`) USING BTREE
+  `action_id` bigint(20) NOT NULL COMMENT '操作ID',
+  `authority_id` bigint(20) NOT NULL COMMENT 'API',
+  KEY `action_id` (`action_id`) USING BTREE,
+  KEY `authority_id` (`authority_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='系统权限-功能操作关联表';
 
 -- ----------------------------
@@ -496,11 +496,11 @@ INSERT INTO `base_authority_action` VALUES ('1131863723722551297', '113181366340
 -- ----------------------------
 DROP TABLE IF EXISTS `base_authority_app`;
 CREATE TABLE `base_authority_app` (
-                                    `authority_id` bigint(50) NOT NULL COMMENT '权限ID',
-                                    `app_id` varchar(100) NOT NULL COMMENT '应用ID',
-                                    `expire_time` datetime DEFAULT NULL COMMENT '过期时间:null表示长期',
-                                    KEY `authority_id` (`authority_id`) USING BTREE,
-                                    KEY `app_id` (`app_id`) USING BTREE
+  `authority_id` bigint(50) NOT NULL COMMENT '权限ID',
+  `app_id` varchar(100) NOT NULL COMMENT '应用ID',
+  `expire_time` datetime DEFAULT NULL COMMENT '过期时间:null表示长期',
+  KEY `authority_id` (`authority_id`) USING BTREE,
+  KEY `app_id` (`app_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='系统权限-应用关联';
 
 -- ----------------------------
@@ -515,11 +515,11 @@ INSERT INTO `base_authority_app` VALUES ('1558768969811', '1558768969811', null)
 -- ----------------------------
 DROP TABLE IF EXISTS `base_authority_role`;
 CREATE TABLE `base_authority_role` (
-                                     `authority_id` bigint(20) NOT NULL COMMENT '权限ID',
-                                     `role_id` bigint(20) NOT NULL COMMENT '角色ID',
-                                     `expire_time` datetime DEFAULT NULL COMMENT '过期时间:null表示长期',
-                                     KEY `authority_id` (`authority_id`) USING BTREE,
-                                     KEY `role_id` (`role_id`) USING BTREE
+  `authority_id` bigint(20) NOT NULL COMMENT '权限ID',
+  `role_id` bigint(20) NOT NULL COMMENT '角色ID',
+  `expire_time` datetime DEFAULT NULL COMMENT '过期时间:null表示长期',
+  KEY `authority_id` (`authority_id`) USING BTREE,
+  KEY `role_id` (`role_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='系统权限-角色关联';
 
 -- ----------------------------
@@ -583,11 +583,11 @@ INSERT INTO `base_authority_role` VALUES ('1131864400590942210', '2', null);
 -- ----------------------------
 DROP TABLE IF EXISTS `base_authority_user`;
 CREATE TABLE `base_authority_user` (
-                                     `authority_id` bigint(20) NOT NULL COMMENT '权限ID',
-                                     `user_id` bigint(20) NOT NULL COMMENT '用户ID',
-                                     `expire_time` datetime DEFAULT NULL COMMENT '过期时间',
-                                     KEY `authority_id` (`authority_id`) USING BTREE,
-                                     KEY `user_id` (`user_id`) USING BTREE
+  `authority_id` bigint(20) NOT NULL COMMENT '权限ID',
+  `user_id` bigint(20) NOT NULL COMMENT '用户ID',
+  `expire_time` datetime DEFAULT NULL COMMENT '过期时间',
+  KEY `authority_id` (`authority_id`) USING BTREE,
+  KEY `user_id` (`user_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='系统权限-用户关联';
 
 -- ----------------------------
@@ -599,31 +599,31 @@ CREATE TABLE `base_authority_user` (
 -- ----------------------------
 DROP TABLE IF EXISTS `base_menu`;
 CREATE TABLE `base_menu` (
-                           `menu_id` bigint(20) NOT NULL COMMENT '菜单Id',
-                           `parent_id` bigint(20) DEFAULT NULL COMMENT '父级菜单',
-                           `menu_code` varchar(100) COLLATE utf8_bin NOT NULL COMMENT '菜单编码',
-                           `menu_name` varchar(100) COLLATE utf8_bin NOT NULL COMMENT '菜单名称',
-                           `menu_desc` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '描述',
-                           `scheme` varchar(20) COLLATE utf8_bin NOT NULL COMMENT '路径前缀',
-                           `path` varchar(255) COLLATE utf8_bin DEFAULT NULL COMMENT '请求路径',
-                           `icon` varchar(255) COLLATE utf8_bin DEFAULT '' COMMENT '菜单标题',
-                           `target` varchar(20) COLLATE utf8_bin NOT NULL DEFAULT '_self' COMMENT '打开方式:_self窗口内,_blank新窗口',
-                           `priority` bigint(20) NOT NULL DEFAULT '0' COMMENT '优先级 越小越靠前',
-                           `status` tinyint(3) NOT NULL DEFAULT '1' COMMENT '状态:0-无效 1-有效',
-                           `create_time` datetime NOT NULL COMMENT '创建时间',
-                           `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-                           `is_persist` tinyint(3) NOT NULL DEFAULT '0' COMMENT '保留数据0-否 1-是 不允许删除',
-                           `service_id` varchar(100) COLLATE utf8_bin NOT NULL COMMENT '服务名',
-                           PRIMARY KEY (`menu_id`),
-                           UNIQUE KEY `menu_code` (`menu_code`),
-                           KEY `service_id` (`service_id`)
+  `menu_id` bigint(20) NOT NULL COMMENT '菜单Id',
+  `parent_id` bigint(20) DEFAULT NULL COMMENT '父级菜单',
+  `menu_code` varchar(100) COLLATE utf8_bin NOT NULL COMMENT '菜单编码',
+  `menu_name` varchar(100) COLLATE utf8_bin NOT NULL COMMENT '菜单名称',
+  `menu_desc` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '描述',
+  `scheme` varchar(20) COLLATE utf8_bin NOT NULL COMMENT '路径前缀',
+  `path` varchar(255) COLLATE utf8_bin DEFAULT NULL COMMENT '请求路径',
+  `icon` varchar(255) COLLATE utf8_bin DEFAULT '' COMMENT '菜单标题',
+  `target` varchar(20) COLLATE utf8_bin NOT NULL DEFAULT '_self' COMMENT '打开方式:_self窗口内,_blank新窗口',
+  `priority` bigint(20) NOT NULL DEFAULT '0' COMMENT '优先级 越小越靠前',
+  `status` tinyint(3) NOT NULL DEFAULT '1' COMMENT '状态:0-无效 1-有效',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `is_persist` tinyint(3) NOT NULL DEFAULT '0' COMMENT '保留数据0-否 1-是 不允许删除',
+  `service_id` varchar(100) COLLATE utf8_bin NOT NULL COMMENT '服务名',
+  PRIMARY KEY (`menu_id`),
+  UNIQUE KEY `menu_code` (`menu_code`),
+  KEY `service_id` (`service_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT COMMENT='系统资源-菜单信息';
 
 -- ----------------------------
 -- Records of base_menu
 -- ----------------------------
 INSERT INTO `base_menu` VALUES ('1', '0', 'system', '系统管理', '系统管理', '/', '', 'md-folder', '_self', '1', '1', '2018-07-29 21:20:10', '2019-05-25 01:49:23', '1', 'opencloud-base-provider');
-INSERT INTO `base_menu` VALUES ('2', '13', 'gatewayIpLimit', 'IP访问控制', 'iP访问控制,白名单、黑名单', '/', 'gateway/ip-limit/index', 'md-document', '_self', '1', '1', '2018-07-29 21:20:13', '2019-03-13 21:48:21', '1', 'opencloud-base-provider');
+INSERT INTO `base_menu` VALUES ('2', '13', 'gatewayIpLimit', 'IP/域名控制', 'IP、域名来源访问控制,白名单、黑名单', '/', 'gateway/ip-limit/index', 'md-document', '_self', '1', '1', '2018-07-29 21:20:13', '2019-03-13 21:48:21', '1', 'opencloud-base-provider');
 INSERT INTO `base_menu` VALUES ('3', '1', 'systemMenu', '菜单资源', '菜单资源', '/', 'system/menus/index', 'md-list', '_self', '3', '1', '2018-07-29 21:20:13', '2019-05-25 02:24:36', '1', 'opencloud-base-provider');
 INSERT INTO `base_menu` VALUES ('5', '13', 'gatewayRoute', '智能路由', '动态路由', '/', 'gateway/route/index', 'md-document', '_self', '5', '1', '2018-07-29 21:20:13', '2019-02-25 00:15:23', '1', 'opencloud-base-provider');
 INSERT INTO `base_menu` VALUES ('6', '13', 'systemApi', 'API列表', 'API接口资源', '/', 'system/api/index', 'md-document', '_self', '0', '1', '2018-07-29 21:20:13', '2019-03-13 21:48:12', '1', 'opencloud-base-provider');
@@ -645,16 +645,16 @@ INSERT INTO `base_menu` VALUES ('19', '15', 'schedulerLogs', '调度日志', '�
 -- ----------------------------
 DROP TABLE IF EXISTS `base_role`;
 CREATE TABLE `base_role` (
-                           `role_id` bigint(20) NOT NULL COMMENT '角色ID',
-                           `role_code` varchar(100) COLLATE utf8_bin NOT NULL COMMENT '角色编码',
-                           `role_name` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '角色名称',
-                           `status` tinyint(3) NOT NULL DEFAULT '1' COMMENT '状态:0-无效 1-有效',
-                           `role_desc` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '角色描述',
-                           `create_time` datetime NOT NULL,
-                           `update_time` datetime DEFAULT NULL,
-                           `is_persist` tinyint(3) NOT NULL DEFAULT '0' COMMENT '保留数据0-否 1-是 不允许删除',
-                           PRIMARY KEY (`role_id`),
-                           UNIQUE KEY `role_code` (`role_code`) USING BTREE
+  `role_id` bigint(20) NOT NULL COMMENT '角色ID',
+  `role_code` varchar(100) COLLATE utf8_bin NOT NULL COMMENT '角色编码',
+  `role_name` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '角色名称',
+  `status` tinyint(3) NOT NULL DEFAULT '1' COMMENT '状态:0-无效 1-有效',
+  `role_desc` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '角色描述',
+  `create_time` datetime NOT NULL,
+  `update_time` datetime DEFAULT NULL,
+  `is_persist` tinyint(3) NOT NULL DEFAULT '0' COMMENT '保留数据0-否 1-是 不允许删除',
+  PRIMARY KEY (`role_id`),
+  UNIQUE KEY `role_code` (`role_code`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT COMMENT='系统角色-基础信息';
 
 -- ----------------------------
@@ -669,10 +669,10 @@ INSERT INTO `base_role` VALUES ('3', 'support', '客服', '1', '客服', '2018-0
 -- ----------------------------
 DROP TABLE IF EXISTS `base_role_user`;
 CREATE TABLE `base_role_user` (
-                                `user_id` bigint(20) NOT NULL COMMENT '用户ID',
-                                `role_id` bigint(20) NOT NULL COMMENT '角色ID',
-                                KEY `fk_user` (`user_id`) USING BTREE,
-                                KEY `fk_role` (`role_id`) USING BTREE
+  `user_id` bigint(20) NOT NULL COMMENT '用户ID',
+  `role_id` bigint(20) NOT NULL COMMENT '角色ID',
+  KEY `fk_user` (`user_id`) USING BTREE,
+  KEY `fk_role` (`role_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT COMMENT='系统角色-用户关联';
 
 -- ----------------------------
@@ -686,12 +686,12 @@ INSERT INTO `base_role_user` VALUES ('557063237640650752', '2');
 -- ----------------------------
 DROP TABLE IF EXISTS `base_tentant`;
 CREATE TABLE `base_tentant` (
-                              `tentant_id` bigint(20) NOT NULL COMMENT '租户ID',
-                              `tentant_name` varchar(100) NOT NULL COMMENT '租户名称',
-                              `tentant_desc` varchar(255) NOT NULL COMMENT '租户描述',
-                              `create_time` datetime NOT NULL COMMENT '创建时间',
-                              `update_time` datetime NOT NULL COMMENT '更新时间',
-                              PRIMARY KEY (`tentant_id`)
+  `tentant_id` bigint(20) NOT NULL COMMENT '租户ID',
+  `tentant_name` varchar(100) NOT NULL COMMENT '租户名称',
+  `tentant_desc` varchar(255) NOT NULL COMMENT '租户描述',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`tentant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='租户信息表';
 
 -- ----------------------------
@@ -703,12 +703,12 @@ CREATE TABLE `base_tentant` (
 -- ----------------------------
 DROP TABLE IF EXISTS `base_tentant_modules`;
 CREATE TABLE `base_tentant_modules` (
-                                      `module_id` bigint(20) NOT NULL COMMENT '模块ID',
-                                      `tentant_id` bigint(20) NOT NULL COMMENT '租户ID',
-                                      `service_id` varchar(100) NOT NULL COMMENT '服务名称',
-                                      `module_desc` varchar(255) NOT NULL COMMENT '模块描述',
-                                      `is_persist` tinyint(3) NOT NULL DEFAULT '0' COMMENT '保留数据0-否 1-是 不允许删除',
-                                      PRIMARY KEY (`module_id`)
+  `module_id` bigint(20) NOT NULL COMMENT '模块ID',
+  `tentant_id` bigint(20) NOT NULL COMMENT '租户ID',
+  `service_id` varchar(100) NOT NULL COMMENT '服务名称',
+  `module_desc` varchar(255) NOT NULL COMMENT '模块描述',
+  `is_persist` tinyint(3) NOT NULL DEFAULT '0' COMMENT '保留数据0-否 1-是 不允许删除',
+  PRIMARY KEY (`module_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='租户模块';
 
 -- ----------------------------
@@ -720,23 +720,23 @@ CREATE TABLE `base_tentant_modules` (
 -- ----------------------------
 DROP TABLE IF EXISTS `base_user`;
 CREATE TABLE `base_user` (
-                           `user_id` bigint(20) NOT NULL COMMENT '用户ID',
-                           `user_name` varchar(255) DEFAULT NULL COMMENT '登陆账号',
-                           `nick_name` varchar(50) DEFAULT NULL COMMENT '昵称',
-                           `avatar` varchar(255) DEFAULT '' COMMENT '头像',
-                           `email` varchar(100) DEFAULT NULL COMMENT '邮箱',
-                           `mobile` varchar(50) DEFAULT NULL COMMENT '手机号',
-                           `user_type` varchar(20) DEFAULT 'platform' COMMENT '用户类型:platform-平台 isp-服务提供商 dev-自研开发者',
-                           `company_id` bigint(20) DEFAULT NULL COMMENT '企业ID',
-                           `register_ip` varchar(100) DEFAULT NULL COMMENT '注册IP',
-                           `register_time` datetime DEFAULT NULL COMMENT '注册时间',
-                           `status` int(11) NOT NULL DEFAULT '1' COMMENT '状态:0-禁用 1-启用 2-锁定',
-                           `user_desc` varchar(255) DEFAULT '' COMMENT '描述',
-                           `create_time` datetime NOT NULL COMMENT '创建时间',
-                           `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-                           PRIMARY KEY (`user_id`),
-                           UNIQUE KEY `user_name` (`user_name`) USING BTREE,
-                           KEY `user_id` (`user_id`) USING BTREE
+  `user_id` bigint(20) NOT NULL COMMENT '用户ID',
+  `user_name` varchar(255) DEFAULT NULL COMMENT '登陆账号',
+  `nick_name` varchar(50) DEFAULT NULL COMMENT '昵称',
+  `avatar` varchar(255) DEFAULT '' COMMENT '头像',
+  `email` varchar(100) DEFAULT NULL COMMENT '邮箱',
+  `mobile` varchar(50) DEFAULT NULL COMMENT '手机号',
+  `user_type` varchar(20) DEFAULT 'platform' COMMENT '用户类型:platform-平台 isp-服务提供商 dev-自研开发者',
+  `company_id` bigint(20) DEFAULT NULL COMMENT '企业ID',
+  `register_ip` varchar(100) DEFAULT NULL COMMENT '注册IP',
+  `register_time` datetime DEFAULT NULL COMMENT '注册时间',
+  `status` int(11) NOT NULL DEFAULT '1' COMMENT '状态:0-禁用 1-启用 2-锁定',
+  `user_desc` varchar(255) DEFAULT '' COMMENT '描述',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`user_id`),
+  UNIQUE KEY `user_name` (`user_name`) USING BTREE,
+  KEY `user_id` (`user_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='系统用户-基础信息';
 
 -- ----------------------------
@@ -750,15 +750,15 @@ INSERT INTO `base_user` VALUES ('557063237640650752', 'test', '测试用户', ''
 -- ----------------------------
 DROP TABLE IF EXISTS `base_user_account`;
 CREATE TABLE `base_user_account` (
-                                   `account_id` bigint(20) NOT NULL,
-                                   `user_id` bigint(20) DEFAULT NULL COMMENT '用户Id',
-                                   `account` varchar(255) DEFAULT NULL COMMENT '标识：手机号、邮箱、 用户名、或第三方应用的唯一标识',
-                                   `password` varchar(255) DEFAULT NULL COMMENT '密码凭证：站内的保存密码、站外的不保存或保存token）',
-                                   `account_type` varchar(255) DEFAULT NULL COMMENT '登录类型:password-密码、mobile-手机号、email-邮箱、weixin-微信、weibo-微博、qq-等等',
-                                   `nick_name` varchar(255) DEFAULT NULL,
-                                   `avatar` varchar(255) DEFAULT NULL,
-                                   PRIMARY KEY (`account_id`),
-                                   KEY `user_id` (`user_id`) USING BTREE
+  `account_id` bigint(20) NOT NULL,
+  `user_id` bigint(20) DEFAULT NULL COMMENT '用户Id',
+  `account` varchar(255) DEFAULT NULL COMMENT '标识：手机号、邮箱、 用户名、或第三方应用的唯一标识',
+  `password` varchar(255) DEFAULT NULL COMMENT '密码凭证：站内的保存密码、站外的不保存或保存token）',
+  `account_type` varchar(255) DEFAULT NULL COMMENT '登录类型:password-密码、mobile-手机号、email-邮箱、weixin-微信、weibo-微博、qq-等等',
+  `nick_name` varchar(255) DEFAULT NULL,
+  `avatar` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`account_id`),
+  KEY `user_id` (`user_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='系统用户-登录账号';
 
 -- ----------------------------
@@ -772,17 +772,17 @@ INSERT INTO `base_user_account` VALUES ('557063237787451392', '55706323764065075
 -- ----------------------------
 DROP TABLE IF EXISTS `base_user_account_logs`;
 CREATE TABLE `base_user_account_logs` (
-                                        `id` bigint(20) NOT NULL,
-                                        `login_time` datetime NOT NULL,
-                                        `login_ip` varchar(255) NOT NULL COMMENT '登录Ip',
-                                        `login_agent` varchar(500) NOT NULL COMMENT '登录设备',
-                                        `login_nums` int(11) NOT NULL COMMENT '登录次数',
-                                        `user_id` bigint(20) NOT NULL,
-                                        `account` varchar(100) NOT NULL,
-                                        `account_type` varchar(50) NOT NULL,
-                                        `account_id` bigint(20) NOT NULL COMMENT '账号ID',
-                                        PRIMARY KEY (`id`),
-                                        KEY `account_id` (`account_id`) USING BTREE
+  `id` bigint(20) NOT NULL,
+  `login_time` datetime NOT NULL,
+  `login_ip` varchar(255) NOT NULL COMMENT '登录Ip',
+  `login_agent` varchar(500) NOT NULL COMMENT '登录设备',
+  `login_nums` int(11) NOT NULL COMMENT '登录次数',
+  `user_id` bigint(20) NOT NULL,
+  `account` varchar(100) NOT NULL,
+  `account_type` varchar(50) NOT NULL,
+  `account_id` bigint(20) NOT NULL COMMENT '账号ID',
+  PRIMARY KEY (`id`),
+  KEY `account_id` (`account_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='系统用户-登录日志';
 
 -- ----------------------------

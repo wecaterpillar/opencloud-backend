@@ -2,7 +2,6 @@ package com.opencloud.base.provider.service.impl;
 
 import com.opencloud.base.provider.service.BaseUserService;
 import com.opencloud.common.test.BaseTest;
-import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -13,10 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class BaseUserServiceImplTest extends BaseTest {
     @Autowired
     private BaseUserService baseUserService;
-    @Test
-    public void loginInit() throws Exception {
-        baseUserService.loginInit();
-        Thread.sleep(100000000);
-    }
+
 
 }

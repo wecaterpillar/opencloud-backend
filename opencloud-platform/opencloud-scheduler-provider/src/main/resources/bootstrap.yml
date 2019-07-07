@@ -56,3 +56,8 @@ opencloud:
         enabled: true
         title: 任务调度服务
 
+#mybatis plus 设置
+mybatis-plus:
+ #实体扫描，多个package用逗号或者分号分隔
+  typeAliasesPackage: com.opencloud.**.entity
+  mapper-locations: classpath:mapper/*.xml

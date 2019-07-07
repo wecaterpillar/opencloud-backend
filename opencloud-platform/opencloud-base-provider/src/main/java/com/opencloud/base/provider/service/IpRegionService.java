@@ -62,7 +62,8 @@ public class IpRegionService {
             }
             long startTime = System.currentTimeMillis();
             //查询算法
-            int algorithm = DbSearcher.MEMORY_ALGORITYM; //B-tree
+            int algorithm = DbSearcher.MEMORY_ALGORITYM;
+            //B-tree
             //DbSearcher.BINARY_ALGORITHM //Binary
             //DbSearcher.MEMORY_ALGORITYM //Memory
             //define the method
@@ -81,7 +82,7 @@ public class IpRegionService {
 
             DataBlock dataBlock = null;
             if (Util.isIpAddress(ip) == false) {
-                log.error("Error: Invalid ip address");
+                log.warn("warning: Invalid ip address");
             }
             dataBlock = (DataBlock) method.invoke(searcher, ip);
             String result = dataBlock.getRegion();
@@ -90,7 +91,7 @@ public class IpRegionService {
             return result;
 
         } catch (Exception e) {
-            log.error("Error:{}", e);
+            log.error("error:{}", e);
         }
         return null;
     }

@@ -65,18 +65,17 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
                 .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
                 // fegin访问或无需身份认证
                 .antMatchers(
-                        "/account/localLogin",
-                        "/account/appLogin",
-                        "/account/register/thirdParty",
-                        "/account/logs/add",
                         "/authority/access",
                         "/authority/app",
-                        "/account/reset/password",
                         "/app/*/info",
                         "/app/client/*/info",
+                        "/gateway/api/**",
+                        "/user/add/thirdParty",
                         "/user/info",
-                        "/user/appInfo",
-                        "/gateway/api/**"
+                        "/user/login",
+                        "/developer/add/thirdParty",
+                        "/developer/info",
+                        "/developer/login"
                 ).permitAll()
                 .anyRequest().authenticated()
                 .and()

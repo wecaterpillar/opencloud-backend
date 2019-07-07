@@ -10,7 +10,7 @@ import com.opencloud.common.model.ResultBody;
 import com.opencloud.common.utils.SignatureUtils;
 import com.opencloud.common.utils.WebUtils;
 import com.opencloud.zuul.configuration.ApiProperties;
-import com.opencloud.zuul.service.feign.BaseAppRemoteService;
+import com.opencloud.zuul.service.feign.BaseAppServiceClient;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class PreSignatureFilter extends OncePerRequestFilter {
     private SignatureDeniedHandler signatureDeniedHandler;
-    private BaseAppRemoteService baseAppRemoteService;
+    private BaseAppServiceClient baseAppServiceClient;
     private ApiProperties apiGatewayProperties;
     /**
      * 忽略签名
@@ -42,8 +42,8 @@ public class PreSignatureFilter extends OncePerRequestFilter {
             "/**/logout/**"
     );
 
-    public PreSignatureFilter(BaseAppRemoteService systemAppClient, ApiProperties apiGatewayProperties) {
-        this.baseAppRemoteService = systemAppClient;
+    public PreSignatureFilter(BaseAppServiceClient baseAppServiceClient, ApiProperties apiGatewayProperties) {
+        this.baseAppServiceClient = baseAppServiceClient;
         this.apiGatewayProperties = apiGatewayProperties;
         this.signatureDeniedHandler = new OpenSignatureDeniedHandler();
     }
@@ -56,10 +56,10 @@ public class PreSignatureFilter extends OncePerRequestFilter {
                 // 验证请求参数
                 SignatureUtils.validateParams(params);
                 //开始验证签名
-                if (baseAppRemoteService != null) {
+                if (baseAppServiceClient != null) {
                     String appId = params.get("clientId").toString();
                     // 获取客户端信息
-                    ResultBody<BaseApp> result = baseAppRemoteService.getApp(appId);
+                    ResultBody<BaseApp> result = baseAppServiceClient.getApp(appId);
                     BaseApp app = result.getData();
                     if (app == null) {
                         throw new OpenSignatureException("clientId无效");

@@ -9,8 +9,8 @@ import com.opencloud.zuul.filter.ZuulResponseFilter;
 import com.opencloud.zuul.locator.ApiResourceLocator;
 import com.opencloud.zuul.locator.JdbcRouteLocator;
 import com.opencloud.zuul.service.AccessLogService;
-import com.opencloud.zuul.service.feign.BaseAuthorityRemoteService;
-import com.opencloud.zuul.service.feign.GatewayRemoteService;
+import com.opencloud.zuul.service.feign.BaseAuthorityServiceClient;
+import com.opencloud.zuul.service.feign.GatewayServiceClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnEnabledEndpoint;
@@ -53,7 +53,7 @@ public class ApiConfiguration {
     @Autowired
     private RateLimitProperties rateLimitProperties;
     @Autowired
-    private BaseAuthorityRemoteService baseAuthorityRemoteService;
+    private BaseAuthorityServiceClient baseAuthorityServiceClient;
     @Autowired
     private AccessLogService accessLogService;
 
@@ -84,8 +84,8 @@ public class ApiConfiguration {
      * @return
      */
     @Bean
-    public ApiResourceLocator apiResourceLocator(GatewayRemoteService gatewayRemoteService) {
-        return new ApiResourceLocator(zuulRoutesLocator, rateLimitProperties, baseAuthorityRemoteService, gatewayRemoteService);
+    public ApiResourceLocator apiResourceLocator(GatewayServiceClient gatewayServiceClient) {
+        return new ApiResourceLocator(zuulRoutesLocator, rateLimitProperties, baseAuthorityServiceClient, gatewayServiceClient);
     }
 
     /**
@@ -132,6 +132,7 @@ public class ApiConfiguration {
         config.setAllowedMethods(Lists.newArrayList(ALLOWED_METHODS.split(",")));
         config.setMaxAge(MAX_AGE);
         config.addExposedHeader(ALLOWED_EXPOSE);
+
         source.registerCorsConfiguration("/**", config);
         FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
         //最大优先级,设置0不好使

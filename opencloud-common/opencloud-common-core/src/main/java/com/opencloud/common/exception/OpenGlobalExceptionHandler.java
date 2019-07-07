@@ -174,10 +174,10 @@ public class OpenGlobalExceptionHandler {
         } else if (className.contains("AccessDeniedException")) {
             code = ResultEnum.ACCESS_DENIED;
             httpStatus = HttpStatus.FORBIDDEN.value();
-            if (ResultEnum.ACCESS_DENIED_BLACK_IP_LIMITED.getMessage().contains(message)) {
-                code = ResultEnum.ACCESS_DENIED_BLACK_IP_LIMITED;
-            } else if (ResultEnum.ACCESS_DENIED_WHITE_IP_LIMITED.getMessage().contains(message)) {
-                code = ResultEnum.ACCESS_DENIED_WHITE_IP_LIMITED;
+            if (ResultEnum.ACCESS_DENIED_BLACK_LIMITED.getMessage().contains(message)) {
+                code = ResultEnum.ACCESS_DENIED_BLACK_LIMITED;
+            } else if (ResultEnum.ACCESS_DENIED_WHITE_LIMITED.getMessage().contains(message)) {
+                code = ResultEnum.ACCESS_DENIED_WHITE_LIMITED;
             } else if (ResultEnum.ACCESS_DENIED_AUTHORITY_EXPIRED.getMessage().contains(message)) {
                 code = ResultEnum.ACCESS_DENIED_AUTHORITY_EXPIRED;
             }else if (ResultEnum.ACCESS_DENIED_UPDATING.getMessage().contains(message)) {

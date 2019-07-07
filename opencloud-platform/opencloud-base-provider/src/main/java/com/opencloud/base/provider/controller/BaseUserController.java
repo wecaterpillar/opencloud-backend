@@ -1,16 +1,18 @@
 package com.opencloud.base.provider.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.opencloud.base.client.model.UserInfo;
+import com.opencloud.base.client.model.UserAccount;
 import com.opencloud.base.client.model.entity.BaseRole;
 import com.opencloud.base.client.model.entity.BaseUser;
+import com.opencloud.base.client.service.IBaseUserServiceClient;
 import com.opencloud.base.provider.service.BaseRoleService;
-import com.opencloud.base.provider.service.BaseUserAccountService;
 import com.opencloud.base.provider.service.BaseUserService;
 import com.opencloud.common.model.PageParams;
 import com.opencloud.common.model.ResultBody;
 import com.opencloud.common.utils.StringUtils;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,13 +30,29 @@ import java.util.Map;
  */
 @Api(tags = "系统用户管理")
 @RestController
-public class BaseUserController {
+public class BaseUserController implements IBaseUserServiceClient {
     @Autowired
     private BaseUserService baseUserService;
     @Autowired
-    private BaseUserAccountService baseUserAccountService;
-    @Autowired
     private BaseRoleService baseRoleService;
+
+
+    /**
+     * 获取登录账号信息
+     *
+     * @param username 登录名
+     * @return
+     */
+    @ApiOperation(value = "获取账号登录信息", notes = "仅限系统内部调用")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "username", required = true, value = "登录名", paramType = "path"),
+    })
+    @PostMapping("/user/login")
+    @Override
+    public ResultBody<UserAccount> userLogin(@RequestParam(value = "username") String username) {
+        UserAccount account = baseUserService.login(username);
+        return ResultBody.ok().data(account);
+    }
 
     /**
      * 系统分页用户列表
@@ -46,7 +64,6 @@ public class BaseUserController {
     public ResultBody<IPage<BaseUser>> getUserList(@RequestParam(required = false) Map map) {
         return ResultBody.ok().data(baseUserService.findListPage(new PageParams(map)));
     }
-
 
     /**
      * 获取所有用户列表
@@ -86,18 +103,17 @@ public class BaseUserController {
             @RequestParam(value = "userDesc", required = false) String userDesc,
             @RequestParam(value = "avatar", required = false) String avatar
     ) {
-        UserInfo user = new UserInfo();
+        BaseUser user = new BaseUser();
         user.setUserName(userName);
         user.setPassword(password);
         user.setNickName(nickName);
-        user.setStatus(status);
         user.setUserType(userType);
         user.setEmail(email);
         user.setMobile(mobile);
         user.setUserDesc(userDesc);
         user.setAvatar(avatar);
-        Long userId = baseUserAccountService.register(user);
-        return ResultBody.ok().data(userId);
+        baseUserService.addUser(user, status);
+        return ResultBody.ok();
     }
 
     /**
@@ -125,18 +141,18 @@ public class BaseUserController {
             @RequestParam(value = "userDesc", required = false) String userDesc,
             @RequestParam(value = "avatar", required = false) String avatar
     ) {
-        UserInfo user = new UserInfo();
+        BaseUser user = new BaseUser();
         user.setUserId(userId);
         user.setNickName(nickName);
-        user.setStatus(status);
         user.setUserType(userType);
         user.setEmail(email);
         user.setMobile(mobile);
         user.setUserDesc(userDesc);
         user.setAvatar(avatar);
-        baseUserService.updateUser(user);
+        baseUserService.updateUser(user, status);
         return ResultBody.ok();
     }
+
 
     /**
      * 修改用户密码
@@ -151,7 +167,7 @@ public class BaseUserController {
             @RequestParam(value = "userId") Long userId,
             @RequestParam(value = "password") String password
     ) {
-        baseUserAccountService.resetPassword(userId, password);
+        baseUserService.updatePassword(userId, password);
         return ResultBody.ok();
     }
 
@@ -186,5 +202,32 @@ public class BaseUserController {
         return ResultBody.ok().data(baseRoleService.getUserRoles(userId));
     }
 
+
+    /**
+     * 注册第三方系统登录账号
+     *
+     * @param account
+     * @param password
+     * @param accountType
+     * @return
+     */
+    @ApiOperation(value = "注册第三方系统登录账号", notes = "仅限系统内部调用")
+    @PostMapping("/user/add/thirdParty")
+    @Override
+    public ResultBody addUserThirdParty(
+            @RequestParam(value = "account") String account,
+            @RequestParam(value = "password") String password,
+            @RequestParam(value = "accountType") String accountType,
+            @RequestParam(value = "nickName") String nickName,
+            @RequestParam(value = "avatar") String avatar
+    ) {
+        BaseUser user = new BaseUser();
+        user.setNickName(nickName);
+        user.setUserName(account);
+        user.setPassword(password);
+        user.setAvatar(avatar);
+        baseUserService.addUserThirdParty(user, accountType);
+        return ResultBody.ok();
+    }
 
 }

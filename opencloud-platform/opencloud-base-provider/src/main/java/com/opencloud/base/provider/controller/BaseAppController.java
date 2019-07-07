@@ -1,7 +1,7 @@
 package com.opencloud.base.provider.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.opencloud.base.client.api.BaseAppRemoteApi;
+import com.opencloud.base.client.service.IBaseAppServiceClient;
 import com.opencloud.base.client.model.entity.BaseApp;
 import com.opencloud.base.provider.service.BaseAppService;
 import com.opencloud.common.model.PageParams;
@@ -25,7 +25,7 @@ import java.util.Map;
  */
 @Api(tags = "系统应用管理")
 @RestController
-public class BaseAppController implements BaseAppRemoteApi {
+public class BaseAppController implements IBaseAppServiceClient {
     @Autowired
     private BaseAppService baseAppService;
     @Autowired

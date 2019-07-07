@@ -32,4 +32,5 @@ public class AuthConstants {
      * 自定义第三方登录请求头
      */
     public static final String HEADER_X_THIRDPARTY_LOGIN = "X-ThirdParty-Login";
+
 }

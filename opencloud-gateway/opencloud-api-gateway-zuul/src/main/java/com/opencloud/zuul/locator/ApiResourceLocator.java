@@ -8,8 +8,8 @@ import com.opencloud.base.client.model.AuthorityResource;
 import com.opencloud.base.client.model.IpLimitApi;
 import com.opencloud.base.client.model.RateLimitApi;
 import com.opencloud.common.event.RemoteRefreshRouteEvent;
-import com.opencloud.zuul.service.feign.BaseAuthorityRemoteService;
-import com.opencloud.zuul.service.feign.GatewayRemoteService;
+import com.opencloud.zuul.service.feign.BaseAuthorityServiceClient;
+import com.opencloud.zuul.service.feign.GatewayServiceClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.context.ApplicationListener;
@@ -76,12 +76,12 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
 
     private RateLimitProperties rateLimitProperties;
     private JdbcRouteLocator zuulRoutesLocator;
-    private BaseAuthorityRemoteService baseAuthorityRemoteService;
-    private GatewayRemoteService gatewayRemoteService;
+    private BaseAuthorityServiceClient baseAuthorityServiceClient;
+    private GatewayServiceClient gatewayServiceClient;
     private StringToMatchTypeConverter converter;
 
 
-    public ApiResourceLocator(JdbcRouteLocator zuulRoutesLocator, RateLimitProperties rateLimitProperties, BaseAuthorityRemoteService baseAuthorityRemoteService, GatewayRemoteService gatewayRemoteService) {
+    public ApiResourceLocator(JdbcRouteLocator zuulRoutesLocator, RateLimitProperties rateLimitProperties, BaseAuthorityServiceClient baseAuthorityServiceClient, GatewayServiceClient gatewayServiceClient) {
         this.allConfigAttributes = Maps.newHashMap();
         this.ipBlacks = Lists.newArrayList();
         this.ipWhites = Lists.newArrayList();
@@ -89,8 +89,8 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
         this.rateLimitApis = Lists.newArrayList();
         this.zuulRoutesLocator = zuulRoutesLocator;
         this.rateLimitProperties = rateLimitProperties;
-        this.baseAuthorityRemoteService = baseAuthorityRemoteService;
-        this.gatewayRemoteService = gatewayRemoteService;
+        this.baseAuthorityServiceClient = baseAuthorityServiceClient;
+        this.gatewayServiceClient = gatewayServiceClient;
         this.converter = new StringToMatchTypeConverter();
     }
 
@@ -131,7 +131,7 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
         HashMap<String, Collection<ConfigAttribute>> configAttributes = Maps.newHashMap();
         try {
             // 查询所有接口
-            List<AuthorityResource> list = baseAuthorityRemoteService.findAuthorityResource().getData();
+            List<AuthorityResource> list = baseAuthorityServiceClient.findAuthorityResource().getData();
             if (list != null) {
                 for (AuthorityResource item : list) {
                     String path = item.getPath();
@@ -166,7 +166,7 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
      */
     public void loadIpBlacks() {
         try {
-            List<IpLimitApi> list = gatewayRemoteService.getApiBlackList().getData();
+            List<IpLimitApi> list = gatewayServiceClient.getApiBlackList().getData();
             if (list != null) {
                 for (IpLimitApi item : list) {
                     item.setPath(getFullPath(item.getServiceId(), item.getPath()));
@@ -185,7 +185,7 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
      */
     public void loadIpWhites() {
         try {
-            List<IpLimitApi> list = gatewayRemoteService.getApiWhiteList().getData();
+            List<IpLimitApi> list = gatewayServiceClient.getApiWhiteList().getData();
             if (list != null) {
                 for (IpLimitApi item : list) {
                     item.setPath(getFullPath(item.getServiceId(), item.getPath()));
@@ -231,7 +231,7 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
     protected Map<String, List<RateLimitProperties.Policy>> loadRateLimitPolicy() {
         Map<String, List<RateLimitProperties.Policy>> policyMap = Maps.newLinkedHashMap();
         try {
-            List<RateLimitApi> list = gatewayRemoteService.getApiRateLimitList().getData();
+            List<RateLimitApi> list = gatewayServiceClient.getApiRateLimitList().getData();
             if (list != null) {
                 for (RateLimitApi item : list) {
                     List<RateLimitProperties.Policy> policyList = policyMap.get(item.getServiceId());

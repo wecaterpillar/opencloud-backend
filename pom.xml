@@ -49,6 +49,9 @@
         <opencloud.msg-client.version>2.1.0-SNAPSHOT</opencloud.msg-client.version>
         <opencloud.bpm-client.version>2.1.0-SNAPSHOT</opencloud.bpm-client.version>
         <opencloud.scheduler-client.version>2.1.0-SNAPSHOT</opencloud.scheduler-client.version>
+
+        <!--镜像前缀-->
+        <docker.image.prefix>open-cloud</docker.image.prefix>
     </properties>
 
     <!-- 环境 -->

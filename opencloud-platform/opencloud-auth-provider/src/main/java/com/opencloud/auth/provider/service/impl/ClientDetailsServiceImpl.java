@@ -1,6 +1,6 @@
 package com.opencloud.auth.provider.service.impl;
 
-import com.opencloud.auth.provider.service.feign.BaseAppRemoteService;
+import com.opencloud.auth.provider.service.feign.BaseAppServiceClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.provider.ClientDetails;
@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ClientDetailsServiceImpl implements ClientDetailsService {
 
     @Autowired
-    private BaseAppRemoteService baseAppRemoteService;
+    private BaseAppServiceClient baseAppRemoteService;
 
     @Override
     public ClientDetails loadClientByClientId(String clientId) throws ClientRegistrationException {

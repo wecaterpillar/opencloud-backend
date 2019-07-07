@@ -63,6 +63,7 @@ public class AccessAuthorizationManager {
 
     /**
      * 权限验证
+     *
      * @param request
      * @param authentication
      * @return
@@ -174,6 +175,7 @@ public class AccessAuthorizationManager {
 
     /**
      * 权限验证
+     *
      * @param request
      * @param authentication
      * @param requestPath
@@ -220,6 +222,7 @@ public class AccessAuthorizationManager {
 
     /**
      * 获取请求资源所需权限列表
+     *
      * @param requestPath
      * @return
      */
@@ -239,16 +242,18 @@ public class AccessAuthorizationManager {
 
     /**
      * IP黑名单验证
+     *
      * @param requestPath
-     * @param remoteIpAddress
+     * @param ipAddress
+     * @param origin
      * @return
      */
-    public boolean matchIpBlacklist(String requestPath, String remoteIpAddress) {
+    public boolean matchIpOrOriginBlacklist(String requestPath, String ipAddress, String origin) {
         List<IpLimitApi> blackList = accessLocator.getIpBlacks();
         if (blackList != null) {
             for (IpLimitApi api : blackList) {
                 if (pathMatch.match(api.getPath(), requestPath) && api.getIpAddressSet() != null && !api.getIpAddressSet().isEmpty()) {
-                    if (matchIp(api.getIpAddressSet(), remoteIpAddress)) {
+                    if (matchIpOrOrigin(api.getIpAddressSet(), ipAddress, origin)) {
                         return true;
                     }
                 }
@@ -260,11 +265,13 @@ public class AccessAuthorizationManager {
 
     /**
      * 白名单验证
+     *
      * @param requestPath
-     * @param remoteIpAddress
-     * @return [hasWhiteList,allow]
+     * @param ipAddress
+     * @param origin
+     * @return [hasWhiteList, allow]
      */
-    public boolean[] matchIpWhiteList(String requestPath, String remoteIpAddress) {
+    public boolean[] matchIpOrOriginWhiteList(String requestPath, String ipAddress, String origin) {
         boolean hasWhiteList = false;
         boolean allow = false;
         List<IpLimitApi> whiteList = accessLocator.getIpWhites();
@@ -272,7 +279,7 @@ public class AccessAuthorizationManager {
             for (IpLimitApi api : whiteList) {
                 if (pathMatch.match(api.getPath(), requestPath) && api.getIpAddressSet() != null && !api.getIpAddressSet().isEmpty()) {
                     hasWhiteList = true;
-                    allow = matchIp(api.getIpAddressSet(), remoteIpAddress);
+                    allow = matchIpOrOrigin(api.getIpAddressSet(), ipAddress, origin);
                     break;
                 }
             }
@@ -281,25 +288,29 @@ public class AccessAuthorizationManager {
     }
 
     /**
-     * 匹配IP
-     * @param ips
-     * @param remoteIpAddress
+     * 匹配IP或域名
+     *
+     * @param values
+     * @param ipAddress
+     * @param origin
      * @return
      */
-    public boolean matchIp(Set<String> ips, String remoteIpAddress) {
+    public boolean matchIpOrOrigin(Set<String> values, String ipAddress, String origin) {
         IpAddressMatcher ipAddressMatcher = null;
-        for (String ip : ips) {
-            try {
-                ipAddressMatcher = new IpAddressMatcher(ip);
-                if (ipAddressMatcher.matches(remoteIpAddress)) {
+        for (String value : values) {
+            if (StringUtils.matchIp(value)) {
+                ipAddressMatcher = new IpAddressMatcher(value);
+                if (ipAddressMatcher.matches(ipAddress)) {
                     return true;
                 }
-            } catch (Exception e) {
+            } else {
+                if (StringUtils.matchDomain(value) && origin.contains(value)) {
+                    return true;
+                }
             }
         }
         return false;
     }
-
 
 
     public String getRequestPath(HttpServletRequest request) {

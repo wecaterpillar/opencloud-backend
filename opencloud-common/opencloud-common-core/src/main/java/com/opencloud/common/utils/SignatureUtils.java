@@ -26,7 +26,7 @@ public class SignatureUtils {
         HashMap<String, String> signMap = new HashMap<String, String>();
         signMap.put("clientId", "gateway");
         signMap.put("signType", "SHA256");
-        signMap.put("timestamp", DateUtils.getTimestampStr());
+        signMap.put("timestamp", DateUtils.getCurrentTimestampStr());
         signMap.put("nonce", "d3c6fcd551104c53b4ccde31059d815a");
         String sign = SignatureUtils.getSign(signMap, "123456");
         System.out.println("签名结果:" + sign);
@@ -68,7 +68,7 @@ public class SignatureUtils {
             String timestamp = paramMap.get(CommonConstants.SIGN_TIMESTAMP_KEY);
             Long clientTimestamp = Long.parseLong(timestamp);
             //判断时间戳 timestamp=201808091113
-            if ((DateUtils.getTimestamp() - clientTimestamp) > MAX_EXPIRE) {
+            if ((DateUtils.getCurrentTimestamp() - clientTimestamp) > MAX_EXPIRE) {
                 log.debug("validateSign fail timestamp expire");
                 return false;
             }

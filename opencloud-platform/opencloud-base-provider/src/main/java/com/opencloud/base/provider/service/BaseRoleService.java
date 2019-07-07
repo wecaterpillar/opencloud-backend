@@ -3,7 +3,6 @@ package com.opencloud.base.provider.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.opencloud.base.client.model.entity.BaseRole;
 import com.opencloud.base.client.model.entity.BaseRoleUser;
-import com.opencloud.base.client.model.entity.BaseUserAccount;
 import com.opencloud.common.model.PageParams;
 import com.opencloud.common.mybatis.base.service.IBaseService;
 

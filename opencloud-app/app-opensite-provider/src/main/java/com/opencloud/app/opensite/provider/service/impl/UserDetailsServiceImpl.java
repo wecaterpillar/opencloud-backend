@@ -1,16 +1,16 @@
 package com.opencloud.app.opensite.provider.service.impl;
 
-import com.opencloud.common.security.Authority;
+import com.opencloud.app.opensite.provider.service.feign.BaseDeveloperServiceClient;
+import com.opencloud.base.client.constants.BaseConstants;
+import com.opencloud.base.client.model.UserAccount;
+import com.opencloud.common.model.ResultBody;
 import com.opencloud.common.security.OpenUser;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 
 /**
  * Security用户信息获取实现类
@@ -21,29 +21,28 @@ import java.util.ArrayList;
 @Service("userDetailService")
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    /**
-     * 认证中心名称
-     */
-    @Value("${spring.application.name}")
-    private String AUTH_SERVICE_ID;
+    @Autowired
+    private BaseDeveloperServiceClient baseDeveloperServiceClient;
 
     @Override
     public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException {
-        //自定义用户存储数据来源，可以是从关系型数据库，非关系性数据库，或者其他地方获取用户数据。
-
-        // 设置 权限,可以是从数据库中查找出来的
-        ArrayList<Authority> authorities = new ArrayList<>();
-        authorities.add(new Authority("APP_USER"));
-        User user = new User("test", "$2a$10$A7EHximvrsa4ESX1uSlkJupbg2PLO2StzDzy67NX4YV25MxmbGvXu", authorities);
-
-        if (user == null) {
+        ResultBody<UserAccount> resp = baseDeveloperServiceClient.developerLogin(username);
+        UserAccount account = resp.getData();
+        if (account == null) {
             throw new UsernameNotFoundException("系统用户 " + username + " 不存在!");
         }
-        boolean accountNonLocked = user.isAccountNonLocked();
+        String centerId = account.getDomain();
+        Long accountId = account.getAccountId();
+        Long userId = account.getUserId();
+        String password = account.getPassword();
+        String nickName = account.getNickName();
+        String avatar = account.getAvatar();
+        String accountType = account.getAccountType();
+        boolean accountNonLocked = account.getStatus().intValue() != BaseConstants.ACCOUNT_STATUS_LOCKED;
         boolean credentialsNonExpired = true;
-        boolean enable = user.isEnabled();
+        boolean enabled = account.getStatus().intValue() == BaseConstants.ACCOUNT_STATUS_NORMAL ? true : false;
         boolean accountNonExpired = true;
-        return new OpenUser(AUTH_SERVICE_ID,11111L, user.getUsername(), user.getPassword(), authorities, accountNonLocked, accountNonExpired, enable, credentialsNonExpired,"测试用户昵称","");
+        return new OpenUser(centerId, accountId, userId, username, password, accountNonLocked, accountNonExpired, enabled, credentialsNonExpired, nickName, avatar, accountType);
     }
 }

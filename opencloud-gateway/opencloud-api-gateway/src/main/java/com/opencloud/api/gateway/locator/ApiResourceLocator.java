@@ -2,8 +2,8 @@ package com.opencloud.api.gateway.locator;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.opencloud.api.gateway.service.feign.BaseAuthorityRemoteService;
-import com.opencloud.api.gateway.service.feign.GatewayRemoteService;
+import com.opencloud.api.gateway.service.feign.BaseAuthorityServiceClient;
+import com.opencloud.api.gateway.service.feign.GatewayServiceClient;
 import com.opencloud.base.client.model.AuthorityResource;
 import com.opencloud.base.client.model.IpLimitApi;
 import com.opencloud.common.event.RemoteRefreshRouteEvent;
@@ -65,8 +65,8 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
     private HashMap<String, Collection<ConfigAttribute>> allConfigAttributes;
 
 
-    private BaseAuthorityRemoteService baseAuthorityRemoteService;
-    private GatewayRemoteService gatewayRemoteService;
+    private BaseAuthorityServiceClient baseAuthorityServiceClient;
+    private GatewayServiceClient gatewayServiceClient;
 
     private RouteDefinitionLocator routeDefinitionLocator;
 
@@ -78,10 +78,10 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
     }
 
 
-    public ApiResourceLocator(RouteDefinitionLocator routeDefinitionLocator, BaseAuthorityRemoteService baseAuthorityRemoteService, GatewayRemoteService gatewayRemoteService) {
+    public ApiResourceLocator(RouteDefinitionLocator routeDefinitionLocator, BaseAuthorityServiceClient baseAuthorityServiceClient, GatewayServiceClient gatewayServiceClient) {
         this();
-        this.baseAuthorityRemoteService = baseAuthorityRemoteService;
-        this.gatewayRemoteService = gatewayRemoteService;
+        this.baseAuthorityServiceClient = baseAuthorityServiceClient;
+        this.gatewayServiceClient = gatewayServiceClient;
         this.routeDefinitionLocator = routeDefinitionLocator;
     }
 
@@ -129,7 +129,7 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
         ConfigAttribute cfg;
         try {
             // 查询所有接口
-            authorityResources = baseAuthorityRemoteService.findAuthorityResource().getData();
+            authorityResources = baseAuthorityServiceClient.findAuthorityResource().getData();
             if (authorityResources != null) {
                 for (AuthorityResource item : authorityResources) {
                     String path = item.getPath();
@@ -161,7 +161,7 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
     public void loadIpBlackList() {
         ipBlacks = Lists.newArrayList();
         try {
-            ipBlacks = gatewayRemoteService.getApiBlackList().getData();
+            ipBlacks = gatewayServiceClient.getApiBlackList().getData();
             if (ipBlacks != null) {
                 for (IpLimitApi item : ipBlacks) {
                     item.setPath(getFullPath(item.getServiceId(), item.getPath()));
@@ -179,7 +179,7 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
     public void loadIpWhiteList() {
         ipWhites = Lists.newArrayList();
         try {
-            ipWhites = gatewayRemoteService.getApiWhiteList().getData();
+            ipWhites = gatewayServiceClient.getApiWhiteList().getData();
             if (ipWhites != null) {
                 for (IpLimitApi item : ipWhites) {
                     item.setPath(getFullPath(item.getServiceId(), item.getPath()));
