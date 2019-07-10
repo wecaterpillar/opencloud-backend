@@ -93,7 +93,7 @@ public class OpenUser implements UserDetails {
     }
 
 
-    public OpenUser(String domain, Long accountId, Long userId, String username, String password, boolean accountNonLocked, boolean accountNonExpired, boolean enabled, boolean credentialsNonExpired, String nickName, String avatar, String accountType) {
+    public OpenUser(String domain, Long accountId, Long userId, String username, String password, boolean accountNonLocked, boolean accountNonExpired, boolean enabled, boolean credentialsNonExpired, String nickName, String avatar, String accountType,Collection<Authority> authorities) {
         this.domain = domain;
         this.userId = userId;
         this.username = username;
@@ -106,6 +106,7 @@ public class OpenUser implements UserDetails {
         this.nickName = nickName;
         this.accountType = accountType;
         this.accountId = accountId;
+        this.authorities = authorities;
     }
 
 
