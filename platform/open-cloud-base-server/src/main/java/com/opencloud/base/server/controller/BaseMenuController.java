@@ -1,15 +1,21 @@
 package com.opencloud.base.server.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.opencloud.base.server.service.BaseActionService;
-import com.opencloud.base.client.model.entity.BaseMenu;
 import com.opencloud.base.client.model.entity.BaseAction;
+import com.opencloud.base.client.model.entity.BaseMenu;
+import com.opencloud.base.server.configuration.ServicesInMenuConfig;
+import com.opencloud.base.server.service.BaseActionService;
 import com.opencloud.base.server.service.BaseMenuService;
 import com.opencloud.common.model.PageParams;
 import com.opencloud.common.model.ResultBody;
 import com.opencloud.common.security.http.OpenRestTemplate;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +26,7 @@ import java.util.Map;
  */
 @Api(tags = "系统菜单资源管理")
 @RestController
+@EnableConfigurationProperties
 public class BaseMenuController {
     @Autowired
     private BaseMenuService baseResourceMenuService;
@@ -29,6 +36,21 @@ public class BaseMenuController {
 
     @Autowired
     private OpenRestTemplate openRestTemplate;
+
+    @Autowired
+    private ServicesInMenuConfig serviceList;
+
+
+    /**
+     * 所有服务列表
+     *
+     * @return
+     */
+    @ApiOperation(value = "所有服务列表", notes = "所有服务列表")
+    @GetMapping("/menu/serviceList")
+    public ResultBody<List<JSONObject>>  getServiceList(){
+        return ResultBody.ok().data(serviceList.toJsonList());
+    }
 
     /**
      * 获取分页菜单资源列表
@@ -228,3 +250,4 @@ public class BaseMenuController {
         return ResultBody.ok();
     }
 }
+
