@@ -42,6 +42,7 @@ public class BaseMenuController {
     @Autowired
     private OpenRestTemplate openRestTemplate;
 
+
     /**
      * 所有服务列表
      *

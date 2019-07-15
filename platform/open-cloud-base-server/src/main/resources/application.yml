@@ -1,0 +1,5 @@
+openea-menus:
+  services:
+    open-cloud-base-server: 'System Admin UI'
+    opencloud-base-provider: 'System Admin UI (old)'
+    openea-admin-ui: 'Applicaiton Admin UI'
