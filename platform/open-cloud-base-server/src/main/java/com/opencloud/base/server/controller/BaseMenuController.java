@@ -110,6 +110,7 @@ public class BaseMenuController {
             @ApiImplicitParam(name = "status", required = true, defaultValue = "1", allowableValues = "0,1", value = "是否启用", paramType = "form"),
             @ApiImplicitParam(name = "priority", required = false, value = "优先级越小越靠前", paramType = "form"),
             @ApiImplicitParam(name = "menuDesc", required = false, value = "描述", paramType = "form"),
+            @ApiImplicitParam(name = "serviceId", required = false, value = "前端应用", paramType = "form")
     })
     @PostMapping("/menu/add")
     public ResultBody<Long> addMenu(
@@ -122,7 +123,8 @@ public class BaseMenuController {
             @RequestParam(value = "status", defaultValue = "1") Integer status,
             @RequestParam(value = "parentId", required = false, defaultValue = "0") Long parentId,
             @RequestParam(value = "priority", required = false, defaultValue = "0") Integer priority,
-            @RequestParam(value = "menuDesc", required = false, defaultValue = "") String menuDesc
+            @RequestParam(value = "menuDesc", required = false, defaultValue = "") String menuDesc,
+            @RequestParam(value = "serviceId", required = false, defaultValue = "") String serviceId
     ) {
         BaseMenu menu = new BaseMenu();
         menu.setMenuCode(menuCode);
@@ -135,6 +137,7 @@ public class BaseMenuController {
         menu.setParentId(parentId);
         menu.setPriority(priority);
         menu.setMenuDesc(menuDesc);
+        menu.setServiceId(serviceId);
         Long menuId = null;
         BaseMenu result = baseResourceMenuService.addMenu(menu);
         if (result != null) {
@@ -171,6 +174,7 @@ public class BaseMenuController {
             @ApiImplicitParam(name = "status", required = true, defaultValue = "1", allowableValues = "0,1", value = "是否启用", paramType = "form"),
             @ApiImplicitParam(name = "priority", required = false, value = "优先级越小越靠前", paramType = "form"),
             @ApiImplicitParam(name = "menuDesc", required = false, value = "描述", paramType = "form"),
+            @ApiImplicitParam(name = "serviceId", required = false, value = "前端应用", paramType = "form")
     })
     @PostMapping("/menu/update")
     public ResultBody updateMenu(
@@ -184,7 +188,8 @@ public class BaseMenuController {
             @RequestParam(value = "status", defaultValue = "1") Integer status,
             @RequestParam(value = "parentId", required = false, defaultValue = "0") Long parentId,
             @RequestParam(value = "priority", required = false, defaultValue = "0") Integer priority,
-            @RequestParam(value = "menuDesc", required = false, defaultValue = "") String menuDesc
+            @RequestParam(value = "menuDesc", required = false, defaultValue = "") String menuDesc,
+            @RequestParam(value = "serviceId", required = false, defaultValue = "") String serviceId
     ) {
         BaseMenu menu = new BaseMenu();
         menu.setMenuId(menuId);
@@ -198,6 +203,7 @@ public class BaseMenuController {
         menu.setParentId(parentId);
         menu.setPriority(priority);
         menu.setMenuDesc(menuDesc);
+        menu.setServiceId(serviceId);
         baseResourceMenuService.updateMenu(menu);
         openRestTemplate.refreshGateway();
         return ResultBody.ok();

@@ -120,6 +120,7 @@ public class BaseActionServiceImpl extends BaseServiceImpl<BaseActionMapper, Bas
             aciton.setIsPersist(BaseConstants.DISABLED);
         }
         aciton.setCreateTime(new Date());
+        // TODO
         aciton.setServiceId(DEFAULT_SERVICE_ID);
         aciton.setUpdateTime(aciton.getCreateTime());
         baseActionMapper.insert(aciton);
@@ -152,6 +153,7 @@ public class BaseActionServiceImpl extends BaseServiceImpl<BaseActionMapper, Bas
         if (aciton.getPriority() == null) {
             aciton.setPriority(0);
         }
+        // TODO update service id according to menu
         aciton.setUpdateTime(new Date());
         baseActionMapper.updateById(aciton);
         // 同步权限表里的信息

@@ -117,7 +117,10 @@ public class BaseMenuServiceImpl extends BaseServiceImpl<BaseMenuMapper, BaseMen
         if (menu.getIsPersist() == null) {
             menu.setIsPersist(0);
         }
-        menu.setServiceId(DEFAULT_SERVICE_ID);
+        // check service id
+        if( menu.getServiceId() == null){
+            menu.setServiceId(DEFAULT_SERVICE_ID);
+        }
         menu.setCreateTime(new Date());
         menu.setUpdateTime(menu.getCreateTime());
         baseMenuMapper.insert(menu);
