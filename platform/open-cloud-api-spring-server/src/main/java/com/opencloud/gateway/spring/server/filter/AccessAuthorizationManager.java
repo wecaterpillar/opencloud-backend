@@ -37,7 +37,7 @@ public class AccessAuthorizationManager implements ReactiveAuthorizationManager<
 
     private ApiResourceLocator accessLocator;
 
-    private ApiProperties apiGatewayProperties;
+    private ApiProperties apiProperties;
 
     private static final AntPathMatcher pathMatch = new AntPathMatcher();
 
@@ -46,26 +46,26 @@ public class AccessAuthorizationManager implements ReactiveAuthorizationManager<
     private Set<String> authorityIgnores = new HashSet<>();
 
 
-    public AccessAuthorizationManager(ApiResourceLocator accessLocator, ApiProperties apiGatewayProperties) {
+    public AccessAuthorizationManager(ApiResourceLocator accessLocator, ApiProperties apiProperties) {
         this.accessLocator = accessLocator;
-        this.apiGatewayProperties = apiGatewayProperties;
+        this.apiProperties = apiProperties;
         // 默认放行
         permitAll.add("/");
         permitAll.add("/error");
         permitAll.add("/favicon.ico");
-        if (apiGatewayProperties != null) {
-            if (apiGatewayProperties.getPermitAll() != null) {
-                permitAll.addAll(apiGatewayProperties.getPermitAll());
+        if (apiProperties != null) {
+            if (apiProperties.getPermitAll() != null) {
+                permitAll.addAll(apiProperties.getPermitAll());
             }
-            if (apiGatewayProperties.getApiDebug()) {
+            if (apiProperties.getApiDebug()) {
                 permitAll.add("/**/v2/api-docs/**");
                 permitAll.add("/**/swagger-resources/**");
                 permitAll.add("/webjars/**");
                 permitAll.add("/doc.html");
                 permitAll.add("/swagger-ui.html");
             }
-            if (apiGatewayProperties.getAuthorityIgnores() != null) {
-                authorityIgnores.addAll(apiGatewayProperties.getAuthorityIgnores());
+            if (apiProperties.getAuthorityIgnores() != null) {
+                authorityIgnores.addAll(apiProperties.getAuthorityIgnores());
             }
         }
     }
@@ -75,7 +75,7 @@ public class AccessAuthorizationManager implements ReactiveAuthorizationManager<
     public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, AuthorizationContext authorizationContext) {
         ServerWebExchange exchange = authorizationContext.getExchange();
         String requestPath = exchange.getRequest().getURI().getPath();
-        if (!apiGatewayProperties.getAccessControl()) {
+        if (!apiProperties.getAccessControl()) {
             return Mono.just(new AuthorizationDecision(true));
         }
         // 是否直接放行
@@ -298,11 +298,19 @@ public class AccessAuthorizationManager implements ReactiveAuthorizationManager<
                     return true;
                 }
             } else {
-                if (StringUtils.matchDomain(value) && origin.contains(value)) {
+                if (StringUtils.matchDomain(value) && StringUtils.isNotBlank(origin) && origin.contains(value)) {
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    public ApiProperties getApiProperties() {
+        return apiProperties;
+    }
+
+    public void setApiProperties(ApiProperties apiProperties) {
+        this.apiProperties = apiProperties;
     }
 }

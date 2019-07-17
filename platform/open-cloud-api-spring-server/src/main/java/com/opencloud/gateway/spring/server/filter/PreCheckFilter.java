@@ -38,7 +38,8 @@ public class PreCheckFilter implements WebFilter {
         String remoteIpAddress = ReactiveWebUtils.getRemoteAddress(exchange);
         String origin = request.getHeaders().getOrigin();
         AuthorityResource resource = apiAccessManager.getResource(requestPath);
-        if (resource != null) {
+        // 测试环境 忽略api状态验证
+        if (resource != null && !apiAccessManager.getApiProperties().getApiDebug()) {
             if ("0".equals(resource.getIsOpen().toString())) {
                 // 未公开
                 return accessDeniedHandler.handle(exchange, new AccessDeniedException(ErrorCode.ACCESS_DENIED_NOT_OPEN.getMessage()));

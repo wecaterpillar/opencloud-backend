@@ -21,13 +21,13 @@ public class SignatureUtils {
      */
     private final static long MAX_EXPIRE = 5 * 60;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         //参数签名算法测试例子
         HashMap<String, String> signMap = new HashMap<String, String>();
         signMap.put("appId", "gateway");
-        signMap.put("signType", "SHA256");
+        signMap.put("signType", SignType.SHA256.name());
         signMap.put("timestamp", DateUtils.getCurrentTimestampStr());
-        signMap.put("nonce",RandomValueUtils.random(16));
+        signMap.put("nonce",RandomValueUtils.randomAlphanumeric(16));
         String sign = SignatureUtils.getSign(signMap, "123456");
         System.out.println("签名结果:" + sign);
         signMap.put("sign", sign);

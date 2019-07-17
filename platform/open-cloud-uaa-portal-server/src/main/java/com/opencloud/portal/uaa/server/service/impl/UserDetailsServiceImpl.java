@@ -32,7 +32,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (account == null) {
             throw new UsernameNotFoundException("系统用户 " + username + " 不存在!");
         }
-        String centerId = account.getDomain();
+        String domain = account.getDomain();
         Long accountId = account.getAccountId();
         Long userId = account.getUserId();
         String password = account.getPassword();
@@ -43,6 +43,21 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         boolean credentialsNonExpired = true;
         boolean enabled = account.getStatus().intValue() == BaseConstants.ACCOUNT_STATUS_NORMAL ? true : false;
         boolean accountNonExpired = true;
-        return new OpenUserDetails(centerId, accountId, userId, username, password, accountNonLocked, accountNonExpired, enabled, credentialsNonExpired, nickName, avatar, accountType,account.getAuthorities());
+        OpenUserDetails userDetails = new OpenUserDetails();
+        userDetails.setDomain(domain);
+        userDetails.setAccountId(accountId);
+        userDetails.setUserId(userId);
+        userDetails.setUsername(username);
+        userDetails.setPassword(password);
+        userDetails.setNickName(nickName);
+        userDetails.setAuthorities(account.getAuthorities());
+        userDetails.setAvatar(avatar);
+        userDetails.setAccountId(accountId);
+        userDetails.setAccountNonLocked(accountNonLocked);
+        userDetails.setAccountNonExpired(accountNonExpired);
+        userDetails.setAccountType(accountType);
+        userDetails.setCredentialsNonExpired(credentialsNonExpired);
+        userDetails.setEnabled(enabled);
+        return userDetails;
     }
 }

@@ -9,7 +9,7 @@ import java.util.Date;
 /**
  * @author liuyadu
  */
-@TableName("webhook_logs")
+@TableName("msg_webhook_logs")
 public class WebHookLogs implements Serializable {
     @TableId
     private String msgId;

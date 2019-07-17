@@ -38,9 +38,9 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
                 .and()
                 .authorizeRequests()
                 .antMatchers(
-                        "/email",
-                        "/sms",
-                        "/webhook"
+                        "/email/**",
+                        "/sms/**",
+                        "/webhook/**"
                 ).permitAll()
                 // 指定监控访问权限
                 .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()

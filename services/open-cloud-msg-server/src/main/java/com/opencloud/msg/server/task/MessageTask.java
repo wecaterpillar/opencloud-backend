@@ -8,13 +8,13 @@ import java.util.concurrent.Callable;
 /**
  * @author woodev
  */
-public class NotifyTask implements Callable<Boolean> {
+public class MessageTask implements Callable<Boolean> {
 
     private MessageExchanger exchanger;
 
     private BaseMessage notify;
 
-    public NotifyTask(MessageExchanger exchanger, BaseMessage notify){
+    public MessageTask(MessageExchanger exchanger, BaseMessage notify){
         this.exchanger = exchanger;
         this.notify = notify;
     }

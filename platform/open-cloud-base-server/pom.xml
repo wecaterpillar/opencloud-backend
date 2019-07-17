@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
     <artifactId>open-cloud-base-server</artifactId>
-   <version>3.0.0</version>
+    <version>3.0.0</version>
     <description>平台基础服务器</description>
     <dependencies>
         <dependency>

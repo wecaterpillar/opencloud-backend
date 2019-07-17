@@ -1,6 +1,6 @@
 package com.opencloud.task.server.service.feign;
 
-import com.opencloud.msg.client.api.IEmailClient;
+import com.opencloud.msg.client.service.IEmailClient;
 import com.opencloud.msg.client.constatns.MsgConstants;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;

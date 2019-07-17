@@ -304,7 +304,7 @@ public class AccessAuthorizationManager {
                     return true;
                 }
             } else {
-                if (StringUtils.matchDomain(value) && origin.contains(value)) {
+                if (StringUtils.matchDomain(value) && StringUtils.isNotBlank(origin) && origin.contains(value)) {
                     return true;
                 }
             }
@@ -320,5 +320,13 @@ public class AccessAuthorizationManager {
             url = StringUtils.isNotBlank(url) ? url + pathInfo : pathInfo;
         }
         return url;
+    }
+
+    public ApiProperties getApiProperties() {
+        return apiProperties;
+    }
+
+    public void setApiProperties(ApiProperties apiProperties) {
+        this.apiProperties = apiProperties;
     }
 }

@@ -120,7 +120,7 @@ INSERT INTO `gateway_rate_limit_api` VALUES ('1149260244919205889', '11491682086
 -- ----------------------------
 DROP TABLE IF EXISTS `gateway_route`;
 CREATE TABLE `gateway_route` (
-  `route_id` varchar(64) NOT NULL COMMENT '路由ID',
+  `route_id` bigint(20) NOT NULL COMMENT '路由ID',
   `route_name` varchar(255) NOT NULL COMMENT '路由名称',
   `path` varchar(255) DEFAULT NULL COMMENT '路径',
   `service_id` varchar(255) DEFAULT NULL COMMENT '服务ID',
@@ -140,6 +140,6 @@ INSERT INTO `gateway_route` VALUES ('556587504019439616', 'open-cloud-base-serve
 INSERT INTO `gateway_route` VALUES ('556595619813130240', 'open-cloud-uaa-admin-server', '/admin/**', 'open-cloud-uaa-admin-server', '', '0', '0', '1', '1', '平台用户认证服务器');
 INSERT INTO `gateway_route` VALUES ('556595619813130241', 'open-cloud-uaa-portal-server', '/portal/**', 'open-cloud-uaa-portal-server', '', '0', '0', '1', '1', '门户开发者认证服务器');
 INSERT INTO `gateway_route` VALUES ('556595914240688128', 'open-cloud-msg-server', '/msg/**', 'open-cloud-msg-server', '', '0', '0', '1', '1', '消息服务器');
-INSERT INTO `gateway_route` VALUES ('556595914240688139', 'open-cloud-task-server', '/task/**', 'open-cloud-task-server', '', '0', '0', '1', '1', '工作流服务器');
+INSERT INTO `gateway_route` VALUES ('556595914240688139', 'open-cloud-task-server', '/task/**', 'open-cloud-task-server', '', '0', '0', '1', '1', '任务调度服务器');
 INSERT INTO `gateway_route` VALUES ('556595914240688145', 'open-cloud-bpm-server', '/bpm/**', 'open-cloud-bpm-server', '', '0', '0', '1', '1', '工作流服务器');
 SET FOREIGN_KEY_CHECKS=1;

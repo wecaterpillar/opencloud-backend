@@ -2,78 +2,50 @@ package com.opencloud.msg.server.service;
 
 import com.opencloud.msg.client.model.EmailMessage;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
+import org.springframework.stereotype.Component;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
-import java.util.List;
+import java.io.IOException;
+import java.util.Map;
 
 /**
  * @author woodev
  */
+@Component
 @Slf4j
 public class EmailSender {
-
-    private JavaMailSenderImpl javaMailSender;
-
-    private FreeMarkerConfigurer freeMarkerConfigurer;
-
 
     /**
      * 发送邮件
      */
-    public void sendSimpleMail(EmailMessage emailMessage) {
+    public void sendSimpleMail(JavaMailSenderImpl javaMailSender, EmailMessage emailMessage) throws Exception {
         MimeMessage message = null;
-        try {
-            message = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setTo(emailMessage.getTo());
+        message = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+        helper.setTo(emailMessage.getTo());
+        if (emailMessage.getCc() != null && emailMessage.getCc().length > 0) {
             helper.setCc(emailMessage.getCc());
-            helper.setFrom(javaMailSender.getUsername());
-            helper.setSubject(emailMessage.getSubject());
-            helper.setText(emailMessage.getContent(), true);
-            this.addAttachment(helper, emailMessage);
-            javaMailSender.send(message);
-        } catch (Exception e) {
-            log.error("发送邮件异常:", e);
         }
+        helper.setFrom(javaMailSender.getUsername());
+        helper.setSubject(emailMessage.getSubject());
+        helper.setText(emailMessage.getContent(), true);
+        this.addAttachment(helper, emailMessage);
+        javaMailSender.send(message);
     }
 
-    /**
-     * 添加附件
-     *
-     * @param helper
-     * @param emailMessage
-     * @throws MessagingException
-     */
-    private void addAttachment(MimeMessageHelper helper, EmailMessage emailMessage) throws MessagingException {
+    private void addAttachment(MimeMessageHelper helper, EmailMessage emailMessage) throws MessagingException, IOException {
         if (emailMessage.getAttachments() != null && !emailMessage.getAttachments().isEmpty()) {
-            List<String> attachments = emailMessage.getAttachments();
-            for (String filePath : attachments) {
+            for (Map<String, String> fileMap : emailMessage.getAttachments()) {
+                String filePath = fileMap.get("filePath");
+                String originalFilename = fileMap.get("originalFilename");
                 File file = new File(filePath);
-                helper.addAttachment(file.getName(), file);
+                helper.addAttachment(originalFilename, file);
             }
         }
-    }
-
-    public JavaMailSender getJavaMailSender() {
-        return javaMailSender;
-    }
-
-    public void setJavaMailSender(JavaMailSenderImpl javaMailSender) {
-        this.javaMailSender = javaMailSender;
-    }
-
-    public FreeMarkerConfigurer getFreeMarkerConfigurer() {
-        return freeMarkerConfigurer;
-    }
-
-    public void setFreeMarkerConfigurer(FreeMarkerConfigurer freeMarkerConfigurer) {
-        this.freeMarkerConfigurer = freeMarkerConfigurer;
     }
 
 

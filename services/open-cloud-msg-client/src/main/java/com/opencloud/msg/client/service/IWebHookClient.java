@@ -1,25 +1,27 @@
-package com.opencloud.msg.client.api;
+package com.opencloud.msg.client.service;
 
 import com.opencloud.common.model.ResultBody;
-import com.opencloud.msg.client.model.SmsMessage;
+import com.opencloud.msg.client.model.WebHookMessage;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * 推送通知
+ *
  * @author woodev
  */
-public interface ISmsClient {
+public interface IWebHookClient {
+
     /**
-     * 短信通知
+     * Webhook异步通知
+     *
      * @param message
      * @return
      */
-    @ApiOperation("发送短信")
-    @PostMapping("/sms")
+    @ApiOperation("Webhook异步通知")
+    @PostMapping("/webhook")
     ResultBody<String> send(
-            @RequestBody SmsMessage message
-    );
-
+            @RequestBody WebHookMessage message
+    ) throws Exception;
 }

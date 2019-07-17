@@ -42,6 +42,10 @@ management:
             exposure:
                 include: '*'
 opencloud:
+    swagger2:
+        enabled: true
+        description: 门户开发者认证服务器
+        title: 门户开发者认证服务器
     client:
         oauth2:
             platfom:
@@ -78,11 +82,6 @@ opencloud:
                 scope: snsapi_login
                 user-authorization-uri: https://open.weixin.qq.com/connect/qrconnect
                 user-info-uri: https://api.weixin.qq.com/sns/userinfo
-    swagger2:
-        enabled: true
-        description: ${description}
-        title: ${description}
-
 
 #mybatis plus 设置
 mybatis-plus:

@@ -25,13 +25,13 @@ public class SmsExchanger implements MessageExchanger {
 
     @Override
     public boolean support(Object message) {
-        return message.getClass().equals(SmsMessage.class);
+        return message instanceof  SmsMessage;
     }
 
     @Override
-    public boolean exchange(BaseMessage notify) {
+    public boolean exchange(BaseMessage message) {
         Assert.notNull(smsSender, "短信接口没有初始化");
-        SmsMessage smsNotify = (SmsMessage) notify;
-        return smsSender.send(smsNotify);
+        SmsMessage smsMessage = (SmsMessage) message;
+        return smsSender.send(smsMessage);
     }
 }

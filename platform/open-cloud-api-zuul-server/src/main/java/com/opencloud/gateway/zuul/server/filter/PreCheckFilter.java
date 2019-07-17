@@ -41,7 +41,8 @@ public class PreCheckFilter extends OncePerRequestFilter {
         String remoteIpAddress = WebUtils.getRemoteAddress(request);
         String origin = request.getHeader(HttpHeaders.ORIGIN);
         AuthorityResource resource = apiAccessManager.getResource(requestPath);
-        if (resource != null) {
+        // 测试环境 忽略api状态验证
+        if (resource != null && !apiAccessManager.getApiProperties().getApiDebug()) {
             // 资源是否公共访问验证
             if (STATUS_0.equals(resource.getIsOpen().toString())) {
                 // 未公开

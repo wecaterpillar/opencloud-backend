@@ -3,12 +3,12 @@ package com.opencloud.task.server.listenter;
 import com.alibaba.fastjson.JSONObject;
 import com.opencloud.common.utils.DateUtils;
 import com.opencloud.common.utils.StringUtils;
-import com.opencloud.msg.client.model.EmailMessage;
 import com.opencloud.task.client.model.entity.SchedulerJobLogs;
 import com.opencloud.task.server.service.SchedulerJobLogsService;
 import com.opencloud.task.server.service.feign.EmailServiceClient;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 
@@ -77,8 +77,7 @@ public class JobLogsListener implements JobListener {
             if (StringUtils.isNotBlank(alarmMail)) {
                 String title = String.format("[%s]任务执行异常-%s", jobName, DateUtils.formatDateTime(new Date()));
                 try {
-                    EmailMessage emailMessage = new EmailMessage(alarmMail, title, e.getMessage());
-                    emailServiceClient.send(emailMessage);
+                    emailServiceClient.send(alarmMail,null,title,e.getMessage(),new MultipartFile[]{});
                 } catch (Exception em) {
                     log.error("==> send alarmMail error:{}", em);
                 }

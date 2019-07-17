@@ -1,4 +1,4 @@
-package com.opencloud.msg.client.api;
+package com.opencloud.msg.client.service;
 
 /**
  * 推送通知

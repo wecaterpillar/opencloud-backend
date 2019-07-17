@@ -2,7 +2,7 @@ package com.opencloud.msg.server.dispatcher;
 
 import com.opencloud.msg.client.model.BaseMessage;
 import com.opencloud.msg.server.exchanger.MessageExchanger;
-import com.opencloud.msg.server.task.NotifyTask;
+import com.opencloud.msg.server.task.MessageTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -39,7 +39,7 @@ public class MessageDispatcher implements ApplicationContextAware{
             exchangers.forEach((exchanger) -> {
                 if(exchanger.support(notification)){
                     //添加到线程池进行处理
-                    executorService.submit(new NotifyTask(exchanger,notification));
+                    executorService.submit(new MessageTask(exchanger,notification));
                 }
             });
         }

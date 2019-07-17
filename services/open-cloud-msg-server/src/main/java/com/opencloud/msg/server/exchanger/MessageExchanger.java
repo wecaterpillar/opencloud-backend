@@ -11,5 +11,5 @@ public interface MessageExchanger {
 
     boolean support(Object message);
 
-    boolean exchange(BaseMessage notify);
+    boolean exchange(BaseMessage message);
 }

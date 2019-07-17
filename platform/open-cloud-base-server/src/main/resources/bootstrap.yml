@@ -32,10 +32,11 @@ management:
         web:
             exposure:
                 include: '*'
+opencloud:
     swagger2:
         enabled: true
-        description: ${description}
-        title: ${description}
+        description: 平台基础服务器
+        title: 平台基础服务器
 
 #mybatis plus 设置
 mybatis-plus:

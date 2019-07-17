@@ -198,9 +198,9 @@ open-cloud
    ```
     项目启动
     ```bush
-    ./docs/bin/startup.sh {start|stop|restart|status} upm-server.jar
-    ./docs/bin/startup.sh {start|stop|restart|status} uaa-platform-server.jar
-    ./docs/bin/startup.sh {start|stop|restart|status} api-zuul-server.jar
+    ./docs/bin/startup.sh {start|stop|restart|status} open-cloud-base-server.jar
+    ./docs/bin/startup.sh {start|stop|restart|status} open-cloud-uaa-admin-server.jar
+    ./docs/bin/startup.sh {start|stop|restart|status} open-cloud-api-zuul-server.jar
     ```
     
 #### 集成开发 

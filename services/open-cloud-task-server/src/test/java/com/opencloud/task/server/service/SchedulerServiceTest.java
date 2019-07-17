@@ -1,13 +1,16 @@
 package com.opencloud.task.server.service;
 
+import com.google.common.collect.Maps;
 import com.opencloud.common.test.BaseTest;
 import com.opencloud.task.client.model.TaskInfo;
 import com.opencloud.task.server.job.HttpExecuteJob;
-import com.google.common.collect.Maps;
+import com.opencloud.task.server.service.feign.EmailServiceClient;
 import org.junit.Test;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +23,8 @@ public class SchedulerServiceTest extends BaseTest {
 
     @Autowired
     private SchedulerService taskService;
+    @Autowired
+    private EmailServiceClient emailServiceClient;
     @Test
     public void getJobList() throws Exception {
         List<TaskInfo> list= taskService.getJobList();
@@ -82,6 +87,11 @@ public class SchedulerServiceTest extends BaseTest {
     @Test
     public void resumeJob() throws Exception {
         taskService.resumeJob("定时任务测试",Scheduler.DEFAULT_GROUP);
+    }
+
+    @Test
+    public void sendEmail() throws IOException {
+        emailServiceClient.send("515608851@qq.com",null,"测试","测试内容",new MultipartFile[]{});
     }
 
 }

@@ -43,6 +43,10 @@ management:
                 include: '*'
 
 opencloud:
+    swagger2:
+        enabled: true
+        description: 平台用户认证服务器
+        title: 平台用户认证服务器
     client:
         oauth2:
              admin:
@@ -52,10 +56,6 @@ opencloud:
                   scope: ${opencloud.common.scope}
                   user-authorization-uri:  ${opencloud.common.user-authorization-uri}
                   user-info-uri: ${opencloud.common.user-info-uri}
-    swagger2:
-        enabled: true
-        description: ${description}
-        title: ${description}
 
 #mybatis plus 设置
 mybatis-plus:

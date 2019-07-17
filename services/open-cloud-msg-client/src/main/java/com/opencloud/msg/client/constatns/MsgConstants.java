@@ -9,5 +9,5 @@ public class MsgConstants {
     /**
      * 服务名称
      */
-    public static final String MSG_SERVICE = "open-cloud-task-server";
+    public static final String MSG_SERVICE = "open-cloud-msg-server";
 }

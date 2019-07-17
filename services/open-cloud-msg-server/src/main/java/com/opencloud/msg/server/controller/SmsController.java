@@ -1,7 +1,7 @@
 package com.opencloud.msg.server.controller;
 
 import com.opencloud.common.model.ResultBody;
-import com.opencloud.msg.client.api.ISmsClient;
+import com.opencloud.msg.client.service.ISmsClient;
 import com.opencloud.msg.client.model.SmsMessage;
 import com.opencloud.msg.server.dispatcher.MessageDispatcher;
 import io.swagger.annotations.Api;

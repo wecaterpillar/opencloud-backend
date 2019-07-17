@@ -1,10 +1,10 @@
 package com.opencloud.uaa.admin.server.service.impl;
 
-import com.opencloud.uaa.admin.server.service.feign.BaseUserServiceClient;
 import com.opencloud.base.client.constants.BaseConstants;
 import com.opencloud.base.client.model.UserAccount;
 import com.opencloud.common.model.ResultBody;
 import com.opencloud.common.security.OpenUserDetails;
+import com.opencloud.uaa.admin.server.service.feign.BaseUserServiceClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -43,6 +43,21 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         boolean credentialsNonExpired = true;
         boolean enabled = account.getStatus().intValue() == BaseConstants.ACCOUNT_STATUS_NORMAL ? true : false;
         boolean accountNonExpired = true;
-        return new OpenUserDetails(domain, accountId, userId, username, password, accountNonLocked, accountNonExpired, enabled, credentialsNonExpired, nickName, avatar, accountType,account.getAuthorities());
+        OpenUserDetails userDetails = new OpenUserDetails();
+        userDetails.setDomain(domain);
+        userDetails.setAccountId(accountId);
+        userDetails.setUserId(userId);
+        userDetails.setUsername(username);
+        userDetails.setPassword(password);
+        userDetails.setNickName(nickName);
+        userDetails.setAuthorities(account.getAuthorities());
+        userDetails.setAvatar(avatar);
+        userDetails.setAccountId(accountId);
+        userDetails.setAccountNonLocked(accountNonLocked);
+        userDetails.setAccountNonExpired(accountNonExpired);
+        userDetails.setAccountType(accountType);
+        userDetails.setCredentialsNonExpired(credentialsNonExpired);
+        userDetails.setEnabled(enabled);
+        return userDetails;
     }
 }

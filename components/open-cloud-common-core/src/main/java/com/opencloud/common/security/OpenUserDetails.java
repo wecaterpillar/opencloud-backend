@@ -2,11 +2,13 @@ package com.opencloud.common.security;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.collect.Maps;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 
 /**
  * 自定义认证用户信息
@@ -79,6 +81,11 @@ public class OpenUserDetails implements UserDetails {
      */
     private String accountType;
 
+    /**
+     * 用户附加属性
+     */
+    private Map<String, Object> attrs;
+
 
     /**
      * 只是客户端模式.不包含用户信息
@@ -87,26 +94,6 @@ public class OpenUserDetails implements UserDetails {
      */
     public Boolean isClientOnly() {
         return clientId != null && username == null;
-    }
-
-    public OpenUserDetails() {
-    }
-
-
-    public OpenUserDetails(String domain, Long accountId, Long userId, String username, String password, boolean accountNonLocked, boolean accountNonExpired, boolean enabled, boolean credentialsNonExpired, String nickName, String avatar, String accountType, Collection<OpenAuthority> authorities) {
-        this.domain = domain;
-        this.userId = userId;
-        this.username = username;
-        this.password = password;
-        this.accountNonLocked = accountNonLocked;
-        this.accountNonExpired = accountNonExpired;
-        this.enabled = enabled;
-        this.credentialsNonExpired = credentialsNonExpired;
-        this.avatar = avatar;
-        this.nickName = nickName;
-        this.accountType = accountType;
-        this.accountId = accountId;
-        this.authorities = authorities;
     }
 
 
@@ -233,5 +220,16 @@ public class OpenUserDetails implements UserDetails {
 
     public void setAccountType(String accountType) {
         this.accountType = accountType;
+    }
+
+    public Map<String, Object> getAttrs() {
+        if (attrs == null) {
+            return Maps.newHashMap();
+        }
+        return attrs;
+    }
+
+    public void setAttrs(Map<String, Object> attrs) {
+        this.attrs = attrs;
     }
 }

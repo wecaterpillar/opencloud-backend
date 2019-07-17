@@ -3,7 +3,7 @@ package com.opencloud.msg.server.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.opencloud.common.model.PageParams;
 import com.opencloud.common.model.ResultBody;
-import com.opencloud.msg.client.api.IWebHookClient;
+import com.opencloud.msg.client.service.IWebHookClient;
 import com.opencloud.msg.client.model.WebHookMessage;
 import com.opencloud.msg.client.model.entity.WebHookLogs;
 import com.opencloud.msg.server.service.DelayMessageService;
