@@ -17,7 +17,7 @@ public class ServicesInMenuConfig extends Properties {
         for(Object key: this.keySet()){
             JSONObject json = new JSONObject();
             json.put("serviceId", (String)key);
-            json.put("serviceName", getProperty((String)key));
+            json.put("serviceName", getProperty((String)key)+" ("+key+")");
             jsonList.add(json);
         }
         return jsonList;
