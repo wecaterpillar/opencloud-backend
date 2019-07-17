@@ -47,7 +47,7 @@ public class BaseMenuController {
      * @return
      */
     @ApiOperation(value = "所有服务列表", notes = "所有服务列表")
-    @GetMapping("/menu/serviceList")
+    @GetMapping("/menu/services")
     public ResultBody<List<JSONObject>>  getServiceList(){
         return ResultBody.ok().data(serviceList.toJsonList());
     }
