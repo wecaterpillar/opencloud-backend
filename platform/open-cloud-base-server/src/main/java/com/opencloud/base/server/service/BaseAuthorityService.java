@@ -201,6 +201,15 @@ public interface BaseAuthorityService extends IBaseService<BaseAuthority> {
     List<AuthorityMenu> findAuthorityMenuByUser(Long userId, Boolean root);
 
     /**
+     * 获取用户已授权权限详情
+     * @param userId
+     * @param serviceId  指定前端应用
+     * @param root
+     * @return
+     */
+    List<AuthorityMenu> findAuthorityMenuByUser(Long userId, String serviceId, Boolean root);
+
+    /**
      * 检测全是是否被多个角色授权
      *
      * @param authorityId

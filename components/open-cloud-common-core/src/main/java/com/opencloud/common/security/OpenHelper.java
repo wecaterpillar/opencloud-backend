@@ -36,25 +36,29 @@ public class OpenHelper {
      * @return
      */
     public static OpenUserDetails getUser() {
+        OpenUserDetails openUser = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated() && authentication instanceof OAuth2Authentication) {
             OAuth2Authentication oAuth2Authentication = (OAuth2Authentication) authentication;
             OAuth2Request clientToken = oAuth2Authentication.getOAuth2Request();
             if (!oAuth2Authentication.isClientOnly()) {
                 if (authentication.getPrincipal() instanceof OpenUserDetails) {
-                    return (OpenUserDetails) authentication.getPrincipal();
+                    openUser =  (OpenUserDetails) authentication.getPrincipal();
                 }
                 if (authentication.getPrincipal() instanceof Map) {
-                    return BeanConvertUtils.mapToObject((Map) authentication.getPrincipal(), OpenUserDetails.class);
+                    openUser =  BeanConvertUtils.mapToObject((Map) authentication.getPrincipal(), OpenUserDetails.class);
+                }
+                if(openUser!=null && openUser.getClientId()==null && clientToken.getClientId()!=null){
+                    openUser.setClientId(clientToken.getClientId());
                 }
             } else {
-                OpenUserDetails openUser = new OpenUserDetails();
+                openUser = new OpenUserDetails();
                 openUser.setClientId(clientToken.getClientId());
                 openUser.setAuthorities(clientToken.getAuthorities());
                 return openUser;
             }
         }
-        return null;
+        return openUser;
     }
 
 

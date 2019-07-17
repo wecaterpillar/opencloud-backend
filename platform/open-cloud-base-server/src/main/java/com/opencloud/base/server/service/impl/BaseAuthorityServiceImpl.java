@@ -541,6 +541,11 @@ public class BaseAuthorityServiceImpl extends BaseServiceImpl<BaseAuthorityMappe
      */
     @Override
     public List<AuthorityMenu> findAuthorityMenuByUser(Long userId, Boolean root) {
+        return findAuthorityMenuByUser(userId, null, root);
+    }
+
+    @Override
+    public List<AuthorityMenu> findAuthorityMenuByUser(Long userId, String serviceId, Boolean root) {
         if (root) {
             // 超级管理员返回所有
             return findAuthorityMenu(null);
@@ -551,14 +556,14 @@ public class BaseAuthorityServiceImpl extends BaseServiceImpl<BaseAuthorityMappe
         if (rolesList != null) {
             for (BaseRole role : rolesList) {
                 // 加入角色已授权
-                List<AuthorityMenu> roleGrantedAuthority = baseAuthorityRoleMapper.selectAuthorityMenuByRole(role.getRoleId());
+                List<AuthorityMenu> roleGrantedAuthority = baseAuthorityRoleMapper.selectAuthorityMenuByRole(role.getRoleId(), serviceId);
                 if (roleGrantedAuthority != null && roleGrantedAuthority.size() > 0) {
                     authorities.addAll(roleGrantedAuthority);
                 }
             }
         }
         // 加入用户特殊授权
-        List<AuthorityMenu> userGrantedAuthority = baseAuthorityUserMapper.selectAuthorityMenuByUser(userId);
+        List<AuthorityMenu> userGrantedAuthority = baseAuthorityUserMapper.selectAuthorityMenuByUser(userId, serviceId);
         if (userGrantedAuthority != null && userGrantedAuthority.size() > 0) {
             authorities.addAll(userGrantedAuthority);
         }

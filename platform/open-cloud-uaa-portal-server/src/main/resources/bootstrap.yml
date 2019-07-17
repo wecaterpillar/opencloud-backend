@@ -44,7 +44,7 @@ management:
 opencloud:
     client:
         oauth2:
-           platfom:
+            platfom:
                 access-token-uri: ${opencloud.common.access-token-uri}
                 client-id: 1552294656514
                 client-secret: 74a02bade18a42388c3127751b96e1f7

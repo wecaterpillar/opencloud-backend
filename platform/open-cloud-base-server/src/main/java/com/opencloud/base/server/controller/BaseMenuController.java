@@ -3,9 +3,10 @@ package com.opencloud.base.server.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.opencloud.base.client.model.entity.BaseAction;
+import com.opencloud.base.client.model.entity.BaseApp;
 import com.opencloud.base.client.model.entity.BaseMenu;
-import com.opencloud.base.server.configuration.ServicesInMenuConfig;
 import com.opencloud.base.server.service.BaseActionService;
+import com.opencloud.base.server.service.BaseAppService;
 import com.opencloud.base.server.service.BaseMenuService;
 import com.opencloud.common.model.PageParams;
 import com.opencloud.common.model.ResultBody;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -35,11 +37,10 @@ public class BaseMenuController {
     private BaseActionService baseResourceOperationService;
 
     @Autowired
-    private OpenRestTemplate openRestTemplate;
+    private BaseAppService baseAppService;
 
     @Autowired
-    private ServicesInMenuConfig serviceList;
-
+    private OpenRestTemplate openRestTemplate;
 
     /**
      * 所有服务列表
@@ -49,7 +50,20 @@ public class BaseMenuController {
     @ApiOperation(value = "所有服务列表", notes = "所有服务列表")
     @GetMapping("/menu/services")
     public ResultBody<List<JSONObject>>  getServiceList(){
-        return ResultBody.ok().data(serviceList.toJsonList());
+
+        List<BaseApp> apps = baseAppService.list();
+        List<JSONObject> jsonList = new ArrayList<JSONObject>();
+        for(BaseApp app: apps){
+            JSONObject json = new JSONObject();
+            json.put("serviceId", app.getAppNameEn());
+            String serviceNameDisplay = app.getAppName()+"("+app.getAppNameEn()+")";
+            if(app.getStatus() != 1){
+                serviceNameDisplay += "[未启用]";
+            }
+            json.put("serviceName", serviceNameDisplay);
+            jsonList.add(json);
+        }
+        return ResultBody.ok().data(jsonList);
     }
 
     /**

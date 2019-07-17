@@ -48,5 +48,8 @@
         WHERE
                 ua.user_id = #{userId}
                 and a.status = 1
+        <if test="serviceId != null">
+            and m.service_id = #{serviceId}
+        </if>
     </select>
 </mapper>

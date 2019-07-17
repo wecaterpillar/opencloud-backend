@@ -29,5 +29,5 @@ public interface BaseAuthorityRoleMapper extends SuperMapper<BaseAuthorityRole> 
      * @param roleId
      * @return
      */
-    List<AuthorityMenu> selectAuthorityMenuByRole(@Param("roleId") Long roleId);
+    List<AuthorityMenu> selectAuthorityMenuByRole(@Param("roleId") Long roleId, @Param("serviceId") String serviceId);
 }
