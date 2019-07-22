@@ -594,7 +594,6 @@ public class BaseAuthorityServiceImpl extends BaseServiceImpl<BaseAuthorityMappe
         return count > 0;
     }
 
-
     /**
      * 清理无效数据
      *
@@ -603,10 +602,10 @@ public class BaseAuthorityServiceImpl extends BaseServiceImpl<BaseAuthorityMappe
      */
     @Override
     public void clearInvalidApi(String serviceId, Collection<String> codes) {
-        if (StringUtils.isBlank(serviceId) || codes == null || codes.isEmpty()) {
+        if (StringUtils.isBlank(serviceId)) {
             return;
         }
-        List<String> invalidApiIds = baseApiService.listObjs(new QueryWrapper<BaseApi>().select("api_id").eq("service_id", serviceId).notIn("api_code", codes), e -> e.toString());
+        List<String> invalidApiIds = baseApiService.listObjs(new QueryWrapper<BaseApi>().select("api_id").eq("service_id", serviceId).notIn(codes!=null&&!codes.isEmpty(),"api_code", codes), e -> e.toString());
         if (invalidApiIds != null) {
             // 防止删除默认api
             invalidApiIds.remove("1");

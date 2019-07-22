@@ -28,6 +28,10 @@
 + 后台测试账号:test 123456
 + SpringBootAdmin账号:sba 123456
 #### 更新日志
+    v-3.0.0 2019-07-19
+        1. 增加open-cloud-generator-server 在线代码生成器
+        2. docs/sql/data/日期.sql 增量数据
+        
     v-3.0.0 2019-07-11 （重大更新） 
         1. 新增开发者管理
         2. 调整项目结构
@@ -36,7 +40,7 @@
         5. 升级方式 
             + 升级前注意对老数据进行备份
             + 重新导入common.propertis到配置中心
-            + 重新执行 base.sql oauth2.sql gateway.sql msg.sql 并手动删除无效表名
+            + 重新执行 2019-07-19.sql oauth2.sql gateway.sql msg.sql 并手动删除无效表名
         
     v-2.1.0 2019-06-10 
         1. base_api表新增字段is_open是否公开访问: 0-内部的 1-公开的
@@ -83,9 +87,6 @@
 #### vue门户UI源码
 <a target="_blank" href="https://gitee.com/liuyadu_open/open-site-antd.git">门户UI源码</a>
 
-#### 代码生成器
-<a target="_blank" href="https://gitee.com/liuyadu/generator.git">代码生成器</a>  
-
 #### 使用手册
 <a target="_blank" href="https://gitee.com/liuyadu/open-cloud/wikis/pages">使用手册</a>  
 
@@ -99,9 +100,9 @@ open-cloud
 ├── docs                               -- 文档及脚本
     ├── bin                            -- 执行脚本  
     ├── config                         -- 公共配置,用于导入到nacos配置中心   
-    ├── generator                      -- mapper生成器  
     ├── sql                            -- sql文件
-    
+      ├── data                         -- 增量数据
+     
 ├── components                         -- 公共组件
     ├── open-cloud-common-core         -- 提供微服务相关依赖包、工具类、全局异常解析等
     ├── open-cloud-common-starter      -- SpringBoot自动配置扫描
@@ -115,7 +116,8 @@ open-cloud
     ├── open-cloud-base-server         -- 平台基础服务器[port=8233]
     ├── open-cloud-uaa-admin-server    -- 平台用户认证服务器[port = 8211]
     ├── open-cloud-uaa-portal-server   -- 门户开发者认证服务器[port = 7211]
-        
+    ├── open-cloud-generator-server    -- 在线代码生成服务器[port = 5555]
+    
 ├── services                           -- 通用微服务
     ├── open-cloud-msg-client          -- 消息服务接口
     ├── open-cloud-msg-server          -- 消息服务器[port = 8266]
@@ -172,14 +174,14 @@ open-cloud
         <discovery.server-addr>127.0.0.1:8848</discovery.server-addr>
     ```
     
-5. 本地启动(顺序启动)
-     1. BaseApplication(通用权限服务)
-     2. UaaAdminApplication(平台用户认证服务器)
-     3. ApiGatewayZuulApplication(推荐)或ApiGatewaySpringApplication(暂不推荐)
+5. 本地启动(按顺序启动)
+     1. [必需]BaseApplication(平台基础服务)
+     2. [必需]UaaAdminApplication(平台用户认证服务器)
+     3. [必需]ApiGatewayZuulApplication(推荐)或ApiGatewaySpringApplication(暂不推荐)
      ```
         访问 http://localhost:8888
      ```
-     4.SpringBootAdmin(非必需)
+     4.[非必需]SpringBootAdmin(监控服务器)(非必需)
       ```
           访问 http://localhost:8849
       ```

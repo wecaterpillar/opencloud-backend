@@ -27,7 +27,6 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
 import org.springframework.web.servlet.mvc.condition.RequestMethodsRequestCondition;
@@ -105,10 +104,10 @@ public class AnnotationScan implements ApplicationListener<ApplicationReadyEvent
         for (Map.Entry<RequestMappingInfo, HandlerMethod> m : map.entrySet()) {
             RequestMappingInfo info = m.getKey();
             HandlerMethod method = m.getValue();
-            if (method.getMethod().getDeclaringClass().getAnnotation(RestController.class) == null) {
-                // 只扫描RestController
-                continue;
-            }
+//            if (method.getMethod().getDeclaringClass().getAnnotation(RestController.class) == null) {
+//                // 只扫描RestController
+//                continue;
+//            }
             if (method.getMethodAnnotation(ApiIgnore.class) != null) {
                 // 忽略的接口不扫描
                 continue;
@@ -157,7 +156,7 @@ public class AnnotationScan implements ApplicationListener<ApplicationReadyEvent
                 name = apiOperation.value();
                 desc = apiOperation.notes();
             }
-            name = StringUtils.isBlank(name) ? fullName : name;
+            name = StringUtils.isBlank(name) ? methodName : name;
             api.put("apiName", name);
             api.put("apiCode", md5);
             api.put("apiDesc", desc);
