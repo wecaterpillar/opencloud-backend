@@ -96,6 +96,7 @@ public class ResourceServerConfiguration {
                 .httpBasic().disable()
                 .csrf().disable()
                 .authorizeExchange()
+                .pathMatchers("/").permitAll()
                 // 动态权限验证
                 .anyExchange().access(accessAuthorizationManager)
                 .and().exceptionHandling()

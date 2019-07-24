@@ -19,6 +19,7 @@
         <module>open-cloud-task-server</module>
         <module>open-cloud-sba-server</module>
         <module>open-cloud-tenant-demo</module>
+        <module>open-cloud-sso-ui-demo</module>
     </modules>
 
 

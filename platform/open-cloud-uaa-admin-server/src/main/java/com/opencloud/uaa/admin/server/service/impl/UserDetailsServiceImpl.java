@@ -4,6 +4,7 @@ import com.opencloud.base.client.constants.BaseConstants;
 import com.opencloud.base.client.model.UserAccount;
 import com.opencloud.common.model.ResultBody;
 import com.opencloud.common.security.OpenUserDetails;
+import com.opencloud.common.security.oauth2.client.OpenOAuth2ClientProperties;
 import com.opencloud.uaa.admin.server.service.feign.BaseUserServiceClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
     private BaseUserServiceClient baseUserServiceClient;
+    @Autowired
+    private OpenOAuth2ClientProperties clientProperties;
 
     @Override
     public UserDetails loadUserByUsername(String username)
@@ -58,6 +61,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         userDetails.setAccountType(accountType);
         userDetails.setCredentialsNonExpired(credentialsNonExpired);
         userDetails.setEnabled(enabled);
+        userDetails.setClientId(clientProperties.getOauth2().get("admin").getClientId());
         return userDetails;
     }
 }

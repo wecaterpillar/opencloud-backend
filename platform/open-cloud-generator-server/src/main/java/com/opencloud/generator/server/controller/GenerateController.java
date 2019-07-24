@@ -74,7 +74,7 @@ public class GenerateController {
             @RequestParam(value = "includeTables") String includeTables,
             @RequestParam(value = "tablePrefix") String tablePrefix
     ) throws Exception {
-        String outputDir = System.getProperty("user.dir") + File.separator + "temp" + File.separator + DateUtils.getCurrentTimestampStr();
+        String outputDir = System.getProperty("user.dir") + File.separator + "temp" + File.separator + "generator" + File.separator + DateUtils.getCurrentTimestampStr();
         GenerateConfig config = new GenerateConfig();
         config.setDbType(DbType.getDbType(type));
         config.setJdbcUrl(url);
@@ -91,11 +91,11 @@ public class GenerateController {
         String fileName = moduleName + ".zip";
         String filePath = outputDir + File.separator + fileName;
         // 压缩目录
-        String[] srcDir = {outputDir+File.separator+(parentPackage.substring(0,parentPackage.indexOf(".")))};
+        String[] srcDir = {outputDir + File.separator + (parentPackage.substring(0, parentPackage.indexOf(".")))};
         ZipUtil.toZip(srcDir, filePath, true);
         Map data = Maps.newHashMap();
-        data.put("filePath",filePath);
-        data.put("fileName",fileName);
+        data.put("filePath", filePath);
+        data.put("fileName", fileName);
         return ResultBody.ok().data(data);
     }
 }

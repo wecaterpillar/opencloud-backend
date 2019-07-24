@@ -6,6 +6,7 @@ import com.opencloud.common.utils.ReflectionUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -18,8 +19,10 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
+import org.springframework.util.Assert;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -67,18 +70,46 @@ public class OpenHelper {
      *
      * @param openUser
      */
-    public void updateOpenUser(TokenStore tokenStore,OpenUserDetails openUser) {
+    public static void updateOpenUser(TokenStore tokenStore,OpenUserDetails openUser) {
+        Assert.notNull(openUser.getClientId(), "客户端ID不能为空");
+        Assert.notNull(openUser.getUsername(), "用户名不能为空");
         // 动态更新客户端生成的token
         Collection<OAuth2AccessToken> accessTokens = tokenStore.findTokensByClientIdAndUserName(openUser.getClientId(), openUser.getUsername());
-        for (OAuth2AccessToken accessToken : accessTokens) {
-            // 由于没有set方法,使用反射机制强制赋值
-            OAuth2Authentication oAuth2Authentication = tokenStore.readAuthentication(accessToken);
-            Authentication authentication = oAuth2Authentication.getUserAuthentication();
-            ReflectionUtils.setFieldValue(authentication, "principal", openUser);
-            // 重新保存
-            tokenStore.storeAccessToken(accessToken, oAuth2Authentication);
+        if (accessTokens != null && !accessTokens.isEmpty()) {
+            for (OAuth2AccessToken accessToken : accessTokens) {
+                // 由于没有set方法,使用反射机制强制赋值
+                OAuth2Authentication oAuth2Authentication = tokenStore.readAuthentication(accessToken);
+                Authentication authentication = oAuth2Authentication.getUserAuthentication();
+                ReflectionUtils.setFieldValue(authentication, "principal", openUser);
+                // 重新保存
+                tokenStore.storeAccessToken(accessToken, oAuth2Authentication);
+            }
         }
     }
+
+
+    /***
+     * 更新客户端权限
+     * @param tokenStore
+     * @param clientId
+     * @param authorities
+     */
+    public static void updateOpenClientAuthorities(TokenStore tokenStore,String clientId,Collection<? extends GrantedAuthority> authorities) {
+        // 动态更新客户端生成的token
+        Collection<OAuth2AccessToken> accessTokens = tokenStore.findTokensByClientId(clientId);
+        if (accessTokens != null && !accessTokens.isEmpty()) {
+            Iterator<OAuth2AccessToken> iterator = accessTokens.iterator();
+            while (iterator.hasNext()) {
+                OAuth2AccessToken token = iterator.next();
+                OAuth2Authentication oAuth2Authentication = tokenStore.readAuthentication(token);
+                // 由于没有set方法,使用反射机制强制赋值
+                ReflectionUtils.setFieldValue(oAuth2Authentication, "authorities", authorities);
+                // 重新保存
+                tokenStore.storeAccessToken(token, oAuth2Authentication);
+            }
+        }
+    }
+
 
     /**
      * 获取认证用户Id

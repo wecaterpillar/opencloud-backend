@@ -3,6 +3,11 @@ package com.opencloud.base.server.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.opencloud.base.client.constants.BaseConstants;
+import com.opencloud.base.client.constants.ResourceType;
+import com.opencloud.base.client.model.AuthorityApi;
+import com.opencloud.base.client.model.AuthorityMenu;
+import com.opencloud.base.client.model.AuthorityResource;
 import com.opencloud.base.client.model.entity.*;
 import com.opencloud.base.server.mapper.*;
 import com.opencloud.base.server.service.*;
@@ -11,19 +16,12 @@ import com.opencloud.common.exception.OpenAlertException;
 import com.opencloud.common.exception.OpenException;
 import com.opencloud.common.mybatis.base.service.impl.BaseServiceImpl;
 import com.opencloud.common.security.OpenAuthority;
+import com.opencloud.common.security.OpenHelper;
 import com.opencloud.common.security.SecurityConstants;
-import com.opencloud.common.utils.ReflectionUtils;
 import com.opencloud.common.utils.StringUtils;
-import com.opencloud.base.client.constants.ResourceType;
-import com.opencloud.base.client.constants.BaseConstants;
-import com.opencloud.base.client.model.AuthorityApi;
-import com.opencloud.base.client.model.AuthorityMenu;
-import com.opencloud.base.client.model.AuthorityResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -390,19 +388,8 @@ public class BaseAuthorityServiceImpl extends BaseServiceImpl<BaseAuthorityMappe
         }
         // 获取应用最新的权限列表
         List<OpenAuthority> authorities = findAuthorityByApp(appId);
-        // 动态更新客户端生成的token
-        Collection<OAuth2AccessToken> accessTokens = redisTokenStore.findTokensByClientId(appId);
-        if (accessTokens != null && !accessTokens.isEmpty()) {
-            Iterator<OAuth2AccessToken> iterator = accessTokens.iterator();
-            while (iterator.hasNext()) {
-                OAuth2AccessToken token = iterator.next();
-                OAuth2Authentication oAuth2Authentication = redisTokenStore.readAuthentication(token);
-                // 由于没有set方法,使用反射机制强制赋值
-                ReflectionUtils.setFieldValue(oAuth2Authentication, "authorities", authorities);
-                // 重新保存
-                redisTokenStore.storeAccessToken(token, oAuth2Authentication);
-            }
-        }
+        // 动态更新tokenStore客户端
+        OpenHelper.updateOpenClientAuthorities(redisTokenStore,baseApp.getApiKey(),authorities);
     }
 
     /**

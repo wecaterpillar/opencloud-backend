@@ -19,5 +19,6 @@
         <module>open-cloud-uaa-portal-server</module>
         <module>open-cloud-base-client</module>
         <module>open-cloud-base-server</module>
+        <module>open-cloud-generator-server</module>
     </modules>
 </project>

@@ -21,9 +21,9 @@
 + 代码合理封装、简单易懂、简化开发流程!
 
 
-<a target="_blank" href="http://39.106.187.125/open">开发平台门户预览</a> 
+<a target="_blank" href="http://www.openc.top">开发平台门户预览</a> 
 
-<a target="_blank" href="http://39.106.187.125/admin">运营管理后台预览</a>
+<a target="_blank" href="http://admin.openc.top">运营管理后台预览</a>
 + 后台默认账号:admin 123456  
 + 后台测试账号:test 123456
 + SpringBootAdmin账号:sba 123456
@@ -85,7 +85,7 @@
 <a target="_blank" href="https://gitee.com/liuyadu/open-admin-ui">后台UI源码</a>
 
 #### vue门户UI源码
-<a target="_blank" href="https://gitee.com/liuyadu_open/open-site-antd.git">门户UI源码</a>
+<a target="_blank" href="https://gitee.com/liuyadu_open/open-portal-ui.git">门户UI源码</a>
 
 #### 使用手册
 <a target="_blank" href="https://gitee.com/liuyadu/open-cloud/wikis/pages">使用手册</a>  
@@ -126,6 +126,7 @@ open-cloud
     ├── open-cloud-bpm-client          -- 工作流接口
     ├── open-cloud-bpm-server          -- 工作流服务器[port = 8255]
     ├── open-cloud-sba-server          -- SpringBootAdmin监控服务[port = 8849]
+    ├── open-cloud-sso-ui-demo         -- SSO单点登录演示demo[port = 8849]
 ```
 
 #### 快速开始
@@ -144,9 +145,11 @@ open-cloud
    
 2. 执行创建数据库open-platform并执行sql脚本
     + docs/sql/oauth2.sql
-    + docs/sql/upm.sql
+    + docs/sql/base.sql
     + docs/sql/gateway.sql
+    + docs/sql/msg.sql
     + docs/sql/quartz.sql && scheduler.sql
+      ...
     
 3.  启动nacos服务发现&配置中心,新建公共配置文件 
     + 访问 http://localhost:8848/nacos/index.html 

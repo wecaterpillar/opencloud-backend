@@ -66,6 +66,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .and()
                 .authorizeRequests()
+                .antMatchers("/").permitAll()
                 .anyRequest().authenticated()
                 // 动态权限验证
                 .anyRequest().access("@accessAuthorizationManager.check(request,authentication)")

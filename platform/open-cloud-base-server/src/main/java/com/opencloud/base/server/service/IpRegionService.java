@@ -15,6 +15,7 @@ import java.lang.reflect.Method;
 
 /**
  * IpRegion服务类
+ *
  * @author liuyadu
  */
 @Slf4j
@@ -25,22 +26,20 @@ public class IpRegionService {
 
     /**
      * 初始化IP库
-     * 网上早springboot中使用的工具类,能用但是不可取,性能会有问题,每次都会重新加载db文件,增加IO读取和执行效率。
-     * 这里使用bean的方法一次初始化db
      */
     @PostConstruct
     public void init() {
         try {
             // 因为jar无法读取文件,复制创建临时文件
-            String tmpDir = System.getProperties().getProperty("java.io.tmpdir");
-            String dbPath = tmpDir + "ip2region.db";
+            String tmpDir = System.getProperty("user.dir") + File.separator + "temp";
+            String dbPath = tmpDir + File.separator + "ip2region.db";
             log.info("init ip region db path [{}]", dbPath);
             File file = new File(dbPath);
             FileUtils.copyInputStreamToFile(IpRegionService.class.getClassLoader().getResourceAsStream("data/ip2region.db"), file);
             config = new DbConfig();
             searcher = new DbSearcher(config, dbPath);
-            log.info("bean [{}]",config);
-            log.info("bean [{}]",searcher);
+            log.info("bean [{}]", config);
+            log.info("bean [{}]", searcher);
         } catch (Exception e) {
             log.error("init ip region error:{}", e);
         }
@@ -87,7 +86,7 @@ public class IpRegionService {
             dataBlock = (DataBlock) method.invoke(searcher, ip);
             String result = dataBlock.getRegion();
             long endTime = System.currentTimeMillis();
-            log.debug("region use time[{}] result[{}]",endTime-startTime,result);
+            log.debug("region use time[{}] result[{}]", endTime - startTime, result);
             return result;
 
         } catch (Exception e) {

@@ -19,12 +19,14 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 /**
  * @author: liuyadu
  * @date: 2018/11/9 15:43
  * @description:
  */
-@Api(tags = "移动应用用户中心")
+@Api(tags = "用户认证中心")
 @RestController
 public class LoginController {
 
@@ -44,6 +46,18 @@ public class LoginController {
     @GetMapping("/current/user")
     public ResultBody getUserProfile() {
         return ResultBody.ok().data(OpenHelper.getUser());
+    }
+
+
+    /**
+     * 获取当前登录用户信息-SSO单点登录
+     * @param principal
+     * @return
+     */
+    @ApiOperation(value = "获取当前登录用户信息-SSO单点登录",notes = "获取当前登录用户信息-SSO单点登录")
+    @GetMapping("/current/user/sso")
+    public Principal principal(Principal principal) {
+        return principal;
     }
 
     /**
