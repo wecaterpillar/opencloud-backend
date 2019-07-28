@@ -6,20 +6,23 @@ import com.google.common.collect.Maps;
 import com.opencloud.common.model.PageParams;
 import com.opencloud.common.model.ResultBody;
 import com.opencloud.task.client.model.TaskInfo;
-import com.opencloud.task.client.model.entity.SchedulerJobLogs;
+import com.opencloud.task.client.model.entity.TaskJobLogs;
 import com.opencloud.task.server.job.HttpExecuteJob;
-import com.opencloud.task.server.service.SchedulerJobLogsService;
-import com.opencloud.task.server.service.SchedulerService;
+import com.opencloud.task.server.service.TaskJobLogsService;
+import com.opencloud.task.server.service.TaskService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -29,11 +32,11 @@ import java.util.Map;
  * @description:
  */
 @RestController
-public class SchedulerController {
+public class TaskController {
     @Autowired
-    private SchedulerService schedulerService;
+    private TaskService schedulerService;
     @Autowired
-    private SchedulerJobLogsService schedulerJobLogsService;
+    private TaskJobLogsService schedulerJobLogsService;
 
     /**
      * 获取任务执行日志列表
@@ -43,8 +46,8 @@ public class SchedulerController {
      */
     @ApiOperation(value = "获取任务执行日志列表", notes = "获取任务执行日志列表")
     @GetMapping(value = "/job/logs")
-    public ResultBody<IPage<SchedulerJobLogs>> getJobLogList(@RequestParam(required = false) Map map) {
-        IPage<SchedulerJobLogs> result = schedulerJobLogsService.findListPage(new PageParams(map));
+    public ResultBody<IPage<TaskJobLogs>> getJobLogList(@RequestParam(required = false) Map map) {
+        IPage<TaskJobLogs> result = schedulerJobLogsService.findListPage(new PageParams(map));
         return ResultBody.ok().data(result);
     }
 
@@ -68,6 +71,11 @@ public class SchedulerController {
      *
      * @param jobName        任务名称
      * @param jobDescription 任务描述
+     * @param jobType        任务类型
+     * @param startTime      开始时间
+     * @param endTime        结束时间
+     * @param repeatInterval 间隔时间
+     * @param repeatCount    重试次数
      * @param cron           cron表达式
      * @param serviceId      服务名
      * @param path           请求路径
@@ -80,7 +88,12 @@ public class SchedulerController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "jobName", value = "任务名称", required = true, paramType = "form"),
             @ApiImplicitParam(name = "jobDescription", value = "任务描述", required = true, paramType = "form"),
-            @ApiImplicitParam(name = "cron", value = "cron表达式", required = true, paramType = "form"),
+            @ApiImplicitParam(name = "jobType", value = "任务类型", required = true, allowableValues = "simple,cron", paramType = "form"),
+            @ApiImplicitParam(name = "cron", value = "cron表达式", required = false, paramType = "form"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "form"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "form"),
+            @ApiImplicitParam(name = "repeatInterval", value = "间隔时间", required = false, paramType = "form"),
+            @ApiImplicitParam(name = "repeatCount", value = "重试次数", required = false, paramType = "form"),
             @ApiImplicitParam(name = "serviceId", value = "服务名", required = true, paramType = "form"),
             @ApiImplicitParam(name = "path", value = "请求路径", required = true, paramType = "form"),
             @ApiImplicitParam(name = "method", value = "请求类型", required = false, paramType = "form"),
@@ -90,7 +103,12 @@ public class SchedulerController {
     @PostMapping("/job/add/http")
     public ResultBody addHttpJob(@RequestParam(name = "jobName") String jobName,
                                  @RequestParam(name = "jobDescription") String jobDescription,
-                                 @RequestParam(name = "cron") String cron,
+                                 @RequestParam(name = "jobType") String jobType,
+                                 @RequestParam(name = "cron", required = false) String cron,
+                                 @RequestParam(name = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startTime,
+                                 @RequestParam(name = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endTime,
+                                 @RequestParam(name = "repeatInterval", required = false,defaultValue = "0") Long repeatInterval,
+                                 @RequestParam(name = "repeatCount", required = false,defaultValue = "0") Integer repeatCount,
                                  @RequestParam(name = "serviceId") String serviceId,
                                  @RequestParam(name = "path") String path,
                                  @RequestParam(name = "method", required = false) String method,
@@ -108,8 +126,18 @@ public class SchedulerController {
         taskInfo.setJobDescription(jobDescription);
         taskInfo.setJobClassName(HttpExecuteJob.class.getName());
         taskInfo.setJobGroupName(Scheduler.DEFAULT_GROUP);
+        taskInfo.setStartDate(startTime);
+        taskInfo.setEndDate(endTime);
+        taskInfo.setRepeatInterval(repeatInterval);
+        taskInfo.setRepeatCount(repeatCount);
         taskInfo.setCronExpression(cron);
-        schedulerService.addCronJob(taskInfo);
+        if ("simple".equals(jobType)) {
+            Assert.notNull(taskInfo.getStartDate(), "startTime不能为空");
+            schedulerService.addSimpleJob(taskInfo);
+        } else {
+            Assert.notNull(taskInfo.getCronExpression(), "cron表达式不能为空");
+            schedulerService.addCronJob(taskInfo);
+        }
         return ResultBody.ok();
     }
 
@@ -118,6 +146,11 @@ public class SchedulerController {
      *
      * @param jobName        任务名称
      * @param jobDescription 任务描述
+     * @param jobType        任务类型
+     * @param startTime      开始时间
+     * @param endTime        结束时间
+     * @param repeatInterval 间隔时间
+     * @param repeatCount    重试次数
      * @param cron           cron表达式
      * @param serviceId      服务名
      * @param path           请求路径
@@ -130,7 +163,12 @@ public class SchedulerController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "jobName", value = "任务名称", required = true, paramType = "form"),
             @ApiImplicitParam(name = "jobDescription", value = "任务描述", required = true, paramType = "form"),
-            @ApiImplicitParam(name = "cron", value = "cron表达式", required = true, paramType = "form"),
+            @ApiImplicitParam(name = "jobType", value = "任务类型", required = true, allowableValues = "simple,cron", paramType = "form"),
+            @ApiImplicitParam(name = "cron", value = "cron表达式", required = false, paramType = "form"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "form"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "form"),
+            @ApiImplicitParam(name = "repeatInterval", value = "间隔时间", required = false, paramType = "form"),
+            @ApiImplicitParam(name = "repeatCount", value = "重试次数", required = false, paramType = "form"),
             @ApiImplicitParam(name = "serviceId", value = "服务名", required = true, paramType = "form"),
             @ApiImplicitParam(name = "path", value = "请求路径", required = true, paramType = "form"),
             @ApiImplicitParam(name = "method", value = "请求类型", required = false, paramType = "form"),
@@ -140,7 +178,12 @@ public class SchedulerController {
     @PostMapping("/job/update/http")
     public ResultBody updateHttpJob(@RequestParam(name = "jobName") String jobName,
                                     @RequestParam(name = "jobDescription") String jobDescription,
-                                    @RequestParam(name = "cron") String cron,
+                                    @RequestParam(name = "jobType") String jobType,
+                                    @RequestParam(name = "cron", required = false) String cron,
+                                    @RequestParam(name = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startTime,
+                                    @RequestParam(name = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endTime,
+                                    @RequestParam(name = "repeatInterval", required = false,defaultValue = "0") Long repeatInterval,
+                                    @RequestParam(name = "repeatCount", required = false,defaultValue = "0") Integer repeatCount,
                                     @RequestParam(name = "serviceId") String serviceId,
                                     @RequestParam(name = "path") String path,
                                     @RequestParam(name = "method", required = false) String method,
@@ -158,8 +201,18 @@ public class SchedulerController {
         taskInfo.setJobDescription(jobDescription);
         taskInfo.setJobClassName(HttpExecuteJob.class.getName());
         taskInfo.setJobGroupName(Scheduler.DEFAULT_GROUP);
+        taskInfo.setStartDate(startTime);
+        taskInfo.setEndDate(endTime);
+        taskInfo.setRepeatInterval(repeatInterval);
+        taskInfo.setRepeatCount(repeatCount);
         taskInfo.setCronExpression(cron);
-        schedulerService.editCronJob(taskInfo);
+        if ("simple".equals(jobType)) {
+            Assert.notNull(taskInfo.getStartDate(), "startTime不能为空");
+            schedulerService.editSimpleJob(taskInfo);
+        } else {
+            Assert.notNull(taskInfo.getCronExpression(), "cron表达式不能为空");
+            schedulerService.editCronJob(taskInfo);
+        }
         return ResultBody.ok();
     }
 

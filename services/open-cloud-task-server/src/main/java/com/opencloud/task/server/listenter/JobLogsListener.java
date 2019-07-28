@@ -3,8 +3,8 @@ package com.opencloud.task.server.listenter;
 import com.alibaba.fastjson.JSONObject;
 import com.opencloud.common.utils.DateUtils;
 import com.opencloud.common.utils.StringUtils;
-import com.opencloud.task.client.model.entity.SchedulerJobLogs;
-import com.opencloud.task.server.service.SchedulerJobLogsService;
+import com.opencloud.task.client.model.entity.TaskJobLogs;
+import com.opencloud.task.server.service.TaskJobLogsService;
 import com.opencloud.task.server.service.feign.EmailServiceClient;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
@@ -20,9 +20,9 @@ import java.util.Date;
 @Slf4j
 public class JobLogsListener implements JobListener {
     private EmailServiceClient emailServiceClient;
-    private SchedulerJobLogsService schedulerJobLogsService;
+    private TaskJobLogsService schedulerJobLogsService;
 
-    public JobLogsListener(EmailServiceClient emailServiceClient, SchedulerJobLogsService schedulerJobLogsService) {
+    public JobLogsListener(EmailServiceClient emailServiceClient, TaskJobLogsService schedulerJobLogsService) {
         this.emailServiceClient = emailServiceClient;
         this.schedulerJobLogsService = schedulerJobLogsService;
     }
@@ -67,9 +67,19 @@ public class JobLogsListener implements JobListener {
         Integer status = 1;
         Trigger trigger = job.getTrigger();
         String triggerClass = trigger.getClass().getName();
+        Long repeatInterval = 0L;
+        Integer repeatCount = 0;
+        Date startDate = null;
+        Date endDate = null;
         if (trigger instanceof CronTrigger) {
             CronTrigger cronTrigger = (CronTrigger) trigger;
             cronExpression = cronTrigger.getCronExpression();
+        }else if (trigger instanceof SimpleTrigger) {
+            SimpleTrigger simpleTrigger = (SimpleTrigger) trigger;
+            repeatInterval = simpleTrigger.getRepeatInterval();
+            repeatCount = simpleTrigger.getRepeatCount();
+            startDate = simpleTrigger.getStartTime();
+            endDate = simpleTrigger.getEndTime();
         }
         if (e != null) {
             status = 0;
@@ -83,7 +93,7 @@ public class JobLogsListener implements JobListener {
                 }
             }
         }
-        SchedulerJobLogs jobLog = new SchedulerJobLogs();
+        TaskJobLogs jobLog = new TaskJobLogs();
         jobLog.setJobName(jobName);
         jobLog.setJobGroup(jobGroup);
         jobLog.setJobClass(jobClass);
@@ -91,12 +101,16 @@ public class JobLogsListener implements JobListener {
         jobLog.setRunTime(job.getJobRunTime());
         jobLog.setCreateTime(new Date());
         jobLog.setCronExpression(cronExpression);
-        jobLog.setStartTime(job.getFireTime());
         jobLog.setTriggerClass(triggerClass);
-        jobLog.setEndTime(new Date(job.getFireTime().getTime() + job.getJobRunTime()));
+        jobLog.setRunStartTime(job.getFireTime());
+        jobLog.setRunEndTime(new Date(job.getFireTime().getTime() + job.getJobRunTime()));
         jobLog.setJobData(JSONObject.toJSONString(dataMap));
         jobLog.setException(exception);
         jobLog.setStatus(status);
+        jobLog.setRepeatInterval(repeatInterval);
+        jobLog.setRepeatCount(repeatCount);
+        jobLog.setStartDate(startDate);
+        jobLog.setEndDate(endDate);
         schedulerJobLogsService.addLog(jobLog);
     }
 }

@@ -6,9 +6,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.opencloud.common.model.PageParams;
-import com.opencloud.task.client.model.entity.SchedulerJobLogs;
+import com.opencloud.task.client.model.entity.TaskJobLogs;
 import com.opencloud.task.server.mapper.SchedulerJobLogsMapper;
-import com.opencloud.task.server.service.SchedulerJobLogsService;
+import com.opencloud.task.server.service.TaskJobLogsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class SchedulerJobLogsServiceImpl implements SchedulerJobLogsService {
+public class TaskJobLogsServiceImpl implements TaskJobLogsService {
     @Autowired
     private SchedulerJobLogsMapper schedulerJobLogsMapper;
     /**
@@ -31,11 +31,12 @@ public class SchedulerJobLogsServiceImpl implements SchedulerJobLogsService {
      * @return
      */
     @Override
-    public IPage<SchedulerJobLogs> findListPage(PageParams pageParams) {
-        SchedulerJobLogs query = pageParams.mapToObject(SchedulerJobLogs.class);
-        QueryWrapper<SchedulerJobLogs> queryWrapper = new QueryWrapper();
+    public IPage<TaskJobLogs> findListPage(PageParams pageParams) {
+        TaskJobLogs query = pageParams.mapToObject(TaskJobLogs.class);
+        QueryWrapper<TaskJobLogs> queryWrapper = new QueryWrapper();
         queryWrapper.lambda()
-                .likeRight(ObjectUtils.isNotEmpty(query.getJobName()),SchedulerJobLogs::getJobName, query.getJobName());
+                .likeRight(ObjectUtils.isNotEmpty(query.getJobName()), TaskJobLogs::getJobName, query.getJobName());
+        queryWrapper.orderByDesc("create_time");
         return schedulerJobLogsMapper.selectPage(new Page(pageParams.getPage(),pageParams.getLimit()),queryWrapper);
     }
 
@@ -45,7 +46,7 @@ public class SchedulerJobLogsServiceImpl implements SchedulerJobLogsService {
      * @param log
      */
     @Override
-    public void addLog(SchedulerJobLogs log) {
+    public void addLog(TaskJobLogs log) {
         schedulerJobLogsMapper.insert(log);
     }
 
@@ -55,7 +56,7 @@ public class SchedulerJobLogsServiceImpl implements SchedulerJobLogsService {
      * @param log
      */
     @Override
-    public void modifyLog(SchedulerJobLogs log) {
+    public void modifyLog(TaskJobLogs log) {
         schedulerJobLogsMapper.updateById(log);
     }
 
@@ -66,7 +67,7 @@ public class SchedulerJobLogsServiceImpl implements SchedulerJobLogsService {
      * @return
      */
     @Override
-    public SchedulerJobLogs getLog(String logId) {
+    public TaskJobLogs getLog(String logId) {
         return schedulerJobLogsMapper.selectById(logId);
     }
 }

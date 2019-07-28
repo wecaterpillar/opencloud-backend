@@ -1,8 +1,9 @@
 package com.opencloud.base.server.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.opencloud.base.server.service.BaseApiService;
 import com.opencloud.base.client.model.entity.BaseApi;
+import com.opencloud.base.server.service.BaseApiService;
 import com.opencloud.common.model.PageParams;
 import com.opencloud.common.model.ResultBody;
 import com.opencloud.common.security.http.OpenRestTemplate;
@@ -11,6 +12,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -195,6 +197,107 @@ public class BaseApiController {
             @RequestParam("apiId") Long apiId
     ) {
         apiService.removeApi(apiId);
+        // 刷新网关
+        openRestTemplate.refreshGateway();
+        return ResultBody.ok();
+    }
+
+
+    /**
+     * 批量删除数据
+     *
+     * @return
+     */
+    @ApiOperation(value = "批量删除数据", notes = "批量删除数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "ids", required = true, value = "多个用,号隔开", paramType = "form")
+    })
+    @PostMapping("/api/batch/remove")
+    public ResultBody batchRemove(
+            @RequestParam(value = "ids") String ids
+    ) {
+        QueryWrapper<BaseApi> wrapper = new QueryWrapper();
+        wrapper.lambda().in(BaseApi::getApiId, ids.split(",")).eq(BaseApi::getIsPersist, 0);
+        apiService.remove(wrapper);
+        // 刷新网关
+        openRestTemplate.refreshGateway();
+        return ResultBody.ok();
+    }
+
+
+    /**
+     * 批量修改公开状态
+     *
+     * @return
+     */
+    @ApiOperation(value = "批量修改公开状态", notes = "批量修改公开状态")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "ids", required = true, value = "多个用,号隔开", paramType = "form"),
+            @ApiImplicitParam(name = "open", required = true, value = "是否公开访问:0-否 1-是", paramType = "form")
+    })
+    @PostMapping("/api/batch/update/open")
+    public ResultBody batchUpdateOpen(
+            @RequestParam(value = "ids") String ids,
+            @RequestParam(value = "open") Integer open
+    ) {
+        Assert.isTrue((open.intValue() != 1 || open.intValue() != 0), "isOpen只支持0,1");
+        QueryWrapper<BaseApi> wrapper = new QueryWrapper();
+        wrapper.lambda().in(BaseApi::getApiId, ids.split(","));
+        BaseApi entity = new BaseApi();
+        entity.setIsOpen(open);
+        apiService.update(entity, wrapper);
+        // 刷新网关
+        openRestTemplate.refreshGateway();
+        return ResultBody.ok();
+    }
+
+    /**
+     * 批量修改状态
+     *
+     * @return
+     */
+    @ApiOperation(value = "批量修改状态", notes = "批量修改状态")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "ids", required = true, value = "多个用,号隔开", paramType = "form"),
+            @ApiImplicitParam(name = "status", required = true, value = "接口状态:0-禁用 1-启用", paramType = "form")
+    })
+    @PostMapping("/api/batch/update/status")
+    public ResultBody batchUpdateStatus(
+            @RequestParam(value = "ids") String ids,
+            @RequestParam(value = "status") Integer status
+    ) {
+        Assert.isTrue((status.intValue() != 0 || status.intValue() != 1 || status.intValue() != 2), "status只支持0,1,2");
+        QueryWrapper<BaseApi> wrapper = new QueryWrapper();
+        wrapper.lambda().in(BaseApi::getApiId, ids.split(","));
+        BaseApi entity = new BaseApi();
+        entity.setStatus(status);
+        apiService.update(entity, wrapper);
+        // 刷新网关
+        openRestTemplate.refreshGateway();
+        return ResultBody.ok();
+    }
+
+    /**
+     * 批量修改身份认证
+     *
+     * @return
+     */
+    @ApiOperation(value = "批量修改身份认证", notes = "批量修改身份认证")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "ids", required = true, value = "多个用,号隔开", paramType = "form"),
+            @ApiImplicitParam(name = "auth", required = true, value = "是否身份认证:0-否 1-是", paramType = "form")
+    })
+    @PostMapping("/api/batch/update/auth")
+    public ResultBody batchUpdateAuth(
+            @RequestParam(value = "ids") String ids,
+            @RequestParam(value = "auth") Integer auth
+    ) {
+        Assert.isTrue((auth.intValue() != 0 || auth.intValue() != 1), "auth只支持0,1");
+        QueryWrapper<BaseApi> wrapper = new QueryWrapper();
+        wrapper.lambda().in(BaseApi::getApiId, ids.split(",")).eq(BaseApi::getIsPersist, 0);
+        BaseApi entity = new BaseApi();
+        entity.setStatus(auth);
+        apiService.update(entity, wrapper);
         // 刷新网关
         openRestTemplate.refreshGateway();
         return ResultBody.ok();

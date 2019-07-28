@@ -148,7 +148,7 @@ open-cloud
     + docs/sql/base.sql
     + docs/sql/gateway.sql
     + docs/sql/msg.sql
-    + docs/sql/quartz.sql && scheduler.sql
+    + docs/sql/quartz.sql && task.sql
       ...
     
 3.  启动nacos服务发现&配置中心,新建公共配置文件 

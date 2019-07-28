@@ -2,8 +2,14 @@ package ${package.Controller};
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import org.springframework.web.bind.annotation.RequestMapping;
-
+import com.opencloud.common.model.PageParams;
+import com.opencloud.common.model.ResultBody;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 #if(${restControllerStyle})
 import org.springframework.web.bind.annotation.RestController;
 #else
@@ -12,6 +18,8 @@ import org.springframework.stereotype.Controller;
 #if(${superControllerClassPackage})
 import ${superControllerClassPackage};
 #end
+import java.util.Arrays;
+import java.util.Map;
 
 /**
  * $!{table.comment} 前端控制器
@@ -25,7 +33,7 @@ import ${superControllerClassPackage};
     #else
     @Controller
     #end
-@RequestMapping("#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end")
+@RequestMapping("#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end")
 #if(${kotlin})
 class ${table.controllerName}#if(${superControllerClass}) : ${superControllerClass}()#end
 #else
@@ -59,7 +67,7 @@ class ${table.controllerName}#if(${superControllerClass}) : ${superControllerCla
     @ResponseBody
     @RequestMapping("/get")
     public ResultBody<${entity}> get(@RequestParam("id") Long id){
-        ${entity} entity = targetService.selectById(id);
+        ${entity} entity = targetService.getById(id);
         return ResultBody.ok().data(entity);
     }
 
@@ -78,8 +86,7 @@ class ${table.controllerName}#if(${superControllerClass}) : ${superControllerCla
         #end
         #end
     #end
-            }
-    })
+            })
     @PostMapping("/add")
     public ResultBody add(
     #foreach($field in ${table.fields})
@@ -92,7 +99,7 @@ class ${table.controllerName}#if(${superControllerClass}) : ${superControllerCla
         #end
     #end
             ){
-        ${entity} entity = new ${entity}()
+        ${entity} entity = new ${entity}();
         #foreach($field in ${table.fields})
         #if(!${field.keyFlag})
         entity.set${field.capitalName}(${field.propertyName});
@@ -115,7 +122,7 @@ class ${table.controllerName}#if(${superControllerClass}) : ${superControllerCla
                     @ApiImplicitParam(name = "${field.propertyName}", required = true, value = "${field.comment}", paramType = "form"),
             #end
         #end
-            })
+        })
         @PostMapping("/update")
         public ResultBody add(
             #foreach($field in ${table.fields})
@@ -126,7 +133,7 @@ class ${table.controllerName}#if(${superControllerClass}) : ${superControllerCla
                 #end
             #end
         ){
-            ${entity} entity = new ${entity}()
+            ${entity} entity = new ${entity}();
             #foreach($field in ${table.fields})
                     entity.set${field.capitalName}(${field.propertyName});
             #end
@@ -156,13 +163,15 @@ class ${table.controllerName}#if(${superControllerClass}) : ${superControllerCla
     */
     @ApiOperation(value = "批量删除数据", notes = "批量删除数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", required = true, value = "id", paramType = "form")
+            @ApiImplicitParam(name = "ids", required = true, value = "多个用,号隔开", paramType = "form")
     })
-    @PostMapping("/remove/batch")
-    public ResultBody removeBatch(
-             @RequestParam(value = "ids")  List<Long> ids
+    @PostMapping("/batch/remove")
+    public ResultBody batchRemove(
+                @RequestParam(value = "ids") String ids
             ){
-            targetService.removeByIds(ids);
+            targetService.removeByIds(Arrays.asList(ids.split(",")));
             return ResultBody.ok();
      }
+
+}
 #end

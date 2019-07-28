@@ -1,7 +1,7 @@
 package com.opencloud.task.server.configuration;
 
 import com.opencloud.task.server.listenter.JobLogsListener;
-import com.opencloud.task.server.service.SchedulerJobLogsService;
+import com.opencloud.task.server.service.TaskJobLogsService;
 import com.opencloud.task.server.service.feign.EmailServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.quartz.SchedulerFactoryBeanCustomizer;
@@ -29,7 +29,7 @@ public class SchedulerConfiguration implements SchedulerFactoryBeanCustomizer {
     }
 
     @Bean
-    public JobLogsListener jobLogsListener(EmailServiceClient emailServiceClient, SchedulerJobLogsService schedulerJobLogsService) {
+    public JobLogsListener jobLogsListener(EmailServiceClient emailServiceClient, TaskJobLogsService schedulerJobLogsService) {
         return new JobLogsListener(emailServiceClient,schedulerJobLogsService);
     }
 

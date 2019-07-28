@@ -3,7 +3,7 @@ package com.opencloud.task.server.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.opencloud.common.model.PageParams;
-import com.opencloud.task.client.model.entity.SchedulerJobLogs;
+import com.opencloud.task.client.model.entity.TaskJobLogs;
 
 /**
  * 异步通知日志接口
@@ -12,28 +12,28 @@ import com.opencloud.task.client.model.entity.SchedulerJobLogs;
  * @date: 2019/2/13 14:39
  * @description:
  */
-public interface SchedulerJobLogsService {
+public interface TaskJobLogsService {
     /**
      * 分页查询
      *
      * @param pageParams
      * @return
      */
-    IPage<SchedulerJobLogs> findListPage(PageParams pageParams);
+    IPage<TaskJobLogs> findListPage(PageParams pageParams);
 
     /**
      * 添加日志
      *
      * @param log
      */
-    void addLog(SchedulerJobLogs log);
+    void addLog(TaskJobLogs log);
 
     /**
      * 更细日志
      *
      * @param log
      */
-    void modifyLog(SchedulerJobLogs log);
+    void modifyLog(TaskJobLogs log);
 
 
     /**
@@ -42,5 +42,5 @@ public interface SchedulerJobLogsService {
      * @param logId
      * @return
      */
-    SchedulerJobLogs getLog(String logId);
+    TaskJobLogs getLog(String logId);
 }

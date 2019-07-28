@@ -28,6 +28,7 @@ import org.springframework.security.oauth2.provider.client.JdbcClientDetailsServ
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 
@@ -147,6 +148,7 @@ public class BaseAppServiceImpl extends BaseServiceImpl<BaseAppMapper, BaseApp> 
         client.setClientId(app.getApiKey());
         client.setClientSecret(app.getSecretKey());
         client.setAdditionalInformation(info);
+        client.setAuthorizedGrantTypes(Arrays.asList("authorization_code","client_credentials","implicit","refresh_token"));
         client.setAccessTokenValiditySeconds(ACCESS_TOKEN_VALIDITY_SECONDS);
         client.setRefreshTokenValiditySeconds(REFRESH_TOKEN_VALIDITY_SECONDS);
         jdbcClientDetailsService.addClientDetails(client);

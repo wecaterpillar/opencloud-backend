@@ -22,7 +22,7 @@ import java.util.Map;
 public class SchedulerServiceTest extends BaseTest {
 
     @Autowired
-    private SchedulerService taskService;
+    private TaskService taskService;
     @Autowired
     private EmailServiceClient emailServiceClient;
     @Test

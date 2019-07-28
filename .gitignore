@@ -36,4 +36,6 @@ Thumbs.db
 Servers
 .metadata
 upload
-docs/generator/src/test
+generator
+temp
+logs

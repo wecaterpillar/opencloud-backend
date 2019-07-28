@@ -58,7 +58,7 @@ public class TaskInfo implements Serializable {
     /**
      * 间隔时间（毫秒）
      */
-    private Long milliSeconds;
+    private Long repeatInterval;
 
     /**
      * 重复次数
@@ -80,18 +80,12 @@ public class TaskInfo implements Serializable {
      */
     private Map data;
 
-    /**
-     * @return the milliSeconds
-     */
-    public Long getMilliSeconds() {
-        return milliSeconds;
+    public Long getRepeatInterval() {
+        return repeatInterval;
     }
 
-    /**
-     * @param milliSeconds the milliSeconds to set
-     */
-    public void setMilliSeconds(Long milliSeconds) {
-        this.milliSeconds = milliSeconds;
+    public void setRepeatInterval(Long repeatInterval) {
+        this.repeatInterval = repeatInterval;
     }
 
     /**
