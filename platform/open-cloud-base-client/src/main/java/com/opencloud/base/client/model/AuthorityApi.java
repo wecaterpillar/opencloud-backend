@@ -25,11 +25,6 @@ public class AuthorityApi extends BaseApi implements Serializable {
     private String authority;
 
     /**
-     * 服务名
-     */
-    private String serviceId;
-
-    /**
      * 前缀
      */
     private String prefix;
@@ -44,16 +39,6 @@ public class AuthorityApi extends BaseApi implements Serializable {
 
     public String getAuthority() {
         return authority;
-    }
-
-    @Override
-    public String getServiceId() {
-        return serviceId;
-    }
-
-    @Override
-    public void setServiceId(String serviceId) {
-        this.serviceId = serviceId;
     }
 
     public void setAuthority(String authority) {

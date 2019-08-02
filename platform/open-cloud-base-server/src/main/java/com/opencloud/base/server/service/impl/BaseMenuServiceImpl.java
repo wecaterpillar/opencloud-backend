@@ -4,12 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.opencloud.base.server.mapper.BaseMenuMapper;
-import com.opencloud.base.server.service.BaseAuthorityService;
 import com.opencloud.base.client.constants.BaseConstants;
 import com.opencloud.base.client.constants.ResourceType;
 import com.opencloud.base.client.model.entity.BaseMenu;
+import com.opencloud.base.server.mapper.BaseMenuMapper;
 import com.opencloud.base.server.service.BaseActionService;
+import com.opencloud.base.server.service.BaseAuthorityService;
 import com.opencloud.base.server.service.BaseMenuService;
 import com.opencloud.common.exception.OpenAlertException;
 import com.opencloud.common.model.PageParams;
@@ -65,6 +65,8 @@ public class BaseMenuServiceImpl extends BaseServiceImpl<BaseMenuMapper, BaseMen
     @Override
     public List<BaseMenu> findAllList() {
         List<BaseMenu> list = baseMenuMapper.selectList(new QueryWrapper<>());
+        //根据优先级从小到大排序
+        list.sort((BaseMenu h1, BaseMenu h2) -> h1.getPriority().compareTo(h2.getPriority()));
         return list;
     }
 

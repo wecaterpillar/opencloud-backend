@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import com.opencloud.common.configuration.OpenCommonProperties;
+import com.opencloud.common.utils.SpringContextHolder;
 import com.opencloud.gateway.spring.server.actuator.ApiEndpoint;
 import com.opencloud.gateway.spring.server.exception.JsonExceptionHandler;
 import com.opencloud.gateway.spring.server.locator.ApiResourceLocator;
@@ -12,8 +14,6 @@ import com.opencloud.gateway.spring.server.locator.JdbcRouteDefinitionLocator;
 import com.opencloud.gateway.spring.server.service.AccessLogService;
 import com.opencloud.gateway.spring.server.service.feign.BaseAuthorityServiceClient;
 import com.opencloud.gateway.spring.server.service.feign.GatewayServiceClient;
-import com.opencloud.common.configuration.OpenCommonProperties;
-import com.opencloud.common.utils.SpringContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnEnabledEndpoint;
@@ -25,6 +25,7 @@ import org.springframework.boot.autoconfigure.jackson.JacksonProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler;
 import org.springframework.cloud.bus.BusProperties;
+import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
 import org.springframework.cloud.gateway.route.RouteDefinitionLocator;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -38,6 +39,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.reactive.result.view.ViewResolver;
+import reactor.core.publisher.Mono;
 
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -46,6 +48,7 @@ import java.util.TimeZone;
 
 /**
  * 网关配置类
+ *
  * @author liuyadu
  */
 @Slf4j
@@ -73,7 +76,7 @@ public class ApiConfiguration {
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public ErrorWebExceptionHandler errorWebExceptionHandler(ObjectProvider<List<ViewResolver>> viewResolversProvider,
-                                                             ServerCodecConfigurer serverCodecConfigurer,AccessLogService accessLogService) {
+                                                             ServerCodecConfigurer serverCodecConfigurer, AccessLogService accessLogService) {
 
         JsonExceptionHandler jsonExceptionHandler = new JsonExceptionHandler(accessLogService);
         jsonExceptionHandler.setViewResolvers(viewResolversProvider.getIfAvailable(Collections::emptyList));
@@ -167,6 +170,16 @@ public class ApiConfiguration {
         ApiEndpoint endpoint = new ApiEndpoint(context, bus.getId());
         log.info("bean [{}]", endpoint);
         return endpoint;
+    }
+
+    /*@Bean
+    public KeyResolver ipKeyResolver() {
+        return exchange -> Mono.just(exchange.getRequest().getRemoteAddress().getHostName());
+    }*/
+
+    @Bean
+    public KeyResolver pathKeyResolver() {
+        return exchange -> Mono.just(exchange.getRequest().getPath().value());
     }
 
 }

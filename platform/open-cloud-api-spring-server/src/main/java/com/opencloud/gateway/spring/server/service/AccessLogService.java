@@ -3,8 +3,9 @@ package com.opencloud.gateway.spring.server.service;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Maps;
-import com.opencloud.gateway.spring.server.util.ReactiveWebUtils;
 import com.opencloud.common.constants.QueueConstants;
+import com.opencloud.common.security.OpenUserDetails;
+import com.opencloud.gateway.spring.server.util.ReactiveWebUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.support.WebExchangeDataBinder;
@@ -78,9 +77,8 @@ public class AccessLogService {
             String method = request.getMethodValue();
             Map<String, String> headers = request.getHeaders().toSingleValueMap();
             Map<String, Object> data = Maps.newHashMap();
-            WebExchangeDataBinder.extractValuesToBind(exchange).flatMap(objectMap -> {
+            WebExchangeDataBinder.extractValuesToBind(exchange).subscribe(objectMap -> {
                         data.putAll(objectMap);
-                        return Mono.just(data);
                     }
             );
             String serviceId = null;
@@ -109,23 +107,17 @@ public class AccessLogService {
             map.put("userAgent", userAgent);
             map.put("responseTime", new Date());
             map.put("error", error);
-            //@Todo 获取不到,待解决
-            Mono<Authentication> authentication = getCurrentUser();
-            if (authentication != null) {
-                authentication.map(auth ->
-                        map.put("authentication", JSONObject.toJSONString(auth))
-                );
-            }
+            Mono<Authentication>  authenticationMono = exchange.getPrincipal();
+            Mono<OpenUserDetails> authentication = authenticationMono
+                    .map(Authentication::getPrincipal)
+                    .cast(OpenUserDetails.class);
+            authentication.subscribe(user ->
+                    map.put("authentication", JSONObject.toJSONString(user))
+            );
             amqpTemplate.convertAndSend(QueueConstants.QUEUE_ACCESS_LOGS, map);
         } catch (Exception e) {
             log.error("access logs save error:{}", e);
         }
 
-    }
-
-
-    public Mono<Authentication> getCurrentUser() {
-        return ReactiveSecurityContextHolder.getContext()
-                .map(SecurityContext::getAuthentication);
     }
 }

@@ -31,7 +31,7 @@ public abstract class AbstractEntity extends Model implements Serializable {
      */
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
-    @TableField(value = "update_time", fill = FieldFill.UPDATE)
+    @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
     public Date updateTime;
 
 

@@ -17,6 +17,8 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -53,7 +55,7 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
     /**
      * 权限列表
      */
-    private HashMap<String, Collection<ConfigAttribute>> allConfigAttributes;
+    private Map<String, Collection<ConfigAttribute>> configAttributes = new ConcurrentHashMap();
     /**
      * 权限列表
      */
@@ -82,11 +84,10 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
 
 
     public ApiResourceLocator(JdbcRouteLocator zuulRoutesLocator, RateLimitProperties rateLimitProperties, BaseAuthorityServiceClient baseAuthorityServiceClient, GatewayServiceClient gatewayServiceClient) {
-        this.allConfigAttributes = Maps.newHashMap();
-        this.ipBlacks = Lists.newArrayList();
-        this.ipWhites = Lists.newArrayList();
-        this.authorityResources = Lists.newArrayList();
-        this.rateLimitApis = Lists.newArrayList();
+        this.ipBlacks = new CopyOnWriteArrayList();
+        this.ipWhites = new CopyOnWriteArrayList();
+        this.authorityResources = new CopyOnWriteArrayList();
+        this.rateLimitApis = new CopyOnWriteArrayList();
         this.zuulRoutesLocator = zuulRoutesLocator;
         this.rateLimitProperties = rateLimitProperties;
         this.baseAuthorityServiceClient = baseAuthorityServiceClient;
@@ -150,14 +151,14 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
                     }
                     configAttributes.put(fullPath, array);
                 }
-                this.allConfigAttributes.clear();
+                this.configAttributes.clear();
                 this.authorityResources.clear();
-                this.allConfigAttributes.putAll(configAttributes);
-                this.authorityResources.addAll(list);
+                this.configAttributes = configAttributes;
+                this.authorityResources = list;
             }
             log.info("=============加载动态权限:{}==============", this.authorityResources.size());
         } catch (Exception e) {
-            log.error("加载动态权限错误:{}", e.getMessage());
+            log.error("加载动态权限错误:{}", e);
         }
     }
 
@@ -176,7 +177,7 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
             }
             log.info("=============加载IP黑名单:{}==============", this.ipBlacks.size());
         } catch (Exception e) {
-            log.error("加载IP黑名单错误:{}", e.getMessage());
+            log.error("加载IP黑名单错误:{}", e);
         }
     }
 
@@ -195,7 +196,7 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
             }
             log.info("=============加载IP白名单:{}==============", ipWhites.size());
         } catch (Exception e) {
-            log.error("加载IP白名单错误:{}", e.getMessage());
+            log.error("加载IP白名单错误:{}", e);
         }
     }
 
@@ -254,7 +255,7 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
             }
             log.info("=============加载动态限流:{}==============", rateLimitProperties.getPolicyList().size());
         } catch (Exception e) {
-            log.error("加载动态限流错误:{}", e.getMessage());
+            log.error("加载动态限流错误:{}", e);
         }
         return policyMap;
     }
@@ -265,7 +266,7 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
      * @param timeUnit
      * @return
      */
-    private long[] getIntervalAndQuota(String timeUnit) {
+    public static long[] getIntervalAndQuota(String timeUnit) {
         if (timeUnit.equalsIgnoreCase(TimeUnit.SECONDS.name())) {
             return new long[]{SECONDS_IN_MINUTE, PERIOD_SECOND_TTL};
         } else if (timeUnit.equalsIgnoreCase(TimeUnit.MINUTES.name())) {
@@ -311,12 +312,12 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
         this.rateLimitApis = rateLimitApis;
     }
 
-    public HashMap<String, Collection<ConfigAttribute>> getAllConfigAttributes() {
-        return allConfigAttributes;
+    public Map<String, Collection<ConfigAttribute>> getConfigAttributes() {
+        return configAttributes;
     }
 
-    public void setAllConfigAttributes(HashMap<String, Collection<ConfigAttribute>> allConfigAttributes) {
-        this.allConfigAttributes = allConfigAttributes;
+    public void setConfigAttributes(Map<String, Collection<ConfigAttribute>> configAttributes) {
+        this.configAttributes = configAttributes;
     }
 
     /**

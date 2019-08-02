@@ -1,6 +1,5 @@
 package com.opencloud.gateway.zuul.server.locator;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opencloud.base.client.model.entity.GatewayRoute;
 import com.opencloud.common.event.RemoteRefreshRouteEvent;
@@ -21,6 +20,7 @@ import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 自定义动态路由加载器
@@ -86,22 +86,22 @@ public class JdbcRouteLocator extends SimpleRouteLocator implements ApplicationL
      */
     public Map<String, ZuulRoute> loadRoutes() {
         Map<String, ZuulProperties.ZuulRoute> routes = Maps.newLinkedHashMap();
-        routeList = Lists.newArrayList();
+        routeList = new CopyOnWriteArrayList<>();
         try {
             routeList = jdbcTemplate.query("SELECT * FROM gateway_route WHERE status = 1", new RowMapper<GatewayRoute>() {
                 @Override
                 public GatewayRoute mapRow(ResultSet rs, int i) throws SQLException {
-                    GatewayRoute route = new GatewayRoute();
-                    route.setRouteId(rs.getLong("route_id"));
-                    route.setPath(rs.getString("path"));
-                    route.setServiceId(rs.getString("service_id"));
-                    route.setUrl(rs.getString("url"));
-                    route.setStatus(rs.getInt("status"));
-                    route.setRetryable(rs.getInt("retryable"));
-                    route.setStripPrefix(rs.getInt("strip_prefix"));
-                    route.setIsPersist(rs.getInt("is_persist"));
-                    route.setRouteName(rs.getString("route_name"));
-                    return route;
+                    GatewayRoute result = new GatewayRoute();
+                    result.setRouteId(rs.getLong("route_id"));
+                    result.setPath(rs.getString("path"));
+                    result.setServiceId(rs.getString("service_id"));
+                    result.setUrl(rs.getString("url"));
+                    result.setStatus(rs.getInt("status"));
+                    result.setRetryable(rs.getInt("retryable"));
+                    result.setStripPrefix(rs.getInt("strip_prefix"));
+                    result.setIsPersist(rs.getInt("is_persist"));
+                    result.setRouteName(rs.getString("route_name"));
+                    return result;
                 }
             });
             if (routeList != null && routeList.size() > 0) {
@@ -121,10 +121,11 @@ public class JdbcRouteLocator extends SimpleRouteLocator implements ApplicationL
             }
             log.info("=============加载动态路由:{}==============", routeList.size());
         } catch (Exception e) {
-            log.error("加载动态路由错误:{}", e.getMessage());
+            log.error("加载动态路由错误:{}", e);
         }
         return routes;
     }
+
 
     public List<GatewayRoute> getRouteList() {
         return routeList;

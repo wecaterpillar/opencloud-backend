@@ -3,8 +3,11 @@ package com.opencloud.base.client.model.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-
-import java.io.Serializable;
+import com.opencloud.common.mybatis.base.entity.AbstractEntity;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 /**
  * 网关动态路由
@@ -13,8 +16,11 @@ import java.io.Serializable;
  * @date: 2018/10/24 16:21
  * @description:
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
 @TableName("gateway_route")
-public class GatewayRoute implements Serializable {
+public class GatewayRoute extends AbstractEntity {
     private static final long serialVersionUID = -2952097064941740301L;
 
     /**
@@ -67,134 +73,4 @@ public class GatewayRoute implements Serializable {
      * 路由说明
      */
     private String routeDesc;
-
-    /**
-     * 获取路径
-     *
-     * @return path - 路径
-     */
-    public String getPath() {
-        return path;
-    }
-
-    /**
-     * 设置路径
-     *
-     * @param path 路径
-     */
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    /**
-     * 获取服务ID
-     *
-     * @return service_id - 服务ID
-     */
-    public String getServiceId() {
-        return serviceId;
-    }
-
-    /**
-     * 设置服务ID
-     *
-     * @param serviceId 服务ID
-     */
-    public void setServiceId(String serviceId) {
-        this.serviceId = serviceId;
-    }
-
-    /**
-     * 获取完整地址
-     *
-     * @return url - 完整地址
-     */
-    public String getUrl() {
-        return url;
-    }
-
-    /**
-     * 设置完整地址
-     *
-     * @param url 完整地址
-     */
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    /**
-     * 获取忽略前缀
-     *
-     * @return strip_prefix - 忽略前缀
-     */
-    public Integer getStripPrefix() {
-        return stripPrefix;
-    }
-
-    /**
-     * 设置忽略前缀
-     *
-     * @param stripPrefix 忽略前缀
-     */
-    public void setStripPrefix(Integer stripPrefix) {
-        this.stripPrefix = stripPrefix;
-    }
-
-    /**
-     * 获取0-不重试 1-重试
-     *
-     * @return retryable - 0-不重试 1-重试
-     */
-    public Integer getRetryable() {
-        return retryable;
-    }
-
-    /**
-     * 设置0-不重试 1-重试
-     *
-     * @param retryable 0-不重试 1-重试
-     */
-    public void setRetryable(Integer retryable) {
-        this.retryable = retryable;
-    }
-
-    public String getRouteName() {
-        return routeName;
-    }
-
-    public void setRouteName(String routeName) {
-        this.routeName = routeName;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public Long getRouteId() {
-        return routeId;
-    }
-
-    public void setRouteId(Long routeId) {
-        this.routeId = routeId;
-    }
-
-    public Integer getIsPersist() {
-        return isPersist;
-    }
-
-    public void setIsPersist(Integer isPersist) {
-        this.isPersist = isPersist;
-    }
-
-    public String getRouteDesc() {
-        return routeDesc;
-    }
-
-    public void setRouteDesc(String routeDesc) {
-        this.routeDesc = routeDesc;
-    }
 }

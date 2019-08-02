@@ -6,7 +6,6 @@ import com.opencloud.msg.client.model.entity.EmailConfig;
 import com.opencloud.msg.server.mapper.EmailConfigMapper;
 import com.opencloud.msg.server.service.EmailConfigService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,19 +23,16 @@ import java.util.List;
 @Transactional(rollbackFor = Exception.class)
 public class EmailConfigServiceImpl extends BaseServiceImpl<EmailConfigMapper, EmailConfig> implements EmailConfigService {
 
-    @Autowired
-    private EmailConfigMapper emailConfigMapper;
-
     private List<EmailConfig> emailConfigs;
 
     /**
      * 加载配置
      */
     @Override
-    public void loadConfig() {
+    public void loadCacheConfig() {
         QueryWrapper<EmailConfig> queryWrapper = new QueryWrapper();
         queryWrapper.orderByDesc("is_default");
-        emailConfigs = emailConfigMapper.selectList(queryWrapper);
+        emailConfigs = baseMapper.selectList(queryWrapper);
         log.debug("加载邮件配置:{}",emailConfigs.size());
     }
 

@@ -228,12 +228,12 @@ public class AccessAuthorizationManager {
      */
     public Collection<ConfigAttribute> getAttributes(String requestPath) {
         // 匹配动态权限
-        for (Iterator<String> iter = accessLocator.getAllConfigAttributes().keySet().iterator(); iter.hasNext(); ) {
+        for (Iterator<String> iter = accessLocator.getConfigAttributes().keySet().iterator(); iter.hasNext(); ) {
             String url = iter.next();
             // 防止匹配错误 忽略/**
             if (!"/**".equals(url) && pathMatch.match(url, requestPath)) {
                 // 返回匹配到权限
-                return accessLocator.getAllConfigAttributes().get(url);
+                return accessLocator.getConfigAttributes().get(url);
             }
         }
         return SecurityConfig.createList("AUTHORITIES_REQUIRED");

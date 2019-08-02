@@ -1,14 +1,20 @@
 package com.opencloud.base.client.model.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-
-import java.io.Serializable;
+import com.opencloud.common.mybatis.base.entity.AbstractEntity;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 /**
  * @author liuyadu
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
 @TableName("gateway_ip_limit_api")
-public class GatewayIpLimitApi implements Serializable {
+public class GatewayIpLimitApi extends AbstractEntity {
 
     /**
      * 策略ID

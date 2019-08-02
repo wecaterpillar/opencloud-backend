@@ -2,13 +2,12 @@ package com.opencloud.gateway.spring.server.configuration;
 
 import com.opencloud.gateway.spring.server.exception.JsonAccessDeniedHandler;
 import com.opencloud.gateway.spring.server.exception.JsonAuthenticationEntryPoint;
-import com.opencloud.gateway.spring.server.filter.AccessLogFilter;
-import com.opencloud.gateway.spring.server.filter.AccessAuthorizationManager;
-import com.opencloud.gateway.spring.server.filter.PreCheckFilter;
-import com.opencloud.gateway.spring.server.filter.PreRequestFilter;
+import com.opencloud.gateway.spring.server.exception.JsonSignatureDeniedHandler;
+import com.opencloud.gateway.spring.server.filter.*;
 import com.opencloud.gateway.spring.server.locator.ApiResourceLocator;
 import com.opencloud.gateway.spring.server.oauth2.RedisAuthenticationManager;
 import com.opencloud.gateway.spring.server.service.AccessLogService;
+import com.opencloud.gateway.spring.server.service.feign.BaseAppServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,11 +19,16 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
 import org.springframework.security.oauth2.server.resource.web.server.ServerBearerTokenAuthenticationConverter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
+import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.context.SecurityContextServerWebExchange;
 import org.springframework.web.cors.reactive.CorsUtils;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
@@ -51,6 +55,8 @@ public class ResourceServerConfiguration {
     private ApiProperties apiGatewayProperties;
     @Autowired
     private AccessLogService accessLogService;
+    @Autowired
+    private BaseAppServiceClient baseAppServiceClient;
 
     /**
      * 跨域配置
@@ -77,7 +83,6 @@ public class ResourceServerConfiguration {
                     response.setStatusCode(HttpStatus.OK);
                     return Mono.empty();
                 }
-
             }
             return chain.filter(ctx);
         };
@@ -92,6 +97,16 @@ public class ResourceServerConfiguration {
         AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(new RedisAuthenticationManager(new RedisTokenStore(redisConnectionFactory)));
         oauth2.setServerAuthenticationConverter(new ServerBearerTokenAuthenticationConverter());
         oauth2.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(entryPoint));
+        oauth2.setAuthenticationSuccessHandler(new ServerAuthenticationSuccessHandler() {
+            @Override
+            public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange, Authentication authentication) {
+                ServerWebExchange exchange = webFilterExchange.getExchange();
+                SecurityContextServerWebExchange securityContextServerWebExchange = new SecurityContextServerWebExchange(exchange, ReactiveSecurityContextHolder.getContext().subscriberContext(
+                        ReactiveSecurityContextHolder.withAuthentication(authentication)
+                ));
+                return webFilterExchange.getChain().filter(securityContextServerWebExchange);
+            }
+        });
         http
                 .httpBasic().disable()
                 .csrf().disable()
@@ -106,12 +121,14 @@ public class ResourceServerConfiguration {
                 .addFilterAt(new PreRequestFilter(), SecurityWebFiltersOrder.FIRST)
                 // 跨域过滤器
                 .addFilterAt(corsFilter(), SecurityWebFiltersOrder.CORS)
+                // 签名验证过滤器
+                .addFilterAt(new PreSignatureFilter(baseAppServiceClient,apiGatewayProperties, new JsonSignatureDeniedHandler(accessLogService)), SecurityWebFiltersOrder.CSRF)
                 // 访问验证前置过滤器
                 .addFilterAt(new PreCheckFilter(accessAuthorizationManager, accessDeniedHandler), SecurityWebFiltersOrder.CSRF)
                 // oauth2认证过滤器
                 .addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION)
                 // 日志过滤器
-                .addFilterAt(new AccessLogFilter(accessLogService), SecurityWebFiltersOrder.LAST);
+                .addFilterAt(new AccessLogFilter(accessLogService), SecurityWebFiltersOrder.SECURITY_CONTEXT_SERVER_WEB_EXCHANGE);
         return http.build();
     }
 }

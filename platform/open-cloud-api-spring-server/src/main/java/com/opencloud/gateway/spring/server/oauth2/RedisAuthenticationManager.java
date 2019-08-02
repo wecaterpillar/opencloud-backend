@@ -1,17 +1,13 @@
 package com.opencloud.gateway.spring.server.oauth2;
 
+import com.opencloud.common.constants.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
-import org.springframework.security.oauth2.server.resource.BearerTokenError;
-import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
 import reactor.core.publisher.Mono;
 
 /**
@@ -36,26 +32,12 @@ public class RedisAuthenticationManager implements ReactiveAuthenticationManager
                 .flatMap((token -> {
                     OAuth2Authentication oAuth2Authentication = this.tokenStore.readAuthentication(token);
                     if(oAuth2Authentication==null){
-                        throw new InvalidTokenException("InvalidToken");
+                        return Mono.error(new InvalidTokenException(ErrorCode.INVALID_TOKEN.getMessage()));
                     }else{
                         return Mono.just(oAuth2Authentication);
                     }
                 }))
-                .cast(Authentication.class)
-                .onErrorMap(InvalidTokenException.class, this::onError);
-    }
-
-    private OAuth2AuthenticationException onError(InvalidTokenException e) {
-        OAuth2Error invalidRequest = invalidToken(e.getMessage());
-        return new OAuth2AuthenticationException(invalidRequest, e.getMessage());
-    }
-
-    private static OAuth2Error invalidToken(String message) {
-        return new BearerTokenError(
-                BearerTokenErrorCodes.INVALID_TOKEN,
-                HttpStatus.UNAUTHORIZED,
-                message,
-                "https://tools.ietf.org/html/rfc6750#section-3.1");
+                .cast(Authentication.class);
     }
 
     public TokenStore getTokenStore() {

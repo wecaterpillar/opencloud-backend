@@ -3,9 +3,11 @@ package com.opencloud.base.client.model.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-
-import java.io.Serializable;
-import java.util.Date;
+import com.opencloud.common.mybatis.base.entity.AbstractEntity;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 /**
  * 系统角色-基础信息
@@ -14,8 +16,11 @@ import java.util.Date;
  * @date: 2018/10/24 16:21
  * @description:
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
 @TableName("base_role")
-public class BaseRole implements Serializable {
+public class BaseRole extends AbstractEntity {
     private static final long serialVersionUID = 5197785628543375591L;
     /**
      * 角色ID
@@ -43,118 +48,8 @@ public class BaseRole implements Serializable {
      */
     private Integer status;
 
-    private Date createTime;
-
-    private Date updateTime;
-
     /**
      * 保留数据0-否 1-是 不允许删除
      */
     private Integer isPersist;
-
-    /**
-     * 获取角色ID
-     *
-     * @return role_id - 角色ID
-     */
-    public Long getRoleId() {
-        return roleId;
-    }
-
-    /**
-     * 设置角色ID
-     *
-     * @param roleId 角色ID
-     */
-    public void setRoleId(Long roleId) {
-        this.roleId = roleId;
-    }
-
-    /**
-     * 获取角色编码
-     *
-     * @return role_code - 角色编码
-     */
-    public String getRoleCode() {
-        return roleCode;
-    }
-
-    /**
-     * 设置角色编码
-     *
-     * @param roleCode 角色编码
-     */
-    public void setRoleCode(String roleCode) {
-        this.roleCode = roleCode;
-    }
-
-    /**
-     * 获取角色名称
-     *
-     * @return role_name - 角色名称
-     */
-    public String getRoleName() {
-        return roleName;
-    }
-
-    /**
-     * 设置角色名称
-     *
-     * @param roleName 角色名称
-     */
-    public void setRoleName(String roleName) {
-        this.roleName = roleName;
-    }
-
-    public String getRoleDesc() {
-        return roleDesc;
-    }
-
-    public void setRoleDesc(String roleDesc) {
-        this.roleDesc = roleDesc;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    /**
-     * @return create_time
-     */
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    /**
-     * @param createTime
-     */
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    /**
-     * @return update_time
-     */
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    /**
-     * @param updateTime
-     */
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    public Integer getIsPersist() {
-        return isPersist;
-    }
-
-    public void setIsPersist(Integer isPersist) {
-        this.isPersist = isPersist;
-    }
 }

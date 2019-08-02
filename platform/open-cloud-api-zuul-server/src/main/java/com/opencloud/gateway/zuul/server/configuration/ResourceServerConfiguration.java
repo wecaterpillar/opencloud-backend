@@ -3,6 +3,7 @@ package com.opencloud.gateway.zuul.server.configuration;
 import com.opencloud.common.security.OpenHelper;
 import com.opencloud.gateway.zuul.server.exception.JsonAccessDeniedHandler;
 import com.opencloud.gateway.zuul.server.exception.JsonAuthenticationEntryPoint;
+import com.opencloud.gateway.zuul.server.exception.JsonSignatureDeniedHandler;
 import com.opencloud.gateway.zuul.server.filter.AccessAuthorizationManager;
 import com.opencloud.gateway.zuul.server.filter.PreCheckFilter;
 import com.opencloud.gateway.zuul.server.filter.PreRequestFilter;
@@ -80,7 +81,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
         // 日志前置过滤器
         http.addFilterBefore(new PreRequestFilter(), AbstractPreAuthenticatedProcessingFilter.class);
         // 签名验证过滤器
-        http.addFilterAfter(new PreSignatureFilter(baseAppServiceClient, apiProperties), AbstractPreAuthenticatedProcessingFilter.class);
+        http.addFilterAfter(new PreSignatureFilter(baseAppServiceClient, apiProperties,new JsonSignatureDeniedHandler(accessLogService)), AbstractPreAuthenticatedProcessingFilter.class);
         // 访问验证前置过滤器
         http.addFilterAfter(new PreCheckFilter(accessAuthorizationManager, new JsonAccessDeniedHandler(accessLogService)), AbstractPreAuthenticatedProcessingFilter.class);
     }

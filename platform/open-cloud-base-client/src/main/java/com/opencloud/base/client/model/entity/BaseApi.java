@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.opencloud.common.mybatis.base.entity.AbstractEntity;
-
-import java.util.Date;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 /**
  * 系统资源-API接口
@@ -14,9 +16,11 @@ import java.util.Date;
  * @date: 2018/10/24 16:21
  * @description:
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
 @TableName("base_api")
 public class BaseApi extends AbstractEntity {
-    private static final long serialVersionUID = -9099562653030770650L;
     /**
      * 资源ID
      */
@@ -62,10 +66,6 @@ public class BaseApi extends AbstractEntity {
      */
     private Integer status;
 
-    private Date createTime;
-
-    private Date updateTime;
-
     /**
      * 保留数据0-否 1-是 不允许删除
      */
@@ -98,182 +98,4 @@ public class BaseApi extends AbstractEntity {
      * 方法名
      */
     private String methodName;
-
-    /**
-     * 获取资源ID
-     *
-     * @return api_id - 资源ID
-     */
-    public Long getApiId() {
-        return apiId;
-    }
-
-    /**
-     * 设置资源ID
-     *
-     * @param apiId 资源ID
-     */
-    public void setApiId(Long apiId) {
-        this.apiId = apiId;
-    }
-
-    /**
-     * 获取资源编码
-     *
-     * @return api_code - 资源编码
-     */
-    public String getApiCode() {
-        return apiCode;
-    }
-
-    /**
-     * 设置资源编码
-     *
-     * @param apiCode 资源编码
-     */
-    public void setApiCode(String apiCode) {
-        this.apiCode = apiCode;
-    }
-
-    /**
-     * 获取资源名称
-     *
-     * @return api_name - 资源名称
-     */
-    public String getApiName() {
-        return apiName;
-    }
-
-    /**
-     * 设置资源名称
-     *
-     * @param apiName 资源名称
-     */
-    public void setApiName(String apiName) {
-        this.apiName = apiName;
-    }
-
-    /**
-     * 获取服务ID
-     *
-     * @return server_id - 服务ID
-     */
-    public String getServiceId() {
-        return serviceId;
-    }
-
-    /**
-     * 设置服务ID
-     *
-     * @param serviceId 服务ID
-     */
-    public void setServiceId(String serviceId) {
-        this.serviceId = serviceId;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    /**
-     * 获取优先级
-     *
-     * @return priority - 优先级
-     */
-    public Integer getPriority() {
-        return priority;
-    }
-
-    /**
-     * 设置优先级
-     *
-     * @param priority 优先级
-     */
-    public void setPriority(Integer priority) {
-        this.priority = priority;
-    }
-
-    public String getApiDesc() {
-        return apiDesc;
-    }
-
-    public void setApiDesc(String apiDesc) {
-        this.apiDesc = apiDesc;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public String getApiCategory() {
-        return apiCategory;
-    }
-
-    public void setApiCategory(String apiCategory) {
-        this.apiCategory = apiCategory;
-    }
-
-    public Integer getIsPersist() {
-        return isPersist;
-    }
-
-    public void setIsPersist(Integer isPersist) {
-        this.isPersist = isPersist;
-    }
-
-    public Integer getIsAuth() {
-        return isAuth;
-    }
-
-    public void setIsAuth(Integer isAuth) {
-        this.isAuth = isAuth;
-    }
-
-    public String getRequestMethod() {
-        return requestMethod;
-    }
-
-    public void setRequestMethod(String requestMethod) {
-        this.requestMethod = requestMethod;
-    }
-
-    public String getContentType() {
-        return contentType;
-    }
-
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
-    public String getMethodName() {
-        return methodName;
-    }
-
-    public void setMethodName(String methodName) {
-        this.methodName = methodName;
-    }
-
-    public Integer getIsOpen() {
-        return isOpen;
-    }
-
-    public void setIsOpen(Integer isOpen) {
-        this.isOpen = isOpen;
-    }
 }

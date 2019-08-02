@@ -59,7 +59,7 @@ public class PreCheckFilter implements WebFilter {
         }
 
         // 3.ip白名单检测
-        boolean[] matchIpWhiteListResult = apiAccessManager.matchIpOrOriginWhiteList(requestPath, remoteIpAddress,origin);
+        Boolean[] matchIpWhiteListResult = apiAccessManager.matchIpOrOriginWhiteList(requestPath, remoteIpAddress,origin);
         boolean hasWhiteList = matchIpWhiteListResult[0];
         boolean allow = matchIpWhiteListResult[1];
         if (hasWhiteList) {

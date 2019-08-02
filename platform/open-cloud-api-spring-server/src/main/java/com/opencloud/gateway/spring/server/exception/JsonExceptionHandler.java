@@ -94,6 +94,9 @@ public class JsonExceptionHandler implements ErrorWebExceptionHandler {
          */
         ResultBody resultBody;
         ServerHttpRequest request = exchange.getRequest();
+        if("/favicon.ico".equals(exchange.getRequest().getURI().getPath())){
+            return Mono.empty();
+        }
         if (ex instanceof NotFoundException) {
             resultBody = ResultBody.failed().code(ErrorCode.SERVICE_UNAVAILABLE.getCode()).msg(ErrorCode.SERVICE_UNAVAILABLE.getMessage()).httpStatus(HttpStatus.SERVICE_UNAVAILABLE.value()).path(request.getURI().getPath());
             log.error("==> 错误解析:{}", resultBody);

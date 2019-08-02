@@ -142,7 +142,7 @@ public class OpenGlobalExceptionHandler {
         } else if (className.contains("UnauthorizedClientException")) {
             httpStatus = HttpStatus.UNAUTHORIZED.value();
             code = ErrorCode.UNAUTHORIZED_CLIENT;
-        }else if (className.contains("InsufficientAuthenticationException")) {
+        }else if (className.contains("InsufficientAuthenticationException") || className.contains("AuthenticationCredentialsNotFoundException")) {
             httpStatus = HttpStatus.UNAUTHORIZED.value();
             code = ErrorCode.UNAUTHORIZED;
         } else if (className.contains("InvalidGrantException")) {
@@ -212,6 +212,7 @@ public class OpenGlobalExceptionHandler {
         } else if (className.contains("OpenAlertException")) {
             code = ErrorCode.ALERT;
         } else if (className.contains("OpenSignatureException")) {
+            httpStatus = HttpStatus.BAD_REQUEST.value();
             code = ErrorCode.SIGNATURE_DENIED;
         }else if(message.equalsIgnoreCase(ErrorCode.TOO_MANY_REQUESTS.name())){
             code = ErrorCode.TOO_MANY_REQUESTS;

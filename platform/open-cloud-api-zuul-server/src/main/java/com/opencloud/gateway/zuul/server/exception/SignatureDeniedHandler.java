@@ -1,4 +1,4 @@
-package com.opencloud.common.exception;
+package com.opencloud.gateway.zuul.server.exception;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

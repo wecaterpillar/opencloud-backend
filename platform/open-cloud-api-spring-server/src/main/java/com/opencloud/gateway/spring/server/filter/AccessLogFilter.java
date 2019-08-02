@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
-import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
 import org.springframework.web.server.ServerWebExchange;
@@ -14,9 +14,8 @@ import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.nio.CharBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.atomic.AtomicReference;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  * 日志过滤器
@@ -34,15 +33,6 @@ public class AccessLogFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        ServerHttpRequest request = exchange.getRequest();
-        RecorderServerHttpRequestDecorator requestDecorator = new RecorderServerHttpRequestDecorator(request);
-        Flux<DataBuffer> body = requestDecorator.getBody();
-        //读取requestBody传参
-        AtomicReference<String> requestBody = new AtomicReference<>("");
-        body.subscribe(buffer -> {
-            CharBuffer charBuffer = StandardCharsets.UTF_8.decode(buffer.asByteBuffer());
-            requestBody.set(charBuffer.toString());
-        });
         ServerHttpResponse response = exchange.getResponse();
         DataBufferFactory bufferFactory = response.bufferFactory();
         ServerHttpResponseDecorator decoratedResponse = new ServerHttpResponseDecorator(response) {
@@ -50,18 +40,29 @@ public class AccessLogFilter implements WebFilter {
             public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
                 if (body instanceof Flux) {
                     Flux<? extends DataBuffer> fluxBody = (Flux<? extends DataBuffer>) body;
-                    return super.writeWith(fluxBody.map(dataBuffer -> {
-                        // probably should reuse buffers
-                        byte[] content = new byte[dataBuffer.readableByteCount()];
-                        dataBuffer.read(content);
-                        accessLogService.sendLog(exchange, null);
-                        return bufferFactory.wrap(content);
-                    }));
+                    return super.writeWith(
+                            //解决返回体分段传输
+                            fluxBody.buffer().map(dataBuffers -> {
+                                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                                dataBuffers.forEach(dataBuffer -> {
+                                    byte[] content = new byte[dataBuffer.readableByteCount()];
+                                    dataBuffer.read(content);
+                                    DataBufferUtils.release(dataBuffer);
+                                    try {
+                                        bos.write(content);
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                });
+                                // 发送日志
+                                accessLogService.sendLog(exchange, null);
+                                return bufferFactory.wrap(bos.toByteArray());
+                            }));
                 }
                 return super.writeWith(body);
             }
         };
-        return chain.filter(exchange.mutate().request(requestDecorator).response(decoratedResponse).build());
+        return chain.filter(exchange.mutate().response(decoratedResponse).build());
     }
 
 

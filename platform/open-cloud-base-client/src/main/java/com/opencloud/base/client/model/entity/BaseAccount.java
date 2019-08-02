@@ -3,18 +3,22 @@ package com.opencloud.base.client.model.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-
-import java.io.Serializable;
-import java.util.Date;
+import com.opencloud.common.mybatis.base.entity.AbstractEntity;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 /**
  * 系统用户-登录账号
  *
  * @author liuyadu
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
 @TableName("base_account")
-public class BaseAccount implements Serializable {
-    private static final long serialVersionUID = -4484479600033295192L;
+public class BaseAccount extends AbstractEntity {
 
     @TableId(type = IdType.ID_WORKER)
     private Long accountId;
@@ -45,16 +49,6 @@ public class BaseAccount implements Serializable {
     private String registerIp;
 
     /**
-     * 注册时间
-     */
-    private Date createTime;
-
-    /**
-     * 修改时间
-     */
-    private Date updateTime;
-
-    /**
      * 状态:0-禁用 1-启用 2-锁定
      */
     private Integer status;
@@ -63,9 +57,6 @@ public class BaseAccount implements Serializable {
      * 账号域
      */
     private String domain;
-
-    public BaseAccount() {
-    }
 
     public BaseAccount(Long userId, String account, String password, String accountType, String domain, String registerIp) {
         this.userId = userId;
@@ -77,89 +68,4 @@ public class BaseAccount implements Serializable {
     }
 
 
-    /**
-     * @return account_id
-     */
-    public Long getAccountId() {
-        return accountId;
-    }
-
-    /**
-     * @param accountId
-     */
-    public void setAccountId(Long accountId) {
-        this.accountId = accountId;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getAccount() {
-        return account;
-    }
-
-    public void setAccount(String account) {
-        this.account = account;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getAccountType() {
-        return accountType;
-    }
-
-    public void setAccountType(String accountType) {
-        this.accountType = accountType;
-    }
-
-    public String getDomain() {
-        return domain;
-    }
-
-    public void setDomain(String domain) {
-        this.domain = domain;
-    }
-
-    public String getRegisterIp() {
-        return registerIp;
-    }
-
-    public void setRegisterIp(String registerIp) {
-        this.registerIp = registerIp;
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
 }

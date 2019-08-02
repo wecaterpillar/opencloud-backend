@@ -1,14 +1,20 @@
 package com.opencloud.base.client.model.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-
-import java.io.Serializable;
+import com.opencloud.common.mybatis.base.entity.AbstractEntity;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 /**
  * @author liuyadu
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
 @TableName("gateway_rate_limit_api")
-public class GatewayRateLimitApi implements Serializable {
+public class GatewayRateLimitApi extends AbstractEntity {
     /**
      * 限制数量
      */
@@ -21,41 +27,4 @@ public class GatewayRateLimitApi implements Serializable {
 
 
     private static final long serialVersionUID = 1L;
-
-    /**
-     * 获取限制数量
-     *
-     * @return policy_id - 限制数量
-     */
-    public Long getPolicyId() {
-        return policyId;
-    }
-
-    /**
-     * 设置限制数量
-     *
-     * @param policyId 限制数量
-     */
-    public void setPolicyId(Long policyId) {
-        this.policyId = policyId;
-    }
-
-    /**
-     * 获取时间间隔(秒)
-     *
-     * @return api_id - 时间间隔(秒)
-     */
-    public Long getApiId() {
-        return apiId;
-    }
-
-    /**
-     * 设置时间间隔(秒)
-     *
-     * @param apiId 时间间隔(秒)
-     */
-    public void setApiId(Long apiId) {
-        this.apiId = apiId;
-    }
-
 }

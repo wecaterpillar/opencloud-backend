@@ -101,6 +101,9 @@ public class GatewayRouteController {
         route.setStatus(status);
         route.setRouteName(routeName);
         route.setRouteDesc(routeDesc);
+        if(route.getUrl()!=null){
+            route.setServiceId(null);
+        }
         gatewayRouteService.addRoute(route);
         // 刷新网关
         openRestTemplate.refreshGateway();
@@ -154,6 +157,9 @@ public class GatewayRouteController {
         route.setStatus(status);
         route.setRouteName(routeName);
         route.setRouteDesc(routeDesc);
+        if(route.getUrl()!=null){
+            route.setServiceId(null);
+        }
         gatewayRouteService.updateRoute(route);
         // 刷新网关
         openRestTemplate.refreshGateway();

@@ -1,6 +1,9 @@
 server:
     port: 8888
 spring:
+    mvc:
+      favicon:
+        enabled: false
     application:
         name: ${artifactId}
     cloud:

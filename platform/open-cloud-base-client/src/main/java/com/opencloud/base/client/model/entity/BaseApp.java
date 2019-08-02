@@ -6,16 +6,22 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.opencloud.common.annotation.TableAlias;
 import com.opencloud.common.mybatis.base.entity.AbstractEntity;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 /**
  * 系统应用-基础信息
  *
  * @author liuyadu
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
 @TableName("base_app")
 @TableAlias("app")
 public class BaseApp extends AbstractEntity {
-    private static final long serialVersionUID = -4606067795040222681L;
 
     @TableId(type = IdType.INPUT)
     private String appId;

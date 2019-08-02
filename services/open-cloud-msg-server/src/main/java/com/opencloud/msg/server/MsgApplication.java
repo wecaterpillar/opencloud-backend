@@ -28,6 +28,6 @@ public class MsgApplication implements CommandLineRunner {
 
     @Override
     public void run(String... strings) throws Exception {
-        emailConfigService.loadConfig();
+        emailConfigService.loadCacheConfig();
     }
 }

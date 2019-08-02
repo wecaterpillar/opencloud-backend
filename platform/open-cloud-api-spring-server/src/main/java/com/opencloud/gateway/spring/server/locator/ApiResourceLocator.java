@@ -1,20 +1,24 @@
 package com.opencloud.gateway.spring.server.locator;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.opencloud.gateway.spring.server.service.feign.BaseAuthorityServiceClient;
-import com.opencloud.gateway.spring.server.service.feign.GatewayServiceClient;
 import com.opencloud.base.client.model.AuthorityResource;
 import com.opencloud.base.client.model.IpLimitApi;
 import com.opencloud.common.event.RemoteRefreshRouteEvent;
+import com.opencloud.gateway.spring.server.service.feign.BaseAuthorityServiceClient;
+import com.opencloud.gateway.spring.server.service.feign.GatewayServiceClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.route.RouteDefinitionLocator;
-import org.springframework.cloud.gateway.support.NameUtils;
 import org.springframework.context.ApplicationListener;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
+import reactor.cache.CacheFlux;
+import reactor.core.publisher.Flux;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -24,6 +28,8 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRouteEvent> {
+
+
     /**
      * 单位时间
      */
@@ -49,20 +55,29 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
     public static final int PERIOD_DAY_TTL = 2 * 3600 * 24 + 10;
 
 
-    private List<AuthorityResource> authorityResources;
-
-    private List<IpLimitApi> ipBlacks;
-
-    private List<IpLimitApi> ipWhites;
+    /**
+     * 权限资源
+     */
+    private Flux<AuthorityResource> authorityResources;
 
     /**
-     * 缓存
+     * ip黑名单
      */
-    private Map<String, List> cache = new HashMap<>();
+    private Flux<IpLimitApi> ipBlacks;
+
+    /**
+     * ip白名单
+     */
+    private Flux<IpLimitApi> ipWhites;
+
     /**
      * 权限列表
      */
-    private HashMap<String, Collection<ConfigAttribute>> allConfigAttributes;
+    private Map<String, Collection<ConfigAttribute>> configAttributes = new ConcurrentHashMap<>();
+    /**
+     * 缓存
+     */
+    private Map<String, Object> cache = new ConcurrentHashMap<>();
 
 
     private BaseAuthorityServiceClient baseAuthorityServiceClient;
@@ -71,10 +86,9 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
     private RouteDefinitionLocator routeDefinitionLocator;
 
     public ApiResourceLocator() {
-        allConfigAttributes = Maps.newHashMap();
-        authorityResources = cache.put("authorityResources", new ArrayList<>());
-        ipBlacks = cache.put("ipBlacks", new ArrayList<>());
-        ipWhites = cache.put("ipWhites", new ArrayList<>());
+        authorityResources = CacheFlux.lookup(cache, "authorityResources", AuthorityResource.class).onCacheMissResume(Flux.fromIterable(new ArrayList<>()));
+        ipBlacks = CacheFlux.lookup(cache, "ipBlacks", IpLimitApi.class).onCacheMissResume(Flux.fromIterable(new ArrayList<>()));
+        ipWhites = CacheFlux.lookup(cache, "ipWhites", IpLimitApi.class).onCacheMissResume(Flux.fromIterable(new ArrayList<>()));
     }
 
 
@@ -89,11 +103,11 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
      * 清空缓存并刷新
      */
     public void refresh() {
+        this.configAttributes.clear();
         this.cache.clear();
-        this.allConfigAttributes.clear();
-        loadAuthority();
-        loadIpBlackList();
-        loadIpWhiteList();
+        this.authorityResources = loadAuthorityResources();
+        this.ipBlacks = loadIpBlackList();
+        this.ipWhites = loadIpWhiteList();
     }
 
     @Override
@@ -107,38 +121,40 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
      * @return
      */
     protected String getFullPath(String serviceId, String path) {
-        //@Todo
-        return routeDefinitionLocator.getRouteDefinitions()
-                .toStream()
-                .filter(routeDefinition -> routeDefinition.getUri().toString().equals("lb://" + serviceId))
-                .map(routeDefinition -> {
-                    String fullPath = routeDefinition.getPredicates().stream().filter(predicateDefinition ->
-                            ("Path").equalsIgnoreCase(predicateDefinition.getName())
-                    ).findFirst().get().getArgs().get(NameUtils.GENERATED_NAME_PREFIX + "0").replace("/**", path.startsWith("/")  ? path : "/" + path);
-                    return fullPath;
-                }).findFirst().orElse(path);
+        final String[] fullPath = {""};
+        routeDefinitionLocator.getRouteDefinitions()
+                .filter(routeDefinition -> routeDefinition.getId().equals(serviceId))
+                .subscribe(routeDefinition -> {
+                            routeDefinition.getPredicates().stream()
+                                    .filter(predicateDefinition -> ("Path").equalsIgnoreCase(predicateDefinition.getName()))
+                                    .filter(predicateDefinition -> !predicateDefinition.getArgs().containsKey("_rateLimit"))
+                                    .forEach(predicateDefinition -> {
+                                        fullPath[0] = predicateDefinition.getArgs().get("pattern").replace("/**", path.startsWith("/") ? path : "/" + path);
+                                    });
+                        }
+                );
+        return fullPath[0];
     }
 
     /**
      * 加载授权列表
      */
-    public void loadAuthority() {
-        allConfigAttributes = Maps.newHashMap();
-        authorityResources = Lists.newArrayList();
+    public Flux<AuthorityResource> loadAuthorityResources() {
+        List<AuthorityResource> resources = Lists.newArrayList();
         Collection<ConfigAttribute> array;
         ConfigAttribute cfg;
         try {
             // 查询所有接口
-            authorityResources = baseAuthorityServiceClient.findAuthorityResource().getData();
-            if (authorityResources != null) {
-                for (AuthorityResource item : authorityResources) {
+            resources = baseAuthorityServiceClient.findAuthorityResource().getData();
+            if (resources != null) {
+                for (AuthorityResource item : resources) {
                     String path = item.getPath();
                     if (path == null) {
                         continue;
                     }
                     String fullPath = getFullPath(item.getServiceId(), path);
                     item.setPath(fullPath);
-                    array = allConfigAttributes.get(fullPath);
+                    array = configAttributes.get(fullPath);
                     if (array == null) {
                         array = new ArrayList<>();
                     }
@@ -146,51 +162,53 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
                         cfg = new SecurityConfig(item.getAuthority());
                         array.add(cfg);
                     }
-                    allConfigAttributes.put(fullPath, array);
+                    configAttributes.put(fullPath, array);
                 }
-                log.info("=============加载动态权限:{}==============", authorityResources.size());
+                log.info("=============加载动态权限:{}==============", resources.size());
             }
         } catch (Exception e) {
-            log.error("加载动态权限错误:{}", e.getMessage());
+            log.error("加载动态权限错误:{}", e);
         }
+        return Flux.fromIterable(resources);
     }
 
     /**
      * 加载IP黑名单
      */
-    public void loadIpBlackList() {
-        ipBlacks = Lists.newArrayList();
+    public Flux<IpLimitApi> loadIpBlackList() {
+        List<IpLimitApi> list = Lists.newArrayList();
         try {
-            ipBlacks = gatewayServiceClient.getApiBlackList().getData();
-            if (ipBlacks != null) {
-                for (IpLimitApi item : ipBlacks) {
+            list = gatewayServiceClient.getApiBlackList().getData();
+            if (list != null) {
+                for (IpLimitApi item : list) {
                     item.setPath(getFullPath(item.getServiceId(), item.getPath()));
                 }
-                log.info("=============加载IP黑名单:{}==============", ipBlacks.size());
+                log.info("=============加载IP黑名单:{}==============", list.size());
             }
         } catch (Exception e) {
-            log.error("加载IP黑名单错误:{}", e.getMessage());
+            log.error("加载IP黑名单错误:{}", e);
         }
+        return Flux.fromIterable(list);
     }
 
     /**
      * 加载IP白名单
      */
-    public void loadIpWhiteList() {
-        ipWhites = Lists.newArrayList();
+    public Flux<IpLimitApi> loadIpWhiteList() {
+        List<IpLimitApi> list = Lists.newArrayList();
         try {
-            ipWhites = gatewayServiceClient.getApiWhiteList().getData();
-            if (ipWhites != null) {
-                for (IpLimitApi item : ipWhites) {
+            list = gatewayServiceClient.getApiWhiteList().getData();
+            if (list != null) {
+                for (IpLimitApi item : list) {
                     item.setPath(getFullPath(item.getServiceId(), item.getPath()));
                 }
-                log.info("=============加载IP白名单:{}==============", ipWhites.size());
+                log.info("=============加载IP白名单:{}==============", list.size());
             }
         } catch (Exception e) {
-            log.error("加载IP白名单错误:{}", e.getMessage());
+            log.error("加载IP白名单错误:{}", e);
         }
+        return Flux.fromIterable(list);
     }
-
 
     /**
      * 获取单位时间内刷新时长和请求总时长
@@ -198,7 +216,7 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
      * @param timeUnit
      * @return
      */
-    private long[] getIntervalAndQuota(String timeUnit) {
+    public static long[] getIntervalAndQuota(String timeUnit) {
         if (timeUnit.equalsIgnoreCase(TimeUnit.SECONDS.name())) {
             return new long[]{SECONDS_IN_MINUTE, PERIOD_SECOND_TTL};
         } else if (timeUnit.equalsIgnoreCase(TimeUnit.MINUTES.name())) {
@@ -212,44 +230,67 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
         }
     }
 
-
-    public List<AuthorityResource> getAuthorityResources() {
+    public Flux<AuthorityResource> getAuthorityResources() {
         return authorityResources;
     }
 
-    public void setAuthorityResources(List<AuthorityResource> authorityResources) {
+    public void setAuthorityResources(Flux<AuthorityResource> authorityResources) {
         this.authorityResources = authorityResources;
     }
 
-    public List<IpLimitApi> getIpBlacks() {
+    public Flux<IpLimitApi> getIpBlacks() {
         return ipBlacks;
     }
 
-    public void setIpBlacks(List<IpLimitApi> ipBlacks) {
+    public void setIpBlacks(Flux<IpLimitApi> ipBlacks) {
         this.ipBlacks = ipBlacks;
     }
 
-    public List<IpLimitApi> getIpWhites() {
+    public Flux<IpLimitApi> getIpWhites() {
         return ipWhites;
     }
 
-    public void setIpWhites(List<IpLimitApi> ipWhites) {
+    public void setIpWhites(Flux<IpLimitApi> ipWhites) {
         this.ipWhites = ipWhites;
     }
 
-    public Map<String, List> getCache() {
+    public Map<String, Collection<ConfigAttribute>> getConfigAttributes() {
+        return configAttributes;
+    }
+
+    public void setConfigAttributes(Map<String, Collection<ConfigAttribute>> configAttributes) {
+        this.configAttributes = configAttributes;
+    }
+
+    public Map<String, Object> getCache() {
         return cache;
     }
 
-    public void setCache(Map<String, List> cache) {
+    public void setCache(Map<String, Object> cache) {
         this.cache = cache;
     }
 
-    public HashMap<String, Collection<ConfigAttribute>> getAllConfigAttributes() {
-        return allConfigAttributes;
+    public BaseAuthorityServiceClient getBaseAuthorityServiceClient() {
+        return baseAuthorityServiceClient;
     }
 
-    public void setAllConfigAttributes(HashMap<String, Collection<ConfigAttribute>> allConfigAttributes) {
-        this.allConfigAttributes = allConfigAttributes;
+    public void setBaseAuthorityServiceClient(BaseAuthorityServiceClient baseAuthorityServiceClient) {
+        this.baseAuthorityServiceClient = baseAuthorityServiceClient;
+    }
+
+    public GatewayServiceClient getGatewayServiceClient() {
+        return gatewayServiceClient;
+    }
+
+    public void setGatewayServiceClient(GatewayServiceClient gatewayServiceClient) {
+        this.gatewayServiceClient = gatewayServiceClient;
+    }
+
+    public RouteDefinitionLocator getRouteDefinitionLocator() {
+        return routeDefinitionLocator;
+    }
+
+    public void setRouteDefinitionLocator(RouteDefinitionLocator routeDefinitionLocator) {
+        this.routeDefinitionLocator = routeDefinitionLocator;
     }
 }

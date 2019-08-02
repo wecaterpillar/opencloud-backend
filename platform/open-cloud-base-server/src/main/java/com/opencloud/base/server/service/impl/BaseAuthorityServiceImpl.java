@@ -93,6 +93,7 @@ public class BaseAuthorityServiceImpl extends BaseServiceImpl<BaseAuthorityMappe
         Map map = Maps.newHashMap();
         map.put("status", status);
         List<AuthorityMenu> authorities = baseAuthorityMapper.selectAuthorityMenu(map);
+        authorities.sort((AuthorityMenu h1, AuthorityMenu h2) -> h1.getPriority().compareTo(h2.getPriority()));
         return authorities;
 
     }
@@ -558,6 +559,8 @@ public class BaseAuthorityServiceImpl extends BaseServiceImpl<BaseAuthorityMappe
         HashSet h = new HashSet(authorities);
         authorities.clear();
         authorities.addAll(h);
+        //根据优先级从小到大排序
+        authorities.sort((AuthorityMenu h1, AuthorityMenu h2) -> h1.getPriority().compareTo(h2.getPriority()));
         return authorities;
     }
 

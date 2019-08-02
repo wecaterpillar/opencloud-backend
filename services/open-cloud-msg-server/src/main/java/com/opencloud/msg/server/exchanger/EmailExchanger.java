@@ -56,7 +56,7 @@ public class EmailExchanger implements MessageExchanger {
         Assert.notNull(mailSender, "邮件接口没有初始化");
         EmailMessage emailMessage = (EmailMessage) message;
         String error = null;
-        Boolean result = false;
+        Integer result = 0;
         EmailTemplate emailTemplate = null;
         EmailConfig emailConfig = null;
         Map<String, Object> configMap = Maps.newHashMap();
@@ -64,7 +64,7 @@ public class EmailExchanger implements MessageExchanger {
         try {
             List<EmailConfig> configList = emailConfigService.getCacheConfig();
             for (EmailConfig config : configList) {
-                if (config.getIsDefault()) {
+                if (config.getIsDefault().intValue() == 1) {
                     // 增加一条默认配置
                     senderMap.put("default", config);
                 }
@@ -84,7 +84,7 @@ public class EmailExchanger implements MessageExchanger {
             // 构建发送者
             JavaMailSenderImpl javaMailSender = buildMailSender(emailConfig);
             mailSender.sendSimpleMail(javaMailSender, emailMessage);
-            result = true;
+            result = 1;
         } catch (Exception e) {
             error = e.getMessage();
             log.error("发送错误:{}", e);
@@ -112,7 +112,7 @@ public class EmailExchanger implements MessageExchanger {
                 log.error("邮箱日志错误:{}", e);
             }
         }
-        return result;
+        return result == 1;
     }
 
 

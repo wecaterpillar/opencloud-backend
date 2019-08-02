@@ -1,16 +1,14 @@
 package com.opencloud.gateway.zuul.server.filter;
 
-import com.google.common.collect.Lists;
-import com.opencloud.gateway.zuul.server.configuration.ApiProperties;
-import com.opencloud.gateway.zuul.server.service.feign.BaseAppServiceClient;
 import com.opencloud.base.client.model.entity.BaseApp;
 import com.opencloud.common.constants.CommonConstants;
-import com.opencloud.common.exception.OpenSignatureDeniedHandler;
 import com.opencloud.common.exception.OpenSignatureException;
-import com.opencloud.common.exception.SignatureDeniedHandler;
 import com.opencloud.common.model.ResultBody;
 import com.opencloud.common.utils.SignatureUtils;
 import com.opencloud.common.utils.WebUtils;
+import com.opencloud.gateway.zuul.server.configuration.ApiProperties;
+import com.opencloud.gateway.zuul.server.exception.JsonSignatureDeniedHandler;
+import com.opencloud.gateway.zuul.server.service.feign.BaseAppServiceClient;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -22,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 数字验签前置过滤器
@@ -31,7 +30,7 @@ import java.util.Map;
  * @description:
  */
 public class PreSignatureFilter extends OncePerRequestFilter {
-    private SignatureDeniedHandler signatureDeniedHandler;
+    private JsonSignatureDeniedHandler signatureDeniedHandler;
     private BaseAppServiceClient baseAppServiceClient;
     private ApiProperties apiGatewayProperties;
     /**
@@ -42,10 +41,10 @@ public class PreSignatureFilter extends OncePerRequestFilter {
             "/**/logout/**"
     );
 
-    public PreSignatureFilter(BaseAppServiceClient baseAppServiceClient, ApiProperties apiGatewayProperties) {
+    public PreSignatureFilter(BaseAppServiceClient baseAppServiceClient, ApiProperties apiGatewayProperties,JsonSignatureDeniedHandler jsonSignatureDeniedHandler) {
         this.baseAppServiceClient = baseAppServiceClient;
         this.apiGatewayProperties = apiGatewayProperties;
-        this.signatureDeniedHandler = new OpenSignatureDeniedHandler();
+        this.signatureDeniedHandler =  jsonSignatureDeniedHandler;
     }
 
     @Override
@@ -80,7 +79,7 @@ public class PreSignatureFilter extends OncePerRequestFilter {
     }
 
     protected static List<RequestMatcher> getIgnoreMatchers(String... antPatterns) {
-        List<RequestMatcher> matchers = Lists.newArrayList();
+        List<RequestMatcher> matchers = new CopyOnWriteArrayList<>();
         for (String path : antPatterns) {
             matchers.add(new AntPathRequestMatcher(path));
         }
