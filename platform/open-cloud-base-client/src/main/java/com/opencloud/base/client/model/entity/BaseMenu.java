@@ -7,7 +7,6 @@ import com.opencloud.common.mybatis.base.entity.AbstractEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
 
 /**
  * 系统资源-菜单信息
@@ -22,6 +21,7 @@ import lombok.experimental.Accessors;
 @TableName("base_menu")
 public class BaseMenu extends AbstractEntity {
     private static final long serialVersionUID = -4414780909980518788L;
+    // todo 增加所属前端应用
     /**
      * 菜单Id
      */
