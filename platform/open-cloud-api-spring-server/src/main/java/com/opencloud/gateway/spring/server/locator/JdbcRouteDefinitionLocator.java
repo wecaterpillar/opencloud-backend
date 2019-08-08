@@ -89,13 +89,15 @@ public class JdbcRouteDefinitionLocator implements RouteDefinitionLocator, Appli
 
 
     protected String getFullPath(List<GatewayRoute> routeList, String serviceId, String path) {
-        final String[] fullPath = {""};
-        routeList.forEach(route -> {
-            if (route.getServiceId().equals(serviceId)) {
-                fullPath[0] = route.getPath().replace("/**", path.startsWith("/") ? path : "/" + path);
-                return;
-            }
-        });
+        final String[] fullPath = {path.startsWith("/") ? path : "/" + path};
+        if (routeList != null) {
+            routeList.forEach(route -> {
+                if (route.getServiceId() != null && route.getServiceId().equals(serviceId)) {
+                    fullPath[0] = route.getPath().replace("/**", path.startsWith("/") ? path : "/" + path);
+                    return;
+                }
+            });
+        }
         return fullPath[0];
     }
 

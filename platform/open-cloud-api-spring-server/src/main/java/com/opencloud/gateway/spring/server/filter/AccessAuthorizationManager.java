@@ -128,7 +128,7 @@ public class AccessAuthorizationManager implements ReactiveAuthorizationManager<
         final AuthorityResource[] result = {null};
         // 动态权限列表
         Flux<AuthorityResource> resources = accessLocator.getAuthorityResources();
-        resources.filter(r -> !"/**".equals(r.getPath()) && StringUtils.isNotBlank(r.getPath()) && pathMatch.match(r.getPath(), requestPath))
+        resources.filter(r -> !"/**".equals(r.getPath()) && !permitAll(requestPath) && StringUtils.isNotBlank(r.getPath()) && pathMatch.match(r.getPath(), requestPath))
                 .subscribe(r -> result[0] = r);
         return result[0];
     }

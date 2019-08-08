@@ -121,7 +121,7 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
      * @return
      */
     protected String getFullPath(String serviceId, String path) {
-        final String[] fullPath = {""};
+        final String[] fullPath = {path.startsWith("/") ? path : "/" + path};
         routeDefinitionLocator.getRouteDefinitions()
                 .filter(routeDefinition -> routeDefinition.getId().equals(serviceId))
                 .subscribe(routeDefinition -> {

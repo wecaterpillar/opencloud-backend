@@ -154,7 +154,7 @@ open-cloud
 #### 快速开始
 上手难度：★★★★
 
-本项目基于springCloud打造的分布式快速开发框架. 需要了解SpringCloud,SpringBoot开发,分布式原理。
+本项目基于springCloud打造的分布式快速开发框架. 需要了解SpringCloud,SpringBoot,SpringSecurity,分布式原理。
 
 1. 准备环境
     + Java1.8  (v1.8.0_131+)

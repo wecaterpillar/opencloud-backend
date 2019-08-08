@@ -3,7 +3,7 @@
         <Card shadow>
             <div class="search-con search-con-top">
                 <ButtonGroup>
-                    <Button :disabled="hasAuthority('${entity}Edit}')?false:true"  class="search-btn" type="primary" @click="handleModal()">
+                    <Button :disabled="hasAuthority('${entity}Edit')?false:true"  class="search-btn" type="primary" @click="handleModal()">
                         <span>添加</span>
                     </Button>
                 </ButtonGroup>

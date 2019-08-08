@@ -9,6 +9,7 @@ import com.opencloud.common.configuration.OpenCommonProperties;
 import com.opencloud.common.utils.SpringContextHolder;
 import com.opencloud.gateway.spring.server.actuator.ApiEndpoint;
 import com.opencloud.gateway.spring.server.exception.JsonExceptionHandler;
+import com.opencloud.gateway.spring.server.filter.GatewayContextFilter;
 import com.opencloud.gateway.spring.server.locator.ApiResourceLocator;
 import com.opencloud.gateway.spring.server.locator.JdbcRouteDefinitionLocator;
 import com.opencloud.gateway.spring.server.service.AccessLogService;
@@ -182,4 +183,8 @@ public class ApiConfiguration {
         return exchange -> Mono.just(exchange.getRequest().getPath().value());
     }
 
+    @Bean
+    public GatewayContextFilter gatewayContextFilter(){
+        return new GatewayContextFilter();
+    }
 }

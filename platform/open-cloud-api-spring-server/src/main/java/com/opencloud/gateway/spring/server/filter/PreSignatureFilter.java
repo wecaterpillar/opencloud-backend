@@ -8,10 +8,10 @@ import com.opencloud.common.model.ResultBody;
 import com.opencloud.common.utils.SignatureUtils;
 import com.opencloud.gateway.spring.server.configuration.ApiProperties;
 import com.opencloud.gateway.spring.server.exception.JsonSignatureDeniedHandler;
+import com.opencloud.gateway.spring.server.filter.context.GatewayContext;
 import com.opencloud.gateway.spring.server.service.feign.BaseAppServiceClient;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.AntPathMatcher;
-import org.springframework.web.bind.support.WebExchangeDataBinder;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -54,10 +54,11 @@ public class PreSignatureFilter implements WebFilter {
         if (apiGatewayProperties.getCheckSign() && !notSign(requestPath)) {
             try {
                 Map params = Maps.newHashMap();
-                WebExchangeDataBinder.extractValuesToBind(exchange).subscribe(objectMap -> {
-                            params.putAll(objectMap);
-                        }
-                );
+                GatewayContext gatewayContext = exchange.getAttribute(GatewayContext.CACHE_GATEWAY_CONTEXT);
+                // 排除文件上传
+                if(gatewayContext!=null){
+                    params = gatewayContext.getAllRequestData().toSingleValueMap();
+                }
                 // 验证请求参数
                 SignatureUtils.validateParams(params);
                 //开始验证签名
