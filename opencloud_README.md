@@ -9,8 +9,7 @@
   <a><img src="https://img.shields.io/npm/l/express.svg" alt="License"></a>
 </p>  
 
-## 微服务开放平台 3.0.0(重构版) 更快、更新、更全面
-#### 开源不易，请随手给个Star! 感谢支持！
+## 微服务开放平台
 
 #### 简介
 搭建基于OAuth2的开放平台、为APP端、应用服务提供统一接口管控平台、为第三方合作伙伴的业务对接提供授信可控的技术对接平台
@@ -20,6 +19,45 @@
 + 前后端分离方式开发应用，分工合作更高效!
 + 代码合理封装、简单易懂、简化开发流程!
 
+
+#### 快速开始 
+1. 本地启动(按顺序启动)
+     1. [必需]BaseApplication(平台基础服务)
+     2. [必需]UaaAdminApplication(平台用户认证服务器)
+     3. [必需]ApiGatewayZuulApplication(推荐)或ApiGatewaySpringApplication(暂不推荐)
+     ```
+        访问 http://localhost:8888
+     ```
+     4.[非必需]SpringBootAdmin(监控服务器)(非必需)
+      ```
+          访问 http://localhost:8849
+      ```
+      
+2. 前端启动
+    ```bush
+        npm install 
+        npm run dev
+    ``` 
+    访问 http://localhost:8080
+    
+3. 项目打包部署  
+     maven多环境打包,并替换相关变量
+   ```bush
+     mvn clean install package -P {dev|test|online}
+   ```
+    项目启动
+    ```bush
+    ./docs/bin/startup.sh {start|stop|restart|status} open-cloud-base-server.jar
+    ./docs/bin/startup.sh {start|stop|restart|status} open-cloud-uaa-admin-server.jar
+    ./docs/bin/startup.sh {start|stop|restart|status} open-cloud-api-zuul-server.jar
+    ```
+
+## Open Cloud 3 参考
+
+
+基于 OpenCloud3.0.0 进行进一步优化和定制化。
+
+#### OpenCloud 3 的Demo参考
 
 <a target="_blank" href="http://www.openc.top">开发平台门户预览</a> 
 
@@ -77,22 +115,6 @@
 #### 功能介绍
 ![功能介绍](./docs/功能介绍.png)  
 
-
-#### 服务端源码
-<a target="_blank" href="https://gitee.com/liuyadu">码云</a>  <a target="_blank" href="https://github.com/liuyadu/">github</a>  
-
-#### vue后台UI源码
-<a target="_blank" href="https://gitee.com/liuyadu/open-admin-ui">后台UI源码</a>
-
-#### vue门户UI源码
-<a target="_blank" href="https://gitee.com/liuyadu_open/open-portal-ui.git">门户UI源码</a>
-
-#### 使用手册
-<a target="_blank" href="https://gitee.com/liuyadu/open-cloud/wikis/pages">使用手册</a>  
-
-#### 学习交流群 
-交流群:760809808  
-扫码进群： ![760809808](/docs/qq.png)  
 
 #### 代码结构
 ``` lua
@@ -176,40 +198,11 @@ open-cloud
         <!--Nacos服务发现地址-->
         <discovery.server-addr>127.0.0.1:8848</discovery.server-addr>
     ```
-    
-5. 本地启动(按顺序启动)
-     1. [必需]BaseApplication(平台基础服务)
-     2. [必需]UaaAdminApplication(平台用户认证服务器)
-     3. [必需]ApiGatewayZuulApplication(推荐)或ApiGatewaySpringApplication(暂不推荐)
-     ```
-        访问 http://localhost:8888
-     ```
-     4.[非必需]SpringBootAdmin(监控服务器)(非必需)
-      ```
-          访问 http://localhost:8849
-      ```
-      
-6. 前端启动
-    ```bush
-        npm install 
-        npm run dev
-    ``` 
-    访问 http://localhost:8080
-    
-7. 项目打包部署  
-     maven多环境打包,并替换相关变量
-   ```bush
-     mvn clean install package -P {dev|test|online}
-   ```
-    项目启动
-    ```bush
-    ./docs/bin/startup.sh {start|stop|restart|status} open-cloud-base-server.jar
-    ./docs/bin/startup.sh {start|stop|restart|status} open-cloud-uaa-admin-server.jar
-    ./docs/bin/startup.sh {start|stop|restart|status} open-cloud-api-zuul-server.jar
-    ```
+  
     
 #### 集成开发 
 <a target="_blank" href="https://gitee.com/liuyadu/open-cloud/wikis/pages?sort_id=1396933&doc_id=256893">集成开发</a>
 
 #### Oauth2使用说明
 <a target="_blank" href="https://gitee.com/liuyadu/open-cloud/wikis/pages?sort_id=1396294&doc_id=256893">Oauth2</a>
+
