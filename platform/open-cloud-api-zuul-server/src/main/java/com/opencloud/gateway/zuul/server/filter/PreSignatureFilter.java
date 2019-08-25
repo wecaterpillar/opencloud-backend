@@ -1,5 +1,6 @@
 package com.opencloud.gateway.zuul.server.filter;
 
+import cn.hutool.core.collection.ConcurrentHashSet;
 import com.opencloud.base.client.model.entity.BaseApp;
 import com.opencloud.common.constants.CommonConstants;
 import com.opencloud.common.exception.OpenSignatureException;
@@ -8,9 +9,9 @@ import com.opencloud.common.utils.SignatureUtils;
 import com.opencloud.common.utils.WebUtils;
 import com.opencloud.gateway.zuul.server.configuration.ApiProperties;
 import com.opencloud.gateway.zuul.server.exception.JsonSignatureDeniedHandler;
+import com.opencloud.gateway.zuul.server.filter.support.BodyReaderHttpServletRequestWrapper;
 import com.opencloud.gateway.zuul.server.service.feign.BaseAppServiceClient;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -18,9 +19,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
 
 /**
  * 数字验签前置过滤器
@@ -32,26 +32,39 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class PreSignatureFilter extends OncePerRequestFilter {
     private JsonSignatureDeniedHandler signatureDeniedHandler;
     private BaseAppServiceClient baseAppServiceClient;
-    private ApiProperties apiGatewayProperties;
-    /**
-     * 忽略签名
-     */
-    private final static List<RequestMatcher> NOT_SIGN = getIgnoreMatchers(
-            "/**/login/**",
-            "/**/logout/**"
-    );
+    private ApiProperties apiProperties;
+    private static final AntPathMatcher pathMatch = new AntPathMatcher();
+    private Set<String> signIgnores = new ConcurrentHashSet<>();
 
-    public PreSignatureFilter(BaseAppServiceClient baseAppServiceClient, ApiProperties apiGatewayProperties,JsonSignatureDeniedHandler jsonSignatureDeniedHandler) {
+    public PreSignatureFilter(BaseAppServiceClient baseAppServiceClient, ApiProperties apiProperties,JsonSignatureDeniedHandler jsonSignatureDeniedHandler) {
         this.baseAppServiceClient = baseAppServiceClient;
-        this.apiGatewayProperties = apiGatewayProperties;
+        this.apiProperties = apiProperties;
         this.signatureDeniedHandler =  jsonSignatureDeniedHandler;
+        // 默认忽略签名
+        signIgnores.add("/");
+        signIgnores.add("/error");
+        signIgnores.add("/favicon.ico");
+        if (apiProperties != null) {
+            if (apiProperties.getSignIgnores() != null) {
+                signIgnores.addAll(apiProperties.getSignIgnores());
+            }
+            if (apiProperties.getApiDebug()) {
+                signIgnores.add("/**/v2/api-docs/**");
+                signIgnores.add("/**/swagger-resources/**");
+                signIgnores.add("/webjars/**");
+                signIgnores.add("/doc.html");
+                signIgnores.add("/swagger-ui.html");
+            }
+        }
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (apiGatewayProperties.getCheckSign() && !notSign(request)) {
+        String requestPath = request.getRequestURI();
+        BodyReaderHttpServletRequestWrapper requestWrapper = (BodyReaderHttpServletRequestWrapper) request;
+        if (apiProperties.getCheckSign() && !notSign(requestPath)) {
             try {
-                Map params = WebUtils.getParameterMap(request);
+                Map params = WebUtils.getParameterMap(requestWrapper);
                 // 验证请求参数
                 SignatureUtils.validateParams(params);
                 //开始验证签名
@@ -60,7 +73,7 @@ public class PreSignatureFilter extends OncePerRequestFilter {
                     // 获取客户端信息
                     ResultBody<BaseApp> result = baseAppServiceClient.getApp(appId);
                     BaseApp app = result.getData();
-                    if (app == null) {
+                    if (app == null || app.getAppId()==null) {
                         throw new OpenSignatureException("appId无效");
                     }
                     // 强制覆盖请求参数clientId
@@ -78,17 +91,12 @@ public class PreSignatureFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    protected static List<RequestMatcher> getIgnoreMatchers(String... antPatterns) {
-        List<RequestMatcher> matchers = new CopyOnWriteArrayList<>();
-        for (String path : antPatterns) {
-            matchers.add(new AntPathRequestMatcher(path));
+    protected boolean notSign(String requestPath) {
+        if(apiProperties.getSignIgnores()==null){
+            return false;
         }
-        return matchers;
-    }
-
-    protected boolean notSign(HttpServletRequest request) {
-        for (RequestMatcher match : NOT_SIGN) {
-            if (match.matches(request)) {
+        for (String path : signIgnores) {
+            if (pathMatch.match(path, requestPath)) {
                 return true;
             }
         }

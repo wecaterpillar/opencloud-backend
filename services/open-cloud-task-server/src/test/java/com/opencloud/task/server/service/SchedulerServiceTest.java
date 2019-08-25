@@ -8,8 +8,10 @@ import com.opencloud.task.server.service.feign.EmailServiceClient;
 import org.junit.Test;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -91,7 +93,14 @@ public class SchedulerServiceTest extends BaseTest {
 
     @Test
     public void sendEmail() throws IOException {
-        emailServiceClient.send("515608851@qq.com",null,"测试","测试内容",new MultipartFile[]{});
+        MockMultipartFile file1 = new MockMultipartFile("attachments","diagram.png",null,new FileInputStream("D:\\diagram.png"));
+        emailServiceClient.send("515608851@qq.com",null,"测试","测试内容",new MultipartFile[]{file1});
     }
 
+
+    @Test
+    public void sendEmail2() throws IOException {
+        MockMultipartFile file1 = new MockMultipartFile("file","diagram.png",null,new FileInputStream("D:\\diagram.png"));
+        emailServiceClient.send2(file1);
+    }
 }

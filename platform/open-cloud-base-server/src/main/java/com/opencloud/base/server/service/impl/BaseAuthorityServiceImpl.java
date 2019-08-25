@@ -17,7 +17,7 @@ import com.opencloud.common.exception.OpenException;
 import com.opencloud.common.mybatis.base.service.impl.BaseServiceImpl;
 import com.opencloud.common.security.OpenAuthority;
 import com.opencloud.common.security.OpenHelper;
-import com.opencloud.common.security.SecurityConstants;
+import com.opencloud.common.security.OpenSecurityConstants;
 import com.opencloud.common.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -139,19 +139,19 @@ public class BaseAuthorityServiceImpl extends BaseServiceImpl<BaseAuthorityMappe
         }
         if (ResourceType.menu.equals(resourceType)) {
             BaseMenu menu = baseMenuService.getMenu(resourceId);
-            authority = SecurityConstants.AUTHORITY_PREFIX_MENU + menu.getMenuCode();
+            authority = OpenSecurityConstants.AUTHORITY_PREFIX_MENU + menu.getMenuCode();
             baseAuthority.setMenuId(resourceId);
             baseAuthority.setStatus(menu.getStatus());
         }
         if (ResourceType.action.equals(resourceType)) {
             BaseAction operation = baseActionService.getAction(resourceId);
-            authority = SecurityConstants.AUTHORITY_PREFIX_ACTION + operation.getActionCode();
+            authority = OpenSecurityConstants.AUTHORITY_PREFIX_ACTION + operation.getActionCode();
             baseAuthority.setActionId(resourceId);
             baseAuthority.setStatus(operation.getStatus());
         }
         if (ResourceType.api.equals(resourceType)) {
             BaseApi api = baseApiService.getApi(resourceId);
-            authority = SecurityConstants.AUTHORITY_PREFIX_API + api.getApiCode();
+            authority = OpenSecurityConstants.AUTHORITY_PREFIX_API + api.getApiCode();
             baseAuthority.setApiId(resourceId);
             baseAuthority.setStatus(api.getStatus());
         }
@@ -161,10 +161,13 @@ public class BaseAuthorityServiceImpl extends BaseServiceImpl<BaseAuthorityMappe
         // 设置权限标识
         baseAuthority.setAuthority(authority);
         if (baseAuthority.getAuthorityId() == null) {
+            baseAuthority.setCreateTime(new Date());
+            baseAuthority.setUpdateTime(baseAuthority.getCreateTime());
             // 新增权限
             baseAuthorityMapper.insert(baseAuthority);
         } else {
             // 修改权限
+            baseAuthority.setUpdateTime(new Date());
             baseAuthorityMapper.updateById(baseAuthority);
         }
         return baseAuthority;
@@ -299,6 +302,8 @@ public class BaseAuthorityServiceImpl extends BaseServiceImpl<BaseAuthorityMappe
                 authority.setAuthorityId(Long.parseLong(id));
                 authority.setRoleId(roleId);
                 authority.setExpireTime(expireTime);
+                authority.setCreateTime(new Date());
+                authority.setUpdateTime(authority.getCreateTime());
                 // 批量添加授权
                 baseAuthorityRoleMapper.insert(authority);
             }
@@ -346,6 +351,8 @@ public class BaseAuthorityServiceImpl extends BaseServiceImpl<BaseAuthorityMappe
                 authority.setAuthorityId(Long.parseLong(id));
                 authority.setUserId(userId);
                 authority.setExpireTime(expireTime);
+                authority.setCreateTime(new Date());
+                authority.setUpdateTime(authority.getCreateTime());
                 baseAuthorityUserMapper.insert(authority);
             }
         }
@@ -376,14 +383,16 @@ public class BaseAuthorityServiceImpl extends BaseServiceImpl<BaseAuthorityMappe
         QueryWrapper<BaseAuthorityApp> appQueryWrapper = new QueryWrapper();
         appQueryWrapper.lambda().eq(BaseAuthorityApp::getAppId, appId);
         baseAuthorityAppMapper.delete(appQueryWrapper);
-        BaseAuthorityApp authorityApp = null;
+        BaseAuthorityApp authority = null;
         if (authorityIds != null && authorityIds.length > 0) {
             for (String id : authorityIds) {
-                authorityApp = new BaseAuthorityApp();
-                authorityApp.setAuthorityId(Long.parseLong(id));
-                authorityApp.setAppId(appId);
-                authorityApp.setExpireTime(expireTime);
-                baseAuthorityAppMapper.insert(authorityApp);
+                authority = new BaseAuthorityApp();
+                authority.setAuthorityId(Long.parseLong(id));
+                authority.setAppId(appId);
+                authority.setExpireTime(expireTime);
+                authority.setCreateTime(new Date());
+                authority.setUpdateTime(authority.getCreateTime());
+                baseAuthorityAppMapper.insert(authority);
 
             }
         }
@@ -403,10 +412,12 @@ public class BaseAuthorityServiceImpl extends BaseServiceImpl<BaseAuthorityMappe
     @CacheEvict(value = {"apps"}, key = "'client:'+#appId")
     @Override
     public void addAuthorityApp(String appId, Date expireTime, String authorityId) {
-        BaseAuthorityApp appAuthority = new BaseAuthorityApp();
-        appAuthority.setAppId(appId);
-        appAuthority.setAuthorityId(Long.parseLong(authorityId));
-        appAuthority.setExpireTime(expireTime);
+        BaseAuthorityApp authority = new BaseAuthorityApp();
+        authority.setAppId(appId);
+        authority.setAuthorityId(Long.parseLong(authorityId));
+        authority.setExpireTime(expireTime);
+        authority.setCreateTime(new Date());
+        authority.setUpdateTime(authority.getCreateTime());
         QueryWrapper<BaseAuthorityApp> appQueryWrapper = new QueryWrapper();
         appQueryWrapper.lambda()
                 .eq(BaseAuthorityApp::getAppId, appId)
@@ -415,7 +426,8 @@ public class BaseAuthorityServiceImpl extends BaseServiceImpl<BaseAuthorityMappe
         if (count > 0) {
             return;
         }
-        baseAuthorityAppMapper.insert(appAuthority);
+        authority.setCreateTime(new Date());
+        baseAuthorityAppMapper.insert(authority);
     }
 
     /**
@@ -435,10 +447,12 @@ public class BaseAuthorityServiceImpl extends BaseServiceImpl<BaseAuthorityMappe
         if (authorityIds != null && authorityIds.length > 0) {
             for (String id : authorityIds) {
                 Long authorityId = Long.parseLong(id);
-                BaseAuthorityAction item = new BaseAuthorityAction();
-                item.setActionId(actionId);
-                item.setAuthorityId(authorityId);
-                baseAuthorityActionMapper.insert(item);
+                BaseAuthorityAction authority = new BaseAuthorityAction();
+                authority.setActionId(actionId);
+                authority.setAuthorityId(authorityId);
+                authority.setCreateTime(new Date());
+                authority.setUpdateTime(authority.getCreateTime());
+                baseAuthorityActionMapper.insert(authority);
             }
         }
     }

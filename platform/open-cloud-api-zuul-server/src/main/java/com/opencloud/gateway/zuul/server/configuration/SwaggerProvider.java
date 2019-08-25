@@ -1,5 +1,6 @@
 package com.opencloud.gateway.zuul.server.configuration;
 
+import com.opencloud.common.utils.StringUtils;
 import com.opencloud.gateway.zuul.server.locator.JdbcRouteLocator;
 import com.opencloud.base.client.model.entity.GatewayRoute;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +39,9 @@ public class SwaggerProvider implements SwaggerResourcesProvider {
         List<SwaggerResource> resources = new ArrayList<>();
         List<GatewayRoute> routes = jdbcRouteLocator.getRouteList();
         routes.forEach(route -> {
-            resources.add(swaggerResource(route.getRouteName(), route.getPath().replace("**", "v2/api-docs"), "2.0"));
+            if(StringUtils.isNotBlank(route.getServiceId()) && StringUtils.isBlank(route.getUrl())){
+                resources.add(swaggerResource(route.getRouteName(), route.getPath().replace("**", "v2/api-docs"), "2.0"));
+            }
         });
         return resources;
     }

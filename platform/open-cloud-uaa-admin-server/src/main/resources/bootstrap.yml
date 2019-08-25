@@ -50,12 +50,8 @@ opencloud:
     client:
         oauth2:
              admin:
-                  access-token-uri: ${opencloud.common.access-token-uri}
                   client-id: 7gBZcbsC7kLIWCdELIl8nxcs
                   client-secret: 0osTIhce7uPvDKHz6aa67bhCukaKoYl4
-                  scope: ${opencloud.common.scope}
-                  user-authorization-uri:  ${opencloud.common.user-authorization-uri}
-                  user-info-uri: ${opencloud.common.user-info-uri}
 
 #mybatis plus 设置
 mybatis-plus:

@@ -5,11 +5,14 @@ import com.opencloud.common.utils.BeanConvertUtils;
 import com.opencloud.common.utils.ReflectionUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerEndpointsConfiguration;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
@@ -22,6 +25,7 @@ import org.springframework.security.oauth2.provider.token.store.redis.RedisToken
 import org.springframework.util.Assert;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -207,5 +211,21 @@ public class OpenHelper {
         tokenServices.setTokenStore(redisTokenStore);
         log.info("buildRedisTokenServices[{}]", tokenServices);
         return tokenServices;
+    }
+
+
+    /**
+     * 认证服务器原始方式创建AccessToken
+     * @param endpoints
+     * @param postParameters
+     * @return
+     * @throws Exception
+     */
+    public static OAuth2AccessToken createAccessToken(AuthorizationServerEndpointsConfiguration endpoints, Map<String, String> postParameters) throws Exception {
+        Assert.notNull(postParameters.get("client_id"),"client_id not null");
+        Assert.notNull(postParameters.get("client_secret"),"client_secret not null");
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(postParameters.get("client_id"),postParameters.get("client_secret"), Collections.emptyList());
+        ResponseEntity<OAuth2AccessToken> responseEntity = endpoints.tokenEndpoint().postAccessToken(auth,postParameters);
+        return  responseEntity.getBody();
     }
 }

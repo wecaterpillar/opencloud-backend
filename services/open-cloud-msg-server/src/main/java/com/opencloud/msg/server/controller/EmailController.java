@@ -2,9 +2,9 @@ package com.opencloud.msg.server.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.opencloud.common.model.ResultBody;
-import com.opencloud.msg.client.service.IEmailClient;
 import com.opencloud.msg.client.model.EmailMessage;
 import com.opencloud.msg.client.model.EmailTplMessage;
+import com.opencloud.msg.client.service.IEmailClient;
 import com.opencloud.msg.server.dispatcher.MessageDispatcher;
 import com.opencloud.msg.server.utils.MultipartUtil;
 import io.swagger.annotations.Api;
@@ -50,7 +50,7 @@ public class EmailController implements IEmailClient {
     })
     @PostMapping(value = "/email/send", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Override
-    public ResultBody<String> send(@RequestParam(value = "to") String to,
+    public ResultBody send(@RequestParam(value = "to") String to,
                                    @RequestParam(value = "cc", required = false) String cc,
                                    @RequestParam(value = "subject") String subject,
                                    @RequestParam(value = "content") String content,
@@ -62,6 +62,20 @@ public class EmailController implements IEmailClient {
         message.setAttachments(MultipartUtil.getMultipartFilePaths(attachments));
         message.setContent(content);
         this.dispatcher.dispatch(message);
+        return ResultBody.ok();
+    }
+
+    @ApiOperation(value = "发送邮件", notes = "发送邮件")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "to", required = true, value = "接收人 多个用;号隔开", paramType = "form"),
+            @ApiImplicitParam(name = "cc", required = false, value = "抄送人 多个用;号隔开", paramType = "form"),
+            @ApiImplicitParam(name = "subject", required = true, value = "主题", paramType = "form"),
+            @ApiImplicitParam(name = "content", required = true, value = "内容", paramType = "form"),
+            @ApiImplicitParam(name = "attachments", required = false, value = "附件:最大不超过10M", dataType = "file", paramType = "form", allowMultiple = true),
+    })
+    @PostMapping(value = "/email/test/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Override
+    public ResultBody send2(@RequestPart(value = "file", required = false) MultipartFile file){
         return ResultBody.ok();
     }
 
@@ -88,7 +102,7 @@ public class EmailController implements IEmailClient {
             @ApiImplicitParam(name = "attachments", required = false, value = "附件:最大不超过10M", dataType = "file", paramType = "form", allowMultiple = true),
     })
     @PostMapping(value = "/email/send/tpl", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResultBody<String> sendByTpl(
+    public ResultBody sendByTpl(
             @RequestParam(value = "to") String to,
             @RequestParam(value = "cc", required = false) String cc,
             @RequestParam(value = "subject") String subject,

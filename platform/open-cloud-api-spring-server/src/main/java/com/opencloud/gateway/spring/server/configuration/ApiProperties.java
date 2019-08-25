@@ -37,6 +37,11 @@ public class ApiProperties {
      */
     private Set<String> authorityIgnores;
 
+    /**
+     * 签名忽略请求
+     */
+    private Set<String> signIgnores;
+
 
     public Boolean getCheckSign() {
         return checkSign;
@@ -76,5 +81,13 @@ public class ApiProperties {
 
     public void setAuthorityIgnores(Set<String> authorityIgnores) {
         this.authorityIgnores = authorityIgnores;
+    }
+
+    public Set<String> getSignIgnores() {
+        return signIgnores;
+    }
+
+    public void setSignIgnores(Set<String> signIgnores) {
+        this.signIgnores = signIgnores;
     }
 }
