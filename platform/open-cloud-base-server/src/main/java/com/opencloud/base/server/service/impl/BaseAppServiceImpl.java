@@ -70,7 +70,7 @@ public class BaseAppServiceImpl extends BaseServiceImpl<BaseAppMapper, BaseApp> 
         cq.lambda()
                 .eq(ObjectUtils.isNotEmpty(query.getDeveloperId()), BaseApp::getDeveloperId, query.getDeveloperId())
                 .eq(ObjectUtils.isNotEmpty(query.getAppType()), BaseApp::getAppType, query.getAppType())
-                .eq(ObjectUtils.isNotEmpty(query.getAppId()), BaseApp::getAppId, query.getAppId())
+                .eq(ObjectUtils.isNotEmpty(pageParams.getRequestMap().get("aid")), BaseApp::getAppId, pageParams.getRequestMap().get("aid"))
                 .likeRight(ObjectUtils.isNotEmpty(query.getAppName()), BaseApp::getAppName, query.getAppName())
                 .likeRight(ObjectUtils.isNotEmpty(query.getAppNameEn()), BaseApp::getAppNameEn, query.getAppNameEn());
         cq.select("app.*,developer.user_name");

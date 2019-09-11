@@ -26,9 +26,8 @@
 + 后台测试账号:test 123456
 + SpringBootAdmin账号:sba 123456
 
-#### 扫码进群 
-交流群:760809808  
-扫码进群： ![760809808](/docs/qq.png)  
+#### 交流群 
+学习交流(千人群):760809808 <a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=3c1017efeda485820c9eddee13a125d99261f7504746aa4824bc5c7c2b9a4234"><img border="0" src="//pub.idqqimg.com/wpa/images/group.png" alt="open-cloud交流群" title="open-cloud交流群"></a>  
 
 #### 功能介绍
 ![功能介绍](/docs/功能介绍.png)  
