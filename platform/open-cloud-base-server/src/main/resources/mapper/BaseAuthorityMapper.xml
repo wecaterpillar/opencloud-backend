@@ -186,23 +186,5 @@
 		LEFT JOIN gateway_route AS route ON route.route_name = api.service_id
 		WHERE
 			action.`status` = 1
-		UNION ALL
-			SELECT
-				a.authority_id,
-				a.authority,
-				api.path,
-				api.service_id,
-				api.is_auth,
-				api.is_open,
-				api.`status`,
-				route.path AS prefix
-			FROM
-				base_authority AS a
-			INNER JOIN base_authority_app AS aa ON aa.authority_id = a.authority_id
-			INNER JOIN base_app AS app ON app.app_id = aa.app_id
-			INNER JOIN base_api AS api ON a.api_id = api.api_id
-			LEFT JOIN gateway_route AS route ON route.route_name = api.service_id
-			WHERE
-				app.`status` = 1
     </select>
 </mapper>

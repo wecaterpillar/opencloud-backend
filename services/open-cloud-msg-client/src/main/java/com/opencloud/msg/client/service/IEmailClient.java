@@ -24,13 +24,23 @@ public interface IEmailClient {
      * @param attachments 附件
      * @return
      */
-    @PostMapping(value = "/email/send", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    ResultBody<String> send(
+    @PostMapping(value = "/email/send",
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE,
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    ResultBody send(
             @RequestParam(value = "to") String to,
             @RequestParam(value = "cc", required = false) String cc,
             @RequestParam(value = "subject") String subject,
             @RequestParam(value = "content") String content,
             @RequestPart(value = "attachments", required = false) MultipartFile[] attachments
+    );
+
+
+    @PostMapping(value = "/email/test/upload",
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE,
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    ResultBody send2(
+            @RequestPart(value = "file", required = false) MultipartFile file
     );
 
     /**
@@ -45,7 +55,9 @@ public interface IEmailClient {
      * @param attachments 附件
      * @return
      */
-    @PostMapping(value = "/email/send/tpl", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/email/send/tpl",
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE,
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResultBody<String> sendByTpl(
             @RequestParam(value = "to") String to,
             @RequestParam(value = "cc", required = false) String cc,

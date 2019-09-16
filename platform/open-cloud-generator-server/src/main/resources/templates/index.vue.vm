@@ -120,13 +120,13 @@
                 }
                 this.formItem = newData
                 //重置验证
-                let form  = this.refs['form']
+                let form  = this.$refs['form']
                 form.resetFields()
                         this.modalVisible = false
                 this.saving = false
             },
             handleSubmit () {
-                let form  = this.refs['form']
+                let form  = this.$refs['form']
                 form.validate((valid) => {
                     if (valid) {
                         this.saving = true

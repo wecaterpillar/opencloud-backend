@@ -1,12 +1,11 @@
 package com.opencloud.gateway.spring.server.filter;
 
+import com.alibaba.fastjson.JSONObject;
 import com.opencloud.gateway.spring.server.filter.context.GatewayContext;
+import com.opencloud.gateway.spring.server.filter.support.CachedBodyOutputMessage;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cloud.gateway.filter.GatewayFilterChain;
-import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.support.BodyInserterContext;
-import org.springframework.cloud.gateway.support.CachedBodyOutputMessage;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -22,6 +21,8 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.HandlerStrategies;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -35,19 +36,19 @@ import java.util.Map;
 /**
  * SpringCloud Gateway 记录缓存请求Body和Form表单
  * GatewayContext gatewayContext = exchange.getAttribute(GatewayContext.CACHE_GATEWAY_CONTEXT);
- * https://segmentfault.com/a/1190000017898354
+ * https://github.com/chenggangpro/spring-cloud-gateway-plugin
  * @author liuyadu
  */
 @Slf4j
 @AllArgsConstructor
-public class GatewayContextFilter implements GlobalFilter, Ordered {
+public class GatewayContextFilter implements WebFilter, Ordered {
     /**
      * default HttpMessageReader
      */
     private static final List<HttpMessageReader<?>> MESSAGE_READERS = HandlerStrategies.withDefaults().messageReaders();
 
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain){
         ServerHttpRequest request = exchange.getRequest();
         GatewayContext gatewayContext = new GatewayContext();
         HttpHeaders headers = request.getHeaders();
@@ -77,13 +78,14 @@ public class GatewayContextFilter implements GlobalFilter, Ordered {
         return Integer.MIN_VALUE;
     }
 
+
     /**
      * ReadFormData
      * @param exchange
      * @param chain
      * @return
      */
-    private Mono<Void> readFormData(ServerWebExchange exchange,GatewayFilterChain chain,GatewayContext gatewayContext){
+    private Mono<Void> readFormData(ServerWebExchange exchange,WebFilterChain chain,GatewayContext gatewayContext){
         HttpHeaders headers = exchange.getRequest().getHeaders();
         return exchange.getFormData()
                 .doOnNext(multiValueMap -> {
@@ -170,7 +172,7 @@ public class GatewayContextFilter implements GlobalFilter, Ordered {
      * @param chain
      * @return
      */
-    private Mono<Void> readBody(ServerWebExchange exchange,GatewayFilterChain chain,GatewayContext gatewayContext){
+    private Mono<Void> readBody(ServerWebExchange exchange, WebFilterChain chain, GatewayContext gatewayContext){
         return DataBufferUtils.join(exchange.getRequest().getBody())
                 .flatMap(dataBuffer -> {
                     /*
@@ -200,6 +202,11 @@ public class GatewayContextFilter implements GlobalFilter, Ordered {
                             .bodyToMono(String.class)
                             .doOnNext(objectValue -> {
                                 gatewayContext.setRequestBody(objectValue);
+                                try {
+                                    gatewayContext.getAllRequestData().setAll(JSONObject.parseObject(objectValue, Map.class));
+                                }catch (Exception e){
+                                    log.error("[GatewayContext]Read JsonBody error:{}",e);
+                                }
                                 log.debug("[GatewayContext]Read JsonBody Success");
                             }).then(chain.filter(mutatedExchange));
                 });

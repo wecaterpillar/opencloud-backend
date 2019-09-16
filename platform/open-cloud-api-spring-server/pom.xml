@@ -72,7 +72,7 @@
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
             <artifactId>swagger-bootstrap-ui</artifactId>
-            <version>1.9.3</version>
+            <version>${swagger-bootstrap-ui.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -106,7 +106,8 @@
                 <artifactId>dockerfile-maven-plugin</artifactId>
                 <version>${dockerfile-maven-plugin.version}</version>
                 <configuration>
-                    <repository>${docker.image.prefix}/${project.artifactId}</repository>
+                    <repository>${docker.registry}/${docker.image.prefix}/${project.artifactId}</repository>
+                    <tag>${project.version}</tag>
                     <buildArgs>
                         <JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>
                     </buildArgs>

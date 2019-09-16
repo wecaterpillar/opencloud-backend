@@ -1,6 +1,7 @@
 package com.opencloud.base.server.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.opencloud.base.client.model.entity.GatewayRoute;
 import com.opencloud.base.server.service.GatewayRouteService;
 import com.opencloud.common.model.PageParams;
@@ -101,7 +102,7 @@ public class GatewayRouteController {
         route.setStatus(status);
         route.setRouteName(routeName);
         route.setRouteDesc(routeDesc);
-        if(route.getUrl()!=null){
+        if(route.getUrl()!=null && StringUtils.isNotEmpty(route.getUrl())){
             route.setServiceId(null);
         }
         gatewayRouteService.addRoute(route);
@@ -157,7 +158,7 @@ public class GatewayRouteController {
         route.setStatus(status);
         route.setRouteName(routeName);
         route.setRouteDesc(routeDesc);
-        if(route.getUrl()!=null){
+        if(route.getUrl()!=null  && StringUtils.isNotEmpty(route.getUrl())){
             route.setServiceId(null);
         }
         gatewayRouteService.updateRoute(route);

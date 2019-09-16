@@ -32,7 +32,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throws UsernameNotFoundException {
         ResultBody<UserAccount> resp = baseDeveloperServiceClient.developerLogin(username);
         UserAccount account = resp.getData();
-        if (account == null) {
+        if (account == null || account.getAccountId()==null) {
             throw new UsernameNotFoundException("系统用户 " + username + " 不存在!");
         }
         String domain = account.getDomain();

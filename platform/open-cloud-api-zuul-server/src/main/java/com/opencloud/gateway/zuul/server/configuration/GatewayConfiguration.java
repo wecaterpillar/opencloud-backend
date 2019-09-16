@@ -3,9 +3,10 @@ package com.opencloud.gateway.zuul.server.configuration;
 import com.google.common.collect.Lists;
 import com.marcosbarbero.cloud.autoconfigure.zuul.ratelimit.config.properties.RateLimitProperties;
 import com.netflix.zuul.ZuulFilter;
+import com.opencloud.gateway.zuul.server.filter.ModifyHeaderFilter;
 import com.opencloud.gateway.zuul.server.filter.ZuulErrorFilter;
 import com.opencloud.gateway.zuul.server.filter.ZuulResponseFilter;
-import com.opencloud.gateway.zuul.server.locator.ApiResourceLocator;
+import com.opencloud.gateway.zuul.server.locator.ResourceLocator;
 import com.opencloud.gateway.zuul.server.locator.JdbcRouteLocator;
 import com.opencloud.gateway.zuul.server.service.AccessLogService;
 import com.opencloud.gateway.zuul.server.actuator.ApiEndpoint;
@@ -41,7 +42,7 @@ import org.springframework.web.filter.CorsFilter;
 @Slf4j
 @Configuration
 @EnableConfigurationProperties({ApiProperties.class})
-public class ApiConfiguration {
+public class GatewayConfiguration {
     private static final String ALLOWED_HEADERS = "*";
     private static final String ALLOWED_METHODS = "*";
     private static final String ALLOWED_ORIGIN = "*";
@@ -49,7 +50,7 @@ public class ApiConfiguration {
     private static final Long MAX_AGE = 18000L;
 
     @Autowired
-    private JdbcRouteLocator zuulRoutesLocator;
+    private JdbcRouteLocator jdbcRouteLocator;
     @Autowired
     private RateLimitProperties rateLimitProperties;
     @Autowired
@@ -64,7 +65,9 @@ public class ApiConfiguration {
      */
     @Bean
     public ZuulFilter zuulResponseFilter() {
-        return new ZuulResponseFilter(accessLogService);
+        ZuulFilter zuulFilter = new ZuulResponseFilter(accessLogService);
+        log.info("ZuulErrorFilter [{}]", zuulFilter);
+        return zuulFilter;
     }
 
     /**
@@ -74,9 +77,22 @@ public class ApiConfiguration {
      */
     @Bean
     public ZuulFilter zuulErrorFilter() {
-        return new ZuulErrorFilter(accessLogService);
+        ZuulFilter zuulFilter = new ZuulErrorFilter(accessLogService);
+        log.info("ZuulErrorFilter [{}]", zuulFilter);
+        return zuulFilter;
     }
 
+    /**
+     * 修改请求头
+     *
+     * @return
+     */
+    @Bean
+    public ZuulFilter modifyHeaderFilter() {
+        ZuulFilter zuulFilter = new ModifyHeaderFilter();
+        log.info("ModifyHeaderFilter [{}]", zuulFilter);
+        return zuulFilter;
+    }
 
     /**
      * 资源加载器
@@ -84,8 +100,10 @@ public class ApiConfiguration {
      * @return
      */
     @Bean
-    public ApiResourceLocator apiResourceLocator(GatewayServiceClient gatewayServiceClient) {
-        return new ApiResourceLocator(zuulRoutesLocator, rateLimitProperties, baseAuthorityServiceClient, gatewayServiceClient);
+    public ResourceLocator resourceLocator(GatewayServiceClient gatewayServiceClient) {
+        ResourceLocator resourceLocator = new ResourceLocator(jdbcRouteLocator, rateLimitProperties, baseAuthorityServiceClient, gatewayServiceClient);
+        log.info("CorsFilter [{}]", resourceLocator);
+        return resourceLocator;
     }
 
     /**
@@ -94,10 +112,10 @@ public class ApiConfiguration {
      * @return
      */
     @Bean
-    public JdbcRouteLocator zuulRouteLocator(ZuulProperties zuulProperties, ServerProperties serverProperties, JdbcTemplate jdbcTemplate, ApplicationEventPublisher publisher) {
-        zuulRoutesLocator = new JdbcRouteLocator(serverProperties.getServlet().getContextPath(), zuulProperties, jdbcTemplate, publisher);
-        log.info("ZuulRoutesLocator:{}", zuulRoutesLocator);
-        return zuulRoutesLocator;
+    public JdbcRouteLocator jdbcRouteLocator(ZuulProperties zuulProperties, ServerProperties serverProperties, JdbcTemplate jdbcTemplate, ApplicationEventPublisher publisher) {
+        jdbcRouteLocator = new JdbcRouteLocator(serverProperties.getServlet().getContextPath(), zuulProperties, jdbcTemplate, publisher);
+        log.info("JdbcRouteLocator:{}", jdbcRouteLocator);
+        return jdbcRouteLocator;
     }
 
     /**
@@ -110,9 +128,9 @@ public class ApiConfiguration {
     @Bean
     @ConditionalOnEnabledEndpoint
     @ConditionalOnClass({Endpoint.class})
-    public ApiEndpoint openApiEndpoint(ApplicationContext context, BusProperties bus) {
+    public ApiEndpoint apiEndpoint(ApplicationContext context, BusProperties bus) {
         ApiEndpoint endpoint = new ApiEndpoint(context, bus.getId());
-        log.info("bean [{}]", endpoint);
+        log.info("ApiEndpoint [{}]", endpoint);
         return endpoint;
     }
 
@@ -137,6 +155,7 @@ public class ApiConfiguration {
         FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
         //最大优先级,设置0不好使
         bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        log.info("CorsFilter [{}]", bean);
         return bean;
     }
 }

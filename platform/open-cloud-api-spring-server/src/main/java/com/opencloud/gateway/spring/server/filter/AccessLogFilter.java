@@ -14,8 +14,6 @@ import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.nio.charset.Charset;
-
 /**
  * 日志过滤器
  *
@@ -45,9 +43,7 @@ public class AccessLogFilter implements WebFilter {
                         dataBuffer.read(content);
                         //释放掉内存
                         DataBufferUtils.release(dataBuffer);
-                        String s = new String(content, Charset.forName("UTF-8"));
-                        byte[] uppedContent = new String(content, Charset.forName("UTF-8")).getBytes();
-                        return bufferFactory.wrap(uppedContent);
+                        return bufferFactory.wrap(content);
                     }));
                 }
                 // if body is not a flux. never got there.
