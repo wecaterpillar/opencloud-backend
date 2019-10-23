@@ -94,13 +94,16 @@ public class BaseAppServiceImpl extends BaseServiceImpl<BaseAppMapper, BaseApp> 
 
     /**
      * 获取app和应用信息
+     *
      * @return
      */
     @Override
     @Cacheable(value = "apps", key = "'client:'+#clientId")
     public OpenClientDetails getAppClientInfo(String clientId) {
-        BaseClientDetails baseClientDetails = (BaseClientDetails) jdbcClientDetailsService.loadClientByClientId(clientId);
-        if (baseClientDetails == null) {
+        BaseClientDetails baseClientDetails = null;
+        try {
+            baseClientDetails = (BaseClientDetails) jdbcClientDetailsService.loadClientByClientId(clientId);
+        } catch (Exception e) {
             return null;
         }
         String appId = baseClientDetails.getAdditionalInformation().get("appId").toString();
@@ -148,7 +151,7 @@ public class BaseAppServiceImpl extends BaseServiceImpl<BaseAppMapper, BaseApp> 
         client.setClientId(app.getApiKey());
         client.setClientSecret(app.getSecretKey());
         client.setAdditionalInformation(info);
-        client.setAuthorizedGrantTypes(Arrays.asList("authorization_code","client_credentials","implicit","refresh_token"));
+        client.setAuthorizedGrantTypes(Arrays.asList("authorization_code", "client_credentials", "implicit", "refresh_token"));
         client.setAccessTokenValiditySeconds(ACCESS_TOKEN_VALIDITY_SECONDS);
         client.setRefreshTokenValiditySeconds(REFRESH_TOKEN_VALIDITY_SECONDS);
         jdbcClientDetailsService.addClientDetails(client);

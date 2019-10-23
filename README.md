@@ -22,6 +22,9 @@
 <a target="_blank" href="http://www.openc.top">开发平台门户预览</a> 
 
 <a target="_blank" href="http://admin.openc.top">运营管理后台预览</a>
+
+<a target="_blank" href="http://pro.openc.top">运营管理后台-专业版预览</a>
+
 + 后台默认账号:admin 123456  
 + 后台测试账号:test 123456
 + SpringBootAdmin账号:sba 123456
@@ -40,6 +43,9 @@
 
 #### vue后台UI源码
 <a target="_blank" href="https://gitee.com/liuyadu/open-admin-ui">后台UI源码</a>
+
+#### vue后台UI专业版源码
+<a target="_blank" href="https://gitee.com/liuyadu_open/open-admin-pro">专业版后台UI源码</a>
 
 #### vue门户UI源码
 <a target="_blank" href="https://gitee.com/liuyadu_open/open-portal-ui.git">门户UI源码</a>
