@@ -11,14 +11,13 @@ import org.springframework.cloud.gateway.route.RouteDefinitionLocator;
 import org.springframework.context.ApplicationListener;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
-import reactor.cache.CacheFlux;
-import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -58,17 +57,17 @@ public class ResourceLocator implements ApplicationListener<RemoteRefreshRouteEv
     /**
      * 权限资源
      */
-    private Flux<AuthorityResource> authorityResources;
+    private List<AuthorityResource> authorityResources;
 
     /**
      * ip黑名单
      */
-    private Flux<IpLimitApi> ipBlacks;
+    private List<IpLimitApi> ipBlacks;
 
     /**
      * ip白名单
      */
-    private Flux<IpLimitApi> ipWhites;
+    private List<IpLimitApi> ipWhites;
 
     /**
      * 权限列表
@@ -86,9 +85,9 @@ public class ResourceLocator implements ApplicationListener<RemoteRefreshRouteEv
     private RouteDefinitionLocator routeDefinitionLocator;
 
     public ResourceLocator() {
-        authorityResources = CacheFlux.lookup(cache, "authorityResources", AuthorityResource.class).onCacheMissResume(Flux.fromIterable(new ArrayList<>()));
-        ipBlacks = CacheFlux.lookup(cache, "ipBlacks", IpLimitApi.class).onCacheMissResume(Flux.fromIterable(new ArrayList<>()));
-        ipWhites = CacheFlux.lookup(cache, "ipWhites", IpLimitApi.class).onCacheMissResume(Flux.fromIterable(new ArrayList<>()));
+        authorityResources = new CopyOnWriteArrayList<>();
+        ipBlacks  = new CopyOnWriteArrayList<>();
+        ipWhites  = new CopyOnWriteArrayList<>();
     }
 
 
@@ -139,7 +138,7 @@ public class ResourceLocator implements ApplicationListener<RemoteRefreshRouteEv
     /**
      * 加载授权列表
      */
-    public Flux<AuthorityResource> loadAuthorityResources() {
+    public List<AuthorityResource> loadAuthorityResources() {
         List<AuthorityResource> resources = Lists.newArrayList();
         Collection<ConfigAttribute> array;
         ConfigAttribute cfg;
@@ -169,13 +168,13 @@ public class ResourceLocator implements ApplicationListener<RemoteRefreshRouteEv
         } catch (Exception e) {
             log.error("加载动态权限错误:{}", e);
         }
-        return Flux.fromIterable(resources);
+        return resources;
     }
 
     /**
      * 加载IP黑名单
      */
-    public Flux<IpLimitApi> loadIpBlackList() {
+    public List<IpLimitApi> loadIpBlackList() {
         List<IpLimitApi> list = Lists.newArrayList();
         try {
             list = gatewayServiceClient.getApiBlackList().getData();
@@ -188,13 +187,13 @@ public class ResourceLocator implements ApplicationListener<RemoteRefreshRouteEv
         } catch (Exception e) {
             log.error("加载IP黑名单错误:{}", e);
         }
-        return Flux.fromIterable(list);
+        return list;
     }
 
     /**
      * 加载IP白名单
      */
-    public Flux<IpLimitApi> loadIpWhiteList() {
+    public List<IpLimitApi> loadIpWhiteList() {
         List<IpLimitApi> list = Lists.newArrayList();
         try {
             list = gatewayServiceClient.getApiWhiteList().getData();
@@ -207,7 +206,7 @@ public class ResourceLocator implements ApplicationListener<RemoteRefreshRouteEv
         } catch (Exception e) {
             log.error("加载IP白名单错误:{}", e);
         }
-        return Flux.fromIterable(list);
+        return list;
     }
 
     /**
@@ -230,27 +229,27 @@ public class ResourceLocator implements ApplicationListener<RemoteRefreshRouteEv
         }
     }
 
-    public Flux<AuthorityResource> getAuthorityResources() {
+    public List<AuthorityResource> getAuthorityResources() {
         return authorityResources;
     }
 
-    public void setAuthorityResources(Flux<AuthorityResource> authorityResources) {
+    public void setAuthorityResources(List<AuthorityResource> authorityResources) {
         this.authorityResources = authorityResources;
     }
 
-    public Flux<IpLimitApi> getIpBlacks() {
+    public List<IpLimitApi> getIpBlacks() {
         return ipBlacks;
     }
 
-    public void setIpBlacks(Flux<IpLimitApi> ipBlacks) {
+    public void setIpBlacks(List<IpLimitApi> ipBlacks) {
         this.ipBlacks = ipBlacks;
     }
 
-    public Flux<IpLimitApi> getIpWhites() {
+    public List<IpLimitApi> getIpWhites() {
         return ipWhites;
     }
 
-    public void setIpWhites(Flux<IpLimitApi> ipWhites) {
+    public void setIpWhites(List<IpLimitApi> ipWhites) {
         this.ipWhites = ipWhites;
     }
 

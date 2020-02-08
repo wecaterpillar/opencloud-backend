@@ -6,8 +6,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import com.opencloud.common.filter.XssStringJsonDeserializer;
-import com.opencloud.common.filter.XssStringJsonSerializer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -141,8 +139,6 @@ public class JacksonAutoConfiguration {
         SimpleModule simpleModule = new SimpleModule();
         simpleModule.addSerializer(Long.class, ToStringSerializer.instance);
         simpleModule.addSerializer(Long.TYPE, ToStringSerializer.instance);
-        simpleModule.addSerializer(String.class, new XssStringJsonSerializer());
-        simpleModule.addDeserializer(String.class, new XssStringJsonDeserializer());
         objectMapper.registerModule(simpleModule);
         // 兼容fastJson 的一些空值处理
         SerializerFeature[] features = new SerializerFeature[]{

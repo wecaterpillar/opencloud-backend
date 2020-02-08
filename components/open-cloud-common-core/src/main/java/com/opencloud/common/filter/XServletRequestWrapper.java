@@ -1,6 +1,7 @@
-package com.opencloud.gateway.zuul.server.filter.support;
+package com.opencloud.common.filter;
 
-import lombok.extern.slf4j.Slf4j;
+
+import com.opencloud.common.utils.StringUtils;
 import org.apache.commons.io.IOUtils;
 
 import javax.servlet.ReadListener;
@@ -11,16 +12,20 @@ import java.io.*;
 import java.util.*;
 
 /**
+ * 参数去除空格
+ * body 缓存
+ * headers 缓存
+ *
  * @author liuyadu
  */
-@Slf4j
-public class ModifyHttpServletRequestWrapper extends HttpServletRequestWrapper {
-
+public class XServletRequestWrapper extends HttpServletRequestWrapper {
+    private HttpServletRequest request;
     private final byte[] body;
     private Map<String, String> customHeaders;
 
-    public ModifyHttpServletRequestWrapper(HttpServletRequest request) throws IOException {
+    public XServletRequestWrapper(HttpServletRequest request) throws IOException {
         super(request);
+        this.request = request;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         IOUtils.copy(request.getInputStream(), baos);
         this.body = baos.toByteArray();
@@ -59,8 +64,27 @@ public class ModifyHttpServletRequestWrapper extends HttpServletRequestWrapper {
         };
     }
 
-    public void putHeader(String name, String value) {
-        this.customHeaders.put(name, value);
+    @Override
+    public String getParameter(String name) {
+        String value = request.getParameter(name);
+        if (!StringUtils.isEmpty(value)) {
+            value = StringUtils.trim(value).trim();
+        }
+        return value;
+    }
+
+
+    @Override
+    public String[] getParameterValues(String name) {
+        String[] parameterValues = super.getParameterValues(name);
+        if (parameterValues == null) {
+            return null;
+        }
+        for (int i = 0; i < parameterValues.length; i++) {
+            String value = parameterValues[i];
+            parameterValues[i] = StringUtils.trim(value).trim();
+        }
+        return parameterValues;
     }
 
     @Override
@@ -81,5 +105,9 @@ public class ModifyHttpServletRequestWrapper extends HttpServletRequestWrapper {
             set.add(name);
         }
         return Collections.enumeration(set);
+    }
+
+    public void putHeader(String name, String value) {
+        this.customHeaders.put(name, value);
     }
 }

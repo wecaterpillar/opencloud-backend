@@ -60,7 +60,6 @@ public class PreSignatureFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String requestPath = request.getRequestURI();
-        System.out.println(request.getHeaderNames());
         if (apiProperties.getCheckSign() && !notSign(requestPath)) {
             try {
                 Map params = WebUtils.getParameterMap(request);

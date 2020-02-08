@@ -70,9 +70,9 @@ public class PreCheckFilter extends OncePerRequestFilter {
         }
 
         // ip白名单验证
-        boolean[] matchIpWhiteListResult = accessManager.matchIpOrOriginWhiteList(requestPath, remoteIpAddress, origin);
-        boolean hasWhiteList = matchIpWhiteListResult[0];
-        boolean allow = matchIpWhiteListResult[1];
+        Boolean[] matchIpWhiteListResult = accessManager.matchIpOrOriginWhiteList(requestPath, remoteIpAddress, origin);
+        Boolean hasWhiteList = matchIpWhiteListResult[0];
+        Boolean allow = matchIpWhiteListResult[1];
         if (hasWhiteList) {
             // 接口存在白名单限制
             if (!allow) {

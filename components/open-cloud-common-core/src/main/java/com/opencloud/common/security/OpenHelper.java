@@ -3,20 +3,15 @@ package com.opencloud.common.security;
 import com.opencloud.common.configuration.OpenCommonProperties;
 import com.opencloud.common.utils.BeanConvertUtils;
 import com.opencloud.common.utils.ReflectionUtils;
-import com.opencloud.common.utils.SpringContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.common.exceptions.InvalidClientException;
-import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerEndpointsConfiguration;
-import org.springframework.security.oauth2.provider.*;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
@@ -27,7 +22,6 @@ import org.springframework.security.oauth2.provider.token.store.redis.RedisToken
 import org.springframework.util.Assert;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -225,36 +219,5 @@ public class OpenHelper {
         tokenServices.setTokenStore(redisTokenStore);
         log.info("buildRedisTokenServices[{}]", tokenServices);
         return tokenServices;
-    }
-
-
-    /**
-     * 认证服务器原始方式创建AccessToken
-     *
-     * @param endpoints
-     * @param postParameters
-     * @return
-     * @throws Exception
-     */
-    public static OAuth2AccessToken createAccessToken(AuthorizationServerEndpointsConfiguration endpoints, Map<String, String> postParameters) throws Exception {
-        String clientId = postParameters.get("client_id");
-        String clientSecret = postParameters.get("client_secret");
-        Assert.notNull(clientId, "client_id not null");
-        Assert.notNull(clientSecret, "client_secret not null");
-        clientId = clientId.trim();
-        ClientDetailsService clientDetailsService = (ClientDetailsService) ReflectionUtils.getFieldValue(endpoints,"clientDetailsService");
-        PasswordEncoder passwordEncoder = SpringContextHolder.getBean(PasswordEncoder.class);
-        // 验证客户端
-        ClientDetails clientDetails = clientDetailsService.loadClientByClientId(clientId);
-        if (clientDetails == null) {
-            throw new NoSuchClientException("No client with requested id:" + clientId);
-        }
-        if (!passwordEncoder.matches(clientSecret, clientDetails.getClientSecret())) {
-            throw new InvalidClientException("Bad client credentials");
-        }
-        // 生成token
-        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(clientId, clientSecret, Collections.emptyList());
-        ResponseEntity<OAuth2AccessToken> responseEntity = endpoints.tokenEndpoint().postAccessToken(authRequest, postParameters);
-        return responseEntity.getBody();
     }
 }

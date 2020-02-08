@@ -1,15 +1,14 @@
 package com.opencloud.gateway.spring.server.filter;
 
 import cn.hutool.core.collection.ConcurrentHashSet;
-import com.opencloud.gateway.spring.server.configuration.ApiProperties;
-import com.opencloud.gateway.spring.server.locator.ResourceLocator;
-import com.opencloud.gateway.spring.server.util.matcher.ReactiveIpAddressMatcher;
 import com.opencloud.base.client.model.AuthorityResource;
-import com.opencloud.base.client.model.IpLimitApi;
 import com.opencloud.common.constants.CommonConstants;
 import com.opencloud.common.constants.ErrorCode;
 import com.opencloud.common.security.OpenAuthority;
 import com.opencloud.common.utils.StringUtils;
+import com.opencloud.gateway.spring.server.configuration.ApiProperties;
+import com.opencloud.gateway.spring.server.locator.ResourceLocator;
+import com.opencloud.gateway.spring.server.util.matcher.ReactiveIpAddressMatcher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
@@ -23,10 +22,12 @@ import org.springframework.security.web.server.authorization.AuthorizationContex
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 访问权限控制管理类
@@ -96,26 +97,19 @@ public class AccessManager implements ReactiveAuthorizationManager<Authorization
      * @return
      */
     public boolean permitAll(String requestPath) {
-        final Boolean[] result = {false};
-        Iterator<String> it = permitAll.iterator();
-        while (it.hasNext()) {
-            String path = it.next();
-            if (pathMatch.match(path, requestPath)) {
-                return true;
-            }
+        boolean permit = permitAll.stream()
+                .filter(r -> pathMatch.match(r, requestPath)).findFirst().isPresent();
+        if (permit) {
+            return true;
         }
         // 动态权限列表
-        Flux<AuthorityResource> resources = resourceLocator.getAuthorityResources();
-        resources.filter(res -> StringUtils.isNotBlank(res.getPath()))
-                .subscribe(res -> {
+        return resourceLocator.getAuthorityResources().stream()
+                .filter(res -> StringUtils.isNotBlank(res.getPath()))
+                .filter(res -> {
                     Boolean isAuth = res.getIsAuth() != null && res.getIsAuth().intValue() == 1 ? true : false;
                     // 无需认证,返回true
-                    if (pathMatch.match(res.getPath(), requestPath) && !isAuth) {
-                        result[0] = true;
-                        return;
-                    }
-                });
-        return result[0];
+                    return pathMatch.match(res.getPath(), requestPath) && !isAuth;
+                }).findFirst().isPresent();
     }
 
     /**
@@ -125,12 +119,14 @@ public class AccessManager implements ReactiveAuthorizationManager<Authorization
      * @return
      */
     public AuthorityResource getResource(String requestPath) {
-        final AuthorityResource[] result = {null};
         // 动态权限列表
-        Flux<AuthorityResource> resources = resourceLocator.getAuthorityResources();
-        resources.filter(r -> !"/**".equals(r.getPath()) && !permitAll(requestPath) && StringUtils.isNotBlank(r.getPath()) && pathMatch.match(r.getPath(), requestPath))
-                .subscribe(r -> result[0] = r);
-        return result[0];
+        return resourceLocator.getAuthorityResources()
+                .stream()
+                .filter(r -> StringUtils.isNotBlank(r.getPath()))
+                .filter(r -> !"/**".equals(r.getPath()))
+                .filter(r -> pathMatch.match(r.getPath(), requestPath))
+                .filter(r -> !permitAll(r.getPath()))
+                .findFirst().orElse(null);
     }
 
     /**
@@ -140,14 +136,9 @@ public class AccessManager implements ReactiveAuthorizationManager<Authorization
      * @return
      */
     private boolean authorityIgnores(String requestPath) {
-        Iterator<String> it = authorityIgnores.iterator();
-        while (it.hasNext()) {
-            String path = it.next();
-            if (pathMatch.match(path, requestPath)) {
-                return true;
-            }
-        }
-        return false;
+        return authorityIgnores.stream()
+                .filter(r -> pathMatch.match(r, requestPath))
+                .findFirst().isPresent();
     }
 
     /**
@@ -216,13 +207,15 @@ public class AccessManager implements ReactiveAuthorizationManager<Authorization
 
     private Collection<ConfigAttribute> getAttributes(String requestPath) {
         // 匹配动态权限
-        for (Iterator<String> iter = resourceLocator.getConfigAttributes().keySet().iterator(); iter.hasNext(); ) {
-            String url = iter.next();
-            // 防止匹配错误 忽略/**
-            if (!"/**".equals(url) && pathMatch.match(url, requestPath)) {
-                // 返回匹配到权限
-                return resourceLocator.getConfigAttributes().get(url);
-            }
+        AtomicReference<Collection<ConfigAttribute>> attributes = new AtomicReference<>();
+        resourceLocator.getConfigAttributes().keySet().stream()
+                .filter(r -> !"/**".equals(r))
+                .filter(r -> pathMatch.match(r, requestPath))
+                .findFirst().ifPresent(r -> {
+            attributes.set(resourceLocator.getConfigAttributes().get(r));
+        });
+        if (attributes.get() != null) {
+            return attributes.get();
         }
         return SecurityConfig.createList("AUTHORITIES_REQUIRED");
     }
@@ -236,13 +229,12 @@ public class AccessManager implements ReactiveAuthorizationManager<Authorization
      * @return
      */
     public boolean matchIpOrOriginBlacklist(String requestPath, String ipAddress, String origin) {
-        final Boolean[] result = {false};
-        Flux<IpLimitApi> blackList = resourceLocator.getIpBlacks();
-        blackList.filter(api -> pathMatch.match(api.getPath(), requestPath) && api.getIpAddressSet() != null && !api.getIpAddressSet().isEmpty())
-                .filter(api -> matchIpOrOrigin(api.getIpAddressSet(), ipAddress, origin))
-                .subscribe(r -> result[0] = true);
-        return result[0];
-
+        return resourceLocator.getIpBlacks().stream()
+                .filter(r -> StringUtils.isNotEmpty(r.getPath()))
+                .filter(r -> r.getIpAddressSet() != null && !r.getIpAddressSet().isEmpty())
+                .filter(r -> pathMatch.match(r.getPath(), requestPath))
+                .filter(r -> matchIpOrOrigin(r.getIpAddressSet(), ipAddress, origin))
+                .findFirst().isPresent();
     }
 
     /**
@@ -255,14 +247,14 @@ public class AccessManager implements ReactiveAuthorizationManager<Authorization
      */
     public Boolean[] matchIpOrOriginWhiteList(String requestPath, String ipAddress, String origin) {
         final Boolean[] result = {false, false};
-        boolean hasWhiteList = false;
-        boolean allow = false;
-        Flux<IpLimitApi> whiteList = resourceLocator.getIpWhites();
-        whiteList.filter(api -> pathMatch.match(api.getPath(), requestPath) && api.getIpAddressSet() != null && !api.getIpAddressSet().isEmpty())
-                .subscribe(api -> {
-                    result[0] = true;
-                    result[1] = matchIpOrOrigin(api.getIpAddressSet(), ipAddress, origin);
-                });
+        resourceLocator.getIpWhites().stream()
+                .filter(r -> StringUtils.isNotEmpty(r.getPath()))
+                .filter(r -> r.getIpAddressSet() != null && !r.getIpAddressSet().isEmpty())
+                .filter(r -> pathMatch.match(r.getPath(), requestPath))
+                .findFirst().ifPresent(r -> {
+            result[0] = true;
+            result[1] = matchIpOrOrigin(r.getIpAddressSet(), ipAddress, origin);
+        });
         return result;
     }
 

@@ -7,7 +7,7 @@ import java.io.IOException;
 /**
  * @author Loger
  */
-public class XssFilter implements Filter {
+public class XFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -18,7 +18,7 @@ public class XssFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
-        XssServletRequestWrapper xssRequestWrapper = new XssServletRequestWrapper(req);
+        XServletRequestWrapper xssRequestWrapper = new XServletRequestWrapper(req);
         chain.doFilter(xssRequestWrapper, response);
     }
 

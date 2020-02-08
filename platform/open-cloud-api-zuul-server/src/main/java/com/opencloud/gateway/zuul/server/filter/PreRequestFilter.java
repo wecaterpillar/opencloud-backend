@@ -1,7 +1,7 @@
 package com.opencloud.gateway.zuul.server.filter;
 
+import com.opencloud.common.filter.XServletRequestWrapper;
 import com.opencloud.common.interceptor.FeignRequestInterceptor;
-import com.opencloud.gateway.zuul.server.filter.support.ModifyHttpServletRequestWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -25,7 +25,7 @@ public class PreRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         request.setAttribute("requestTime", new Date());
         // 修复 请求防止流读取一次丢失问题
-        ModifyHttpServletRequestWrapper requestWrapper = new ModifyHttpServletRequestWrapper(request);
+        XServletRequestWrapper requestWrapper = new XServletRequestWrapper(request);
         String sid =  UUID.randomUUID().toString();
         // 添加自定义请求头
         requestWrapper.putHeader(FeignRequestInterceptor.X_REQUEST_ID, sid);

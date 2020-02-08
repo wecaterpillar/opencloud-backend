@@ -6,26 +6,30 @@ import com.opencloud.base.client.model.entity.GatewayRoute;
 import com.opencloud.common.event.RemoteRefreshRouteEvent;
 import com.opencloud.common.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.gateway.event.RefreshRoutesEvent;
 import org.springframework.cloud.gateway.filter.FilterDefinition;
 import org.springframework.cloud.gateway.handler.predicate.PredicateDefinition;
-import org.springframework.cloud.gateway.route.RouteDefinition;
-import org.springframework.cloud.gateway.route.RouteDefinitionLocator;
+import org.springframework.cloud.gateway.route.*;
 import org.springframework.cloud.gateway.support.NameUtils;
+import org.springframework.cloud.gateway.support.NotFoundException;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.cache.CacheFlux;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static java.util.Collections.synchronizedList;
+import static java.util.Collections.synchronizedMap;
 
 /**
  * 自定义动态路由加载器
@@ -33,10 +37,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author liuyadu
  */
 @Slf4j
-public class JdbcRouteDefinitionLocator implements RouteDefinitionLocator, ApplicationListener<RemoteRefreshRouteEvent> {
+public class JdbcRouteDefinitionLocator implements ApplicationListener<RemoteRefreshRouteEvent>, ApplicationEventPublisherAware {
     private JdbcTemplate jdbcTemplate;
-    private Flux<RouteDefinition> routeDefinitions;
-    private Map<String, List> cache = new ConcurrentHashMap();
+    private ApplicationEventPublisher publisher;
+    private InMemoryRouteDefinitionRepository repository;
 
     private final static String SELECT_ROUTES = "SELECT * FROM gateway_route WHERE status = 1";
 
@@ -61,27 +65,27 @@ public class JdbcRouteDefinitionLocator implements RouteDefinitionLocator, Appli
             "        p.policy_type = 'url'";
 
 
-    public JdbcRouteDefinitionLocator(JdbcTemplate jdbcTemplate) {
+    public JdbcRouteDefinitionLocator(JdbcTemplate jdbcTemplate,InMemoryRouteDefinitionRepository repository) {
         this.jdbcTemplate = jdbcTemplate;
-        routeDefinitions = CacheFlux.lookup(cache, "routeDefs", RouteDefinition.class).onCacheMissResume(Flux.fromIterable(new ArrayList<>()));
+        this.repository = repository;
     }
 
     /**
-     * Clears the cache of routeDefinitions.
+     * 刷新路由
      *
-     * @return routeDefinitions flux
+     * @return
      */
-    public Flux<RouteDefinition> refresh() {
-        this.cache.clear();
-        this.routeDefinitions = this.loadRoutes();
-        return this.routeDefinitions;
+    public Mono<Void> refresh() {
+        this.loadRoutes();
+        // 触发默认路由刷新事件,刷新缓存路由
+        this.publisher.publishEvent(new RefreshRoutesEvent(this));
+        return Mono.empty();
     }
 
-    @Override
-    public Flux<RouteDefinition> getRouteDefinitions() {
-        return this.routeDefinitions;
-    }
-
+    /**
+     * bus刷新事件
+     * @param event
+     */
     @Override
     public void onApplicationEvent(RemoteRefreshRouteEvent event) {
         refresh();
@@ -115,9 +119,8 @@ public class JdbcRouteDefinitionLocator implements RouteDefinitionLocator, Appli
      *
      * @return
      */
-    private Flux<RouteDefinition> loadRoutes() {
+    private Mono<Void> loadRoutes() {
         //从数据库拿到路由配置
-        List<RouteDefinition> routes = Lists.newArrayList();
         try {
             List<GatewayRoute> routeList = jdbcTemplate.query(SELECT_ROUTES, new RowMapper<GatewayRoute>() {
                 @Override
@@ -204,7 +207,7 @@ public class JdbcRouteDefinitionLocator implements RouteDefinitionLocator, Appli
                     definition.setPredicates(predicates);
                     definition.setFilters(filters);
                     definition.setUri(uri);
-                    routes.add(definition);
+                    this.repository.save(Mono.just(definition)).subscribe();
                 });
             }
             if (routeList != null) {
@@ -236,7 +239,7 @@ public class JdbcRouteDefinitionLocator implements RouteDefinitionLocator, Appli
                     definition.setPredicates(predicates);
                     definition.setFilters(filters);
                     definition.setUri(uri);
-                    routes.add(definition);
+                    this.repository.save(Mono.just(definition)).subscribe();
                 });
             }
             log.info("=============加载动态路由:{}==============", routeList.size());
@@ -244,6 +247,11 @@ public class JdbcRouteDefinitionLocator implements RouteDefinitionLocator, Appli
         } catch (Exception e) {
             log.error("加载动态路由错误:{}", e);
         }
-        return Flux.fromIterable(routes);
+        return Mono.empty();
+    }
+
+    @Override
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.publisher = applicationEventPublisher;
     }
 }

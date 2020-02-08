@@ -117,7 +117,7 @@ public class IndexController {
             String openId = qqAuthService.getOpenId(token);
             if (openId != null) {
                 baseDeveloperServiceClient.addDeveloperThirdParty(openId, openId, "qq","","");
-                token =  loginController.getToken(openId, openId, "qq").getValue();
+                token =  loginController.getToken(openId, openId, "qq",headers).getString("access_token");
             }
         }
         return "redirect:" + qqAuthService.getLoginSuccessUrl() + "?token=" + token;
@@ -130,14 +130,14 @@ public class IndexController {
      * @return
      */
     @GetMapping("/oauth/wechat/callback")
-    public String wechat(@RequestParam(value = "code") String code) throws Exception {
+    public String wechat(@RequestParam(value = "code") String code, @RequestHeader HttpHeaders headers) throws Exception {
         String accessToken = wechatAuthService.getAccessToken(code);
         String token = "";
         if (accessToken != null) {
             String openId = wechatAuthService.getOpenId(token);
             if (openId != null) {
                 baseDeveloperServiceClient.addDeveloperThirdParty(openId, openId, "wechat","","");
-                token =  loginController.getToken(openId, openId, "wechat").getValue();
+                token =  loginController.getToken(openId, openId, "wechat",headers).getString("access_token");
             }
         }
         return "redirect:" + wechatAuthService.getLoginSuccessUrl() + "?token=" + token;
@@ -151,7 +151,7 @@ public class IndexController {
      * @return
      */
     @GetMapping("/oauth/gitee/callback")
-    public String gitee(@RequestParam(value = "code") String code) throws Exception {
+    public String gitee(@RequestParam(value = "code") String code, @RequestHeader HttpHeaders headers) throws Exception {
         String accessToken = giteeAuthService.getAccessToken(code);
         String token = "";
         if (accessToken != null) {
@@ -161,7 +161,7 @@ public class IndexController {
             String avatar = userInfo.getString("avatar_url");
             if (openId != null) {
                 baseDeveloperServiceClient.addDeveloperThirdParty(openId, openId, "gitee",name,avatar);
-                token = loginController.getToken(openId, openId, "gitee").getValue();
+                token = loginController.getToken(openId, openId, "gitee",headers).getString("access_token");
             }
         }
         return "redirect:" + giteeAuthService.getLoginSuccessUrl() + "?token=" + token;

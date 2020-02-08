@@ -1,12 +1,13 @@
 package com.opencloud.autoconfigure;
 
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
-import com.opencloud.common.annotation.ResourceAnnotationScan;
+import com.opencloud.common.annotation.RequestMappingScan;
+import com.opencloud.common.configuration.OpenScanProperties;
 import com.opencloud.common.configuration.OpenCommonProperties;
 import com.opencloud.common.configuration.OpenIdGenProperties;
 import com.opencloud.common.exception.OpenGlobalExceptionHandler;
 import com.opencloud.common.exception.OpenRestResponseErrorHandler;
-import com.opencloud.common.filter.XssFilter;
+import com.opencloud.common.filter.XFilter;
 import com.opencloud.common.gen.SnowflakeIdGenerator;
 import com.opencloud.common.health.DbHealthIndicator;
 import com.opencloud.common.mybatis.ModelMetaObjectHandler;
@@ -32,9 +33,15 @@ import org.springframework.web.client.RestTemplate;
  */
 @Slf4j
 @Configuration
-@EnableConfigurationProperties({OpenCommonProperties.class, OpenIdGenProperties.class, OpenOAuth2ClientProperties.class})
+@EnableConfigurationProperties({OpenCommonProperties.class, OpenIdGenProperties.class, OpenOAuth2ClientProperties.class, OpenScanProperties.class})
 public class AutoConfiguration {
 
+
+    @Bean
+    @ConditionalOnMissingBean(OpenScanProperties.class)
+     public  OpenScanProperties scanProperties(){
+         return  new OpenScanProperties();
+     }
 
     /**
      * xss过滤
@@ -44,8 +51,8 @@ public class AutoConfiguration {
      */
     @Bean
     public FilterRegistrationBean XssFilter() {
-        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean(new XssFilter());
-        log.info("XssFilter [{}]", filterRegistrationBean);
+        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean(new XFilter());
+        log.info("XFilter [{}]", filterRegistrationBean);
         return filterRegistrationBean;
     }
 
@@ -121,10 +128,10 @@ public class AutoConfiguration {
      * @return
      */
     @Bean
-    @ConditionalOnMissingBean(ResourceAnnotationScan.class)
-    public ResourceAnnotationScan resourceAnnotationScan(AmqpTemplate amqpTemplate) {
-        ResourceAnnotationScan scan = new ResourceAnnotationScan(amqpTemplate);
-        log.info("ResourceAnnotationScan [{}]", scan);
+    @ConditionalOnMissingBean(RequestMappingScan.class)
+    public RequestMappingScan resourceAnnotationScan(AmqpTemplate amqpTemplate, OpenScanProperties scanProperties) {
+        RequestMappingScan scan = new RequestMappingScan(amqpTemplate,scanProperties);
+        log.info("RequestMappingScan [{}]", scan);
         return scan;
     }
 

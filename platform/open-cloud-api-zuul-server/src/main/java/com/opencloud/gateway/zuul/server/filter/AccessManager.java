@@ -1,17 +1,17 @@
 package com.opencloud.gateway.zuul.server.filter;
 
-import com.opencloud.gateway.zuul.server.configuration.ApiProperties;
-import com.opencloud.gateway.zuul.server.locator.ResourceLocator;
 import com.opencloud.base.client.model.AuthorityResource;
-import com.opencloud.base.client.model.IpLimitApi;
 import com.opencloud.common.constants.CommonConstants;
 import com.opencloud.common.constants.ErrorCode;
 import com.opencloud.common.security.OpenAuthority;
 import com.opencloud.common.utils.StringUtils;
+import com.opencloud.gateway.zuul.server.configuration.ApiProperties;
+import com.opencloud.gateway.zuul.server.locator.ResourceLocator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.util.matcher.IpAddressMatcher;
@@ -19,7 +19,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 访问权限控制管理类
@@ -80,7 +84,6 @@ public class AccessManager {
         return checkAuthorities(request, authentication, requestPath);
     }
 
-
     /**
      * 始终放行
      *
@@ -88,50 +91,36 @@ public class AccessManager {
      * @return
      */
     public boolean permitAll(String requestPath) {
-        Iterator<String> it = permitAll.iterator();
-        while (it.hasNext()) {
-            String path = it.next();
-            if (pathMatch.match(path, requestPath)) {
-                return true;
-            }
+        boolean permit = permitAll.stream()
+                .filter(r -> pathMatch.match(r, requestPath)).findFirst().isPresent();
+        if (permit) {
+            return true;
         }
         // 动态权限列表
-        List<AuthorityResource> authorityList = resourceLocator.getAuthorityResources();
-        if (authorityList != null) {
-            Iterator<AuthorityResource> it2 = authorityList.iterator();
-            while (it2.hasNext()) {
-                AuthorityResource auth = it2.next();
-                Boolean isAuth = auth.getIsAuth() != null && auth.getIsAuth().equals(1) ? true : false;
-                String fullPath = auth.getPath();
-                // 无需认证,返回true
-                if (StringUtils.isNotBlank(fullPath) && pathMatch.match(fullPath, requestPath) && !isAuth) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return resourceLocator.getAuthorityResources().stream()
+                .filter(res -> StringUtils.isNotBlank(res.getPath()))
+                .filter(res -> {
+                    Boolean isAuth = res.getIsAuth() != null && res.getIsAuth().intValue() == 1 ? true : false;
+                    // 无需认证,返回true
+                    return pathMatch.match(res.getPath(), requestPath) && !isAuth;
+                }).findFirst().isPresent();
     }
 
     /**
-     * 获取资源信息
+     * 获取资源状态
      *
      * @param requestPath
      * @return
      */
     public AuthorityResource getResource(String requestPath) {
         // 动态权限列表
-        List<AuthorityResource> authorityList = resourceLocator.getAuthorityResources();
-        if (authorityList != null) {
-            Iterator<AuthorityResource> it2 = authorityList.iterator();
-            while (it2.hasNext()) {
-                AuthorityResource auth = it2.next();
-                String fullPath = auth.getPath();
-                if (!"/**".equals(fullPath) && !permitAll(requestPath) && StringUtils.isNotBlank(fullPath) && pathMatch.match(fullPath, requestPath)) {
-                    return auth;
-                }
-            }
-        }
-        return null;
+        return resourceLocator.getAuthorityResources()
+                .stream()
+                .filter(r -> StringUtils.isNotBlank(r.getPath()))
+                .filter(r -> !"/**".equals(r.getPath()))
+                .filter(r -> pathMatch.match(r.getPath(), requestPath))
+                .filter(r -> !permitAll(r.getPath()))
+                .findFirst().orElse(null);
     }
 
     /**
@@ -140,17 +129,11 @@ public class AccessManager {
      * @param requestPath
      * @return
      */
-    public boolean authorityIgnores(String requestPath) {
-        Iterator<String> it = authorityIgnores.iterator();
-        while (it.hasNext()) {
-            String path = it.next();
-            if (pathMatch.match(path, requestPath)) {
-                return true;
-            }
-        }
-        return false;
+    private boolean authorityIgnores(String requestPath) {
+        return authorityIgnores.stream()
+                .filter(r -> pathMatch.match(r, requestPath))
+                .findFirst().isPresent();
     }
-
 
     /**
      * 检查权限
@@ -160,10 +143,14 @@ public class AccessManager {
      * @param requestPath
      * @return
      */
-    public boolean checkAuthorities(HttpServletRequest request, Authentication authentication, String requestPath) {
+    private boolean checkAuthorities(HttpServletRequest request, Authentication authentication, String requestPath) {
         Object principal = authentication.getPrincipal();
         // 已认证身份
         if (principal != null) {
+            if (authentication instanceof AnonymousAuthenticationToken) {
+                //check if this uri can be access by anonymous
+                //return
+            }
             if (authorityIgnores(requestPath)) {
                 // 认证通过,并且无需权限
                 return true;
@@ -173,14 +160,6 @@ public class AccessManager {
         return false;
     }
 
-    /**
-     * 权限验证
-     *
-     * @param request
-     * @param authentication
-     * @param requestPath
-     * @return
-     */
     public boolean mathAuthorities(HttpServletRequest request, Authentication authentication, String requestPath) {
         Collection<ConfigAttribute> attributes = getAttributes(requestPath);
         int result = 0;
@@ -220,25 +199,20 @@ public class AccessManager {
         }
     }
 
-    /**
-     * 获取请求资源所需权限列表
-     *
-     * @param requestPath
-     * @return
-     */
-    public Collection<ConfigAttribute> getAttributes(String requestPath) {
+    private Collection<ConfigAttribute> getAttributes(String requestPath) {
         // 匹配动态权限
-        for (Iterator<String> iter = resourceLocator.getConfigAttributes().keySet().iterator(); iter.hasNext(); ) {
-            String url = iter.next();
-            // 防止匹配错误 忽略/**
-            if (!"/**".equals(url) && pathMatch.match(url, requestPath)) {
-                // 返回匹配到权限
-                return resourceLocator.getConfigAttributes().get(url);
-            }
+        AtomicReference<Collection<ConfigAttribute>> attributes = new AtomicReference<>();
+        resourceLocator.getConfigAttributes().keySet().stream()
+                .filter(r -> !"/**".equals(r))
+                .filter(r -> pathMatch.match(r, requestPath))
+                .findFirst().ifPresent(r -> {
+            attributes.set(resourceLocator.getConfigAttributes().get(r));
+        });
+        if (attributes.get() != null) {
+            return attributes.get();
         }
         return SecurityConfig.createList("AUTHORITIES_REQUIRED");
     }
-
 
     /**
      * IP黑名单验证
@@ -249,18 +223,12 @@ public class AccessManager {
      * @return
      */
     public boolean matchIpOrOriginBlacklist(String requestPath, String ipAddress, String origin) {
-        List<IpLimitApi> blackList = resourceLocator.getIpBlacks();
-        if (blackList != null) {
-            for (IpLimitApi api : blackList) {
-                if (pathMatch.match(api.getPath(), requestPath) && api.getIpAddressSet() != null && !api.getIpAddressSet().isEmpty()) {
-                    if (matchIpOrOrigin(api.getIpAddressSet(), ipAddress, origin)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-
+        return resourceLocator.getIpBlacks().stream()
+                .filter(r -> StringUtils.isNotEmpty(r.getPath()))
+                .filter(r -> r.getIpAddressSet() != null && !r.getIpAddressSet().isEmpty())
+                .filter(r -> pathMatch.match(r.getPath(), requestPath))
+                .filter(r -> matchIpOrOrigin(r.getIpAddressSet(), ipAddress, origin))
+                .findFirst().isPresent();
     }
 
     /**
@@ -271,20 +239,17 @@ public class AccessManager {
      * @param origin
      * @return [hasWhiteList, allow]
      */
-    public boolean[] matchIpOrOriginWhiteList(String requestPath, String ipAddress, String origin) {
-        boolean hasWhiteList = false;
-        boolean allow = false;
-        List<IpLimitApi> whiteList = resourceLocator.getIpWhites();
-        if (whiteList != null) {
-            for (IpLimitApi api : whiteList) {
-                if (pathMatch.match(api.getPath(), requestPath) && api.getIpAddressSet() != null && !api.getIpAddressSet().isEmpty()) {
-                    hasWhiteList = true;
-                    allow = matchIpOrOrigin(api.getIpAddressSet(), ipAddress, origin);
-                    break;
-                }
-            }
-        }
-        return new boolean[]{hasWhiteList, allow};
+    public Boolean[] matchIpOrOriginWhiteList(String requestPath, String ipAddress, String origin) {
+        final Boolean[] result = {false, false};
+        resourceLocator.getIpWhites().stream()
+                .filter(r -> StringUtils.isNotEmpty(r.getPath()))
+                .filter(r -> r.getIpAddressSet() != null && !r.getIpAddressSet().isEmpty())
+                .filter(r -> pathMatch.match(r.getPath(), requestPath))
+                .findFirst().ifPresent(r -> {
+            result[0] = true;
+            result[1] = matchIpOrOrigin(r.getIpAddressSet(), ipAddress, origin);
+        });
+        return result;
     }
 
     /**

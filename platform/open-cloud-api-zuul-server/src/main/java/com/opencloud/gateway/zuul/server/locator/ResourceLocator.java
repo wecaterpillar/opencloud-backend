@@ -55,7 +55,7 @@ public class ResourceLocator implements ApplicationListener<RemoteRefreshRouteEv
     /**
      * 权限列表
      */
-    private Map<String, Collection<ConfigAttribute>> configAttributes = new ConcurrentHashMap();
+    private Map<String, Collection<ConfigAttribute>> configAttributes = new ConcurrentHashMap<>();
     /**
      * 权限列表
      */
@@ -84,10 +84,10 @@ public class ResourceLocator implements ApplicationListener<RemoteRefreshRouteEv
 
 
     public ResourceLocator(JdbcRouteLocator zuulRoutesLocator, RateLimitProperties rateLimitProperties, BaseAuthorityServiceClient baseAuthorityServiceClient, GatewayServiceClient gatewayServiceClient) {
-        this.ipBlacks = new CopyOnWriteArrayList();
-        this.ipWhites = new CopyOnWriteArrayList();
-        this.authorityResources = new CopyOnWriteArrayList();
-        this.rateLimitApis = new CopyOnWriteArrayList();
+        this.ipBlacks = new CopyOnWriteArrayList<>();
+        this.ipWhites = new CopyOnWriteArrayList<>();
+        this.authorityResources = new CopyOnWriteArrayList<>();
+        this.rateLimitApis = new CopyOnWriteArrayList<>();
         this.zuulRoutesLocator = zuulRoutesLocator;
         this.rateLimitProperties = rateLimitProperties;
         this.baseAuthorityServiceClient = baseAuthorityServiceClient;
@@ -145,6 +145,7 @@ public class ResourceLocator implements ApplicationListener<RemoteRefreshRouteEv
                     if (array == null) {
                         array = new ArrayList<>();
                     }
+                    //noinspection SuspiciousMethodCalls
                     if (!array.contains(item.getAuthority())) {
                         cfg = new SecurityConfig(item.getAuthority());
                         array.add(cfg);
@@ -158,7 +159,7 @@ public class ResourceLocator implements ApplicationListener<RemoteRefreshRouteEv
             }
             log.info("=============加载动态权限:{}==============", this.authorityResources.size());
         } catch (Exception e) {
-            log.error("加载动态权限错误:{}", e);
+            log.error("加载动态权限错误", e);
         }
     }
 
@@ -177,7 +178,7 @@ public class ResourceLocator implements ApplicationListener<RemoteRefreshRouteEv
             }
             log.info("=============加载IP黑名单:{}==============", this.ipBlacks.size());
         } catch (Exception e) {
-            log.error("加载IP黑名单错误:{}", e);
+            log.error("加载IP黑名单错误", e);
         }
     }
 
@@ -196,7 +197,7 @@ public class ResourceLocator implements ApplicationListener<RemoteRefreshRouteEv
             }
             log.info("=============加载IP白名单:{}==============", ipWhites.size());
         } catch (Exception e) {
-            log.error("加载IP白名单错误:{}", e);
+            log.error("加载IP白名单错误", e);
         }
     }
 
@@ -251,11 +252,11 @@ public class ResourceLocator implements ApplicationListener<RemoteRefreshRouteEv
                     policyMap.put(item.getServiceId(), policyList);
                 }
                 this.rateLimitApis.clear();
-                this.rateLimitApis.addAll(rateLimitApis);
+                this.rateLimitApis.addAll(list);
             }
             log.info("=============加载动态限流:{}==============", rateLimitProperties.getPolicyList().size());
         } catch (Exception e) {
-            log.error("加载动态限流错误:{}", e);
+            log.error("加载动态限流错误", e);
         }
         return policyMap;
     }

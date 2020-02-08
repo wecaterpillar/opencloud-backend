@@ -2,6 +2,7 @@ package com.opencloud.common.annotation;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.opencloud.common.configuration.OpenScanProperties;
 import com.opencloud.common.constants.QueueConstants;
 import com.opencloud.common.utils.EncryptUtils;
 import com.opencloud.common.utils.ReflectionUtils;
@@ -19,7 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -44,12 +44,14 @@ import java.util.concurrent.Executors;
  * @author liuyadu
  */
 @Slf4j
-public class ResourceAnnotationScan implements ApplicationListener<ApplicationReadyEvent> {
+public class RequestMappingScan implements ApplicationListener<ApplicationReadyEvent> {
     private AmqpTemplate amqpTemplate;
     private static final AntPathMatcher pathMatch = new AntPathMatcher();
+    private OpenScanProperties scanProperties;
 
-    public ResourceAnnotationScan(AmqpTemplate amqpTemplate) {
+    public RequestMappingScan(AmqpTemplate amqpTemplate, OpenScanProperties scanProperties) {
         this.amqpTemplate = amqpTemplate;
+        this.scanProperties = scanProperties;
     }
 
     private ExecutorService executorService = Executors.newFixedThreadPool(2);
@@ -62,13 +64,8 @@ public class ResourceAnnotationScan implements ApplicationListener<ApplicationRe
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
         ConfigurableApplicationContext applicationContext = event.getApplicationContext();
-        Map<String, Object> resourceServer = applicationContext.getBeansWithAnnotation(EnableResourceServer.class);
         amqpTemplate = applicationContext.getBean(RabbitTemplate.class);
-        if (amqpTemplate == null) {
-            return;
-        }
-        if (resourceServer == null || resourceServer.isEmpty()) {
-            // 只扫描资源服务器
+        if (amqpTemplate == null || scanProperties == null || !scanProperties.isRegisterRequestMapping()) {
             return;
         }
         Environment env = applicationContext.getEnvironment();

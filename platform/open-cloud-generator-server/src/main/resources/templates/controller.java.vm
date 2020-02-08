@@ -57,7 +57,7 @@ class ${table.controllerName}#if(${superControllerClass}) : ${superControllerCla
         PageParams pageParams = new PageParams(map);
         ${entity} query = pageParams.mapToObject(${entity}.class);
         QueryWrapper<${entity}> queryWrapper = new QueryWrapper();
-        return ResultBody.ok().data(targetService.page(new PageParams(map),queryWrapper));
+        return ResultBody.ok().data(targetService.page(pageParams,queryWrapper));
     }
 
     /**

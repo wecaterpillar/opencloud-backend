@@ -121,7 +121,7 @@ public class JdbcRouteLocator extends SimpleRouteLocator implements ApplicationL
             }
             log.info("=============加载动态路由:{}==============", routeList.size());
         } catch (Exception e) {
-            log.error("加载动态路由错误:{}", e);
+            log.error("加载动态路由错误:", e);
         }
         return routes;
     }
